@@ -1,0 +1,111 @@
+body,
+html {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa;
+  font-family: Arial, sans-serif;
+}
+.container {
+  width: 98%;
+  max-width: 1200px; /* Increased max-width for even more space */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #ffffff;
+  padding: 20px;
+  margin: 20px auto; /* Adds space on smaller screens */
+}
+.login-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+.login-form {
+  width: 100%;
+  max-width: 600px; /* Increased form width */
+  text-align: center;
+  margin-bottom: 20px;
+}
+.social-btns {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.social-btns a {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  border: 1px solid #ddd;
+  text-decoration: none;
+}
+.form-group {
+  text-align: left;
+  margin-bottom: 15px;
+}
+.form-group label {
+  font-size: 0.875rem;
+  display: block;
+  margin-bottom: 5px;
+}
+.form-control {
+  font-size: 0.875rem;
+  padding: 0.5rem;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.btn-primary {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 150px;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+.card-title {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #333;
+}
+.sign-up-link {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 0.875rem;
+  margin-top: 10px;
+}
+.sign-up-link:hover {
+  color: #0056b3;
+}
+.error-message {
+  color: red;
+  font-size: 0.75rem;
+  display: none;
+  text-align: left;
+}
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 4px;
+  width: 100%;
+  text-align: center;
+}

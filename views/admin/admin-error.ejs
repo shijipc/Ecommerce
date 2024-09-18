@@ -1,0 +1,92 @@
+
+<%- include("../../views/partials/admin/header") %>
+
+<style>
+  body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+      margin: 0;
+  }
+
+  /* Style the sidebar
+  .sidebar {
+      width: 20%;
+      background-color: #333;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+      text-align: left;
+  }
+
+  .sidebar h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+  }
+
+  .sidebar p {
+      margin: 0;
+      padding: 5px 0;
+  } */
+
+  /* Main content area for the error message */
+  .content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+  }
+
+  h1 {
+      color: #333;
+      font-size: 28px;
+  }
+
+  p {
+      color: #666;
+      font-size: 18px;
+      margin-bottom: 20px;
+  }
+
+  button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+  }
+
+  button:hover {
+      background-color: #b30000;
+  }
+
+</style>
+
+
+
+<!-- Main content for error page -->
+<div class="content">
+    <h1>Error Page Admin</h1>
+    <p>An error occurred.</p>
+    <button onclick="godashboard()">Go to Home Page</button>
+</div>
+
+<script>
+    function godashboard() {
+        window.location.href = "/admin";
+    }
+</script>
+
+<%- include("../../views/partials/admin/footer") %>
+
+
+
+

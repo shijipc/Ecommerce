@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footwear</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-body login-section">
+                <div class="login-form">
+                    <h3 class="card-title">Log In</h3>
+                    <form id="loginform" method="post" action="/login">
+                        <div class="form-group">
+                            <label for="email">Email address</label>
+                            <input type="email" class="form-control" name="email" id="email" placeholder="Enter email" />
+                            <div id="error1" class="error-message"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" name="password" id="password" placeholder="Password" />
+                            <div id="error2" class="error-message"></div>
+                        </div>
+                        <% if (locals.message && message.length > 0) { %>
+                        <div class="alert alert-danger text-center">
+                            <%= message %>
+                        </div>
+                        <% } %>
+                        <button type="submit" class="btn btn-primary">Log In</button>
+                    </form>
+                    <p>or log in with</p>
+                    <div class="social-btns">
+                        <a href="/auth/google" class="social-btn">
+                            <i class="fa-brands fa-google"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="login-image">
+                    <a href="/signup" class="sign-up-link">Not registered? Sign up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/js/login.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,149 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-aside {
+    position: fixed;
+    width: 250px;
+    top: 0;
+    bottom: 0;
+    background-color: #343a40;
+    color: white;
+    padding: 20px;
+}
+
+.navbar-aside .brand-wrap {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-aside .menu-aside {
+    list-style: none;
+    padding: 0;
+}
+.logo{
+    width:85px;
+    height:80px;
+    padding-left:25px;
+}
+
+.menu-item {
+    margin: 15px 0;
+}
+
+.menu-link {
+    text-decoration: none;
+    color: #ddd;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    transition: background-color 0.2s;
+}
+
+.menu-link:hover {
+    background-color: #495057;
+    color: white;
+}
+
+.menu-link .icon {
+    margin-right: 10px;
+}
+
+.main-wrap {
+    margin-left: 250px;
+    padding: 20px;
+}
+
+.main-header {
+    background-color: #fff;
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.col-nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.img-xs {body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-aside {
+    position: fixed;
+    width: 250px;
+    top: 0;
+    bottom: 0;
+    background-color: #343a40;
+    color: white;
+    padding: 20px;
+}
+
+.navbar-aside .brand-wrap {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-aside .menu-aside {
+    list-style: none;
+    padding: 0;
+}
+
+.menu-item {
+    margin: 15px 0;
+}
+
+.menu-link {
+    text-decoration: none;
+    color: #ddd;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    transition: background-color 0.2s;
+}
+
+.menu-link:hover {
+    background-color: #495057;
+    color: white;
+}
+
+.menu-link .icon {
+    margin-right: 10px;
+}
+
+.main-wrap {
+    margin-left: 250px;
+    padding: 20px;
+}
+
+.main-header {
+    background-color: #fff;
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.col-nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.img-xs {
+    width: 40px;
+    height: 40px;
+}
+
+.screen-overlay {
+    display: none;
+}
+
+    width: 40px;
+    height: 40px;
+}
+
+.screen-overlay {
+    display: none;
+}
