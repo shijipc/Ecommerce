@@ -1,0 +1,52 @@
+/* Sidebar stays behind */
+.sidebar {
+  z-index: 0;
+  position: relative;
+}
+
+/* Auto-sized card with dynamic width */
+.card {
+  z-index: 1;
+  position: relative;
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px;
+  display: inline-block; /* Auto width based on content */
+}
+
+/* Breadcrumbs styling */
+.breadcrumbs {
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+/* Manage Addresses heading */
+h2 {
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+/* Smaller button size */
+button {
+  background-color:green;
+  color: white;
+  border: none;
+  padding: 8px 16px; /* Reduced padding for smaller width */
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px; /* Adjust font size */
+}
+
+button:hover {
+  background-color: blue;
+}
+
+/* Add/Edit modal styling (if required for future use) */
+#address-modal {
+  background-color: lightblue; 
+  padding: 20px;
+  color:black;
+  border-radius: 10px;
+}

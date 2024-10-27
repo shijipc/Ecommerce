@@ -66,7 +66,7 @@ const addCategoryOffer=async(req,res)=>{
 
         for(const product of products){
             product.productOffer=0;
-            product.salesPrice=product.regularPrice;
+            product.salePrice=product.regularPrice;
             await product.save();
         }  
         res.json({status:true});
@@ -89,7 +89,7 @@ const removeCategoryOffer=async(req,res)=>{
 
         if(products.length > 0){
             for(const product of products){
-                product.salesPrice+=Math.floor(product.regularPrice * (percentage/100));
+                product.salePrice+=Math.floor(product.regularPrice * (percentage/100));
                 product.productOffer=0;
                 await product.save();             
             }

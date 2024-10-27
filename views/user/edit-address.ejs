@@ -1,0 +1,295 @@
+<style>
+     body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    .container-fluid {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+    }
+    .dashboard-container {
+        display: flex;
+        flex: 1;
+    }
+    .dashboard-sidebar {
+        flex-shrink: 0;
+    }
+    .dashboard-content {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+    }
+   
+    .form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+ 
+    label {
+        display: block;
+        font-size: 18px;
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+
+    .error {
+        color: red;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    /* Style for the buttons */
+    .buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .buttons button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        background-color: #28a745;
+        color: white;
+    }
+
+    .buttons a button {
+        background-color: #dc3545;
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="container-fluid">
+    <%- include("../../views/partials/user/header") %>
+    
+    <div class="dashboard-container">
+      <%- include("../../views/partials/user/sidebar") %>
+
+      <div class="dashboard-content" id="dashboardContent">
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/home">Home</a></li>
+              <li class="breadcrumb-item"><a href="/user-profile">Profile</a></li>
+              <li class="breadcrumb-item"><a href="/address">Address</a></li>
+              <li class="breadcrumb-item"><a href="/add-new-address">Add Address</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Edit Address</li>
+            </ol>
+          </nav>
+
+        <div class="form-container">
+            <h2>Edit Address</h2>
+        
+            <form id="addressForm" method="post" action="/edit-address/<%= address._id %>">
+                <input type="hidden" id="addressId" name="addressId" value="<%= address._id %>">
+
+                <label for="house">House:</label>
+                <input type="text" id="house" name="house" value="<%= address.house %>">
+                <div id="houseError" class="error"></div>
+
+                <label for="place">Place:</label>
+                <input type="text" id="place" name="place" value="<%= address.place %>">
+                <div id="placeError" class="error"></div>
+
+                <label for="city">City:</label>
+                <input type="text" id="city" name="city" value="<%= address.city %>">
+                <div id="cityError" class="error"></div>
+
+                <label for="state">State:</label>
+                <input type="text" id="state" name="state" value="<%= address.state %>">
+                <div id="stateError" class="error"></div>
+
+                <label for="pin">Pin:</label>
+                <input type="text" id="pin" name="pin" value="<%= address.pin %>">
+                <div id="pinError" class="error"></div>
+
+                <label for="landMark">Landmark:</label>
+                <input type="text" id="landMark" name="landMark" value="<%= address.landMark %>">
+                <div id="landmarkError" class="error"></div>
+
+                <label for="contactNo">Contact No:</label>
+                <input type="text" id="contactNo" name="contactNo" value="<%= address.contactNo %>">
+                <div id="contactError" class="error"></div>
+
+                <div class="buttons">
+                    <a href="/address"><button type="button">Cancel</button></a>
+                    <button type="submit">Update</button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+    
+    <%- include("../../views/partials/user/footer") %>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.getElementById('addressForm').addEventListener('submit', function(event) {
+        event.preventDefault(); 
+        
+       
+        const originalValues = {
+            house: "<%= address.house %>",
+            place: "<%= address.place %>",
+            city: "<%= address.city %>",
+            state: "<%= address.state %>",
+            pin: "<%= address.pin %>",
+            landMark: "<%= address.landMark %>",
+            contactNo: "<%= address.contactNo %>"
+        };
+    
+        
+        const house = document.getElementById('house').value.trim();
+        const place = document.getElementById('place').value.trim();
+        const city = document.getElementById('city').value.trim();
+        const state = document.getElementById('state').value.trim();
+        const pin = document.getElementById('pin').value.trim();
+        const landMark = document.getElementById('landMark').value.trim();
+        const contactNo = document.getElementById('contactNo').value.trim();
+    
+        let isValid = true;
+        let isChanged = false;
+    
+       
+        const alphabetRegex = /^[A-Za-z\s]+$/;
+        const pinRegex = /^[0-9]{6}$/;
+        const contactRegex = /^[0-9]{10}$/;
+    
+       
+        if (house === '') {
+            document.getElementById('houseError').style.display = 'block';
+            document.getElementById('houseError').innerText = 'House cannot be empty';
+            isValid = false;
+        } else {
+            document.getElementById('houseError').style.display = 'none';
+            if (house !== originalValues.house) isChanged = true;
+        }
+    
+        if (!alphabetRegex.test(place) || place === '') {
+            document.getElementById('placeError').style.display = 'block';
+            document.getElementById('placeError').innerText = 'Place must be alphabetic and not empty';
+            isValid = false;
+        } else {
+            document.getElementById('placeError').style.display = 'none';
+            if (place !== originalValues.place) isChanged = true;
+        }
+    
+        if (!alphabetRegex.test(city) || city === '') {
+            document.getElementById('cityError').style.display = 'block';
+            document.getElementById('cityError').innerText = 'City must be alphabetic and not empty';
+            isValid = false;
+        } else {
+            document.getElementById('cityError').style.display = 'none';
+            if (city !== originalValues.city) isChanged = true;
+        }
+    
+        if (!alphabetRegex.test(state) || state === '') {
+            document.getElementById('stateError').style.display = 'block';
+            document.getElementById('stateError').innerText = 'State must be alphabetic and not empty';
+            isValid = false;
+        } else {
+            document.getElementById('stateError').style.display = 'none';
+            if (state !== originalValues.state) isChanged = true;
+        }
+    
+        if (!pinRegex.test(pin) || pin === '') {
+            document.getElementById('pinError').style.display = 'block';
+            document.getElementById('pinError').innerText = 'Pin must be 6 digits and not empty';
+            isValid = false;
+        } else {
+            document.getElementById('pinError').style.display = 'none';
+            if (pin !== originalValues.pin) isChanged = true;
+        }
+    
+        if (!alphabetRegex.test(landMark) || landMark === '') {
+            document.getElementById('landmarkError').style.display = 'block';
+            document.getElementById('landmarkError').innerText = 'Landmark must be alphabetic and not empty';
+            isValid = false;
+        } else {
+            document.getElementById('landmarkError').style.display = 'none';
+            if (landMark !== originalValues.landMark) isChanged = true;
+        }
+    
+        if (!contactRegex.test(contactNo) || contactNo === '') {
+            document.getElementById('contactError').style.display = 'block';
+            document.getElementById('contactError').innerText = 'Contact No must be 10 digits and not empty';
+            isValid = false;
+        } else {
+            document.getElementById('contactError').style.display = 'none';
+            if (contactNo !== originalValues.contactNo) isChanged = true;
+        }
+    
+       
+        if (!isChanged) {
+            Swal.fire({
+                icon: 'info',
+                title: 'No changes made',
+                text: 'You have not made any changes to the address.'
+            });
+            return;
+        }
+    
+        if (isValid) {
+            const formData = {
+                house,
+                place,
+                city,
+                state,
+                pin,
+                landMark,
+                contactNo
+            };
+    
+            fetch(`/edit-address/${document.getElementById('addressId').value}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Address updated successfully'
+                });
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops',
+                    text: 'An error occurred while updating the address.'
+                });
+            });
+        }
+    });
+    </script>

@@ -1,0 +1,190 @@
+<%- include("../../views/partials/admin/header") %>
+  
+<style>
+  /* General Layout */
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  .layout {
+    padding: 20px;
+  }
+
+  .content {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  h3 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 24px;
+  }
+
+  /* Search Functionality */
+  .search-form {
+    display: flex;
+    margin-bottom: 20px;
+  }
+
+  .search-form input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .search-form button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px;
+  }
+
+  .search-form button:hover {
+    background-color: #0056b3;
+  }
+
+  /* Table Styles */
+  .table-container {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #dee2e6;
+  }
+
+  table thead {
+    background-color: #f8f9fa;
+  }
+
+  table th, table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+    border-right: 1px solid #dee2e6;
+  }
+
+  table th:last-child, table td:last-child {
+    border-right: none;
+  }
+
+  table th {
+    font-weight: bold;
+    color: #495057;
+    border-top: none;
+  }
+
+  table tr:last-child td {
+    border-bottom: none;
+  }
+
+  table tr:nth-child(even) {
+    background-color: #f8f9fa;
+  }
+
+  table tr:hover {
+    background-color: #e9ecef;
+  }
+
+  /* Custom Column Widths */
+  table th:nth-child(1), table td:nth-child(1) { width: 8%; }
+  table th:nth-child(2), table td:nth-child(2) { width: 12%; }
+  table th:nth-child(3), table td:nth-child(3) { width: 20%; }
+  table th:nth-child(4), table td:nth-child(4),
+  table th:nth-child(5), table td:nth-child(5),
+  table th:nth-child(6), table td:nth-child(6) { width: 8%; }
+  table th:nth-child(7), table td:nth-child(7) { width: 8%; }
+  table th:nth-child(8), table td:nth-child(8) { width: 10%; }
+  table th:nth-child(9), table td:nth-child(9),
+  table th:nth-child(10), table td:nth-child(10) { width: 10%; }
+  table th:nth-child(11), table td:nth-child(11) { width: 8%; }
+
+  /* View Details Link */
+  a {
+    color: #007bff;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  /* No Orders Found */
+  .no-orders {
+    font-size: 16px;
+    color: #6c757d;
+    text-align: center;
+    padding: 20px;
+  }
+</style>
+
+
+<div class="content">
+  <h3>Order Management</h3>
+
+  <!-- Search functionality -->
+  <form class="search-form" action="/admin/orders" method="GET">
+    <input type="text" name="search" placeholder="Search by Order ID or Customer Name" value="<%= search %>">
+    <button type="submit">Search</button>
+  </form>
+
+
+    
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer Name</th>
+          <th>Products</th>
+          <th>Actual Price</th>
+          <th>Discount</th>
+          <th>Total Price</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Payment Method</th>
+          <th>Payment Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% orders.forEach(order => { %>
+          <tr>
+            <td><%= order.orderId %></td>
+            <td><%= order.user ? order.user.name : 'Guest' %></td>
+            <td>
+              <% order.items.forEach(item => { %>
+                <p><%= item.product.productName %> (Qty: <%= item.quantity %>)</p>
+              <% }) %>
+            </td>
+            <td>₹<%= order.actualPrice %></td>
+            <td>₹<%= order.discount %></td>
+            <td>₹<%= order.totalPrice %></td>
+            <td><%= order.status %></td>
+            <td><%= new Date(order.date).toLocaleDateString() %></td>
+            <td><%= order.payment[0].method %></td>
+            <td><%= order.payment[0].status %></td>
+            <td><a href="/admin/orderDetails/<%= order._id %>">View Details</a></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if (!orders.length) { %>
+    <p class="no-orders">No orders found.</p>
+  <% } %>
+</div>
+</div>
+

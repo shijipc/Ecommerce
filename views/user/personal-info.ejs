@@ -1,0 +1,79 @@
+<div class="container-fluid">
+    <%- include("../../views/partials/user/header") %>
+
+    <div class="dashboard-container">
+      <%- include("../../views/partials/user/sidebar") %>
+
+      <div class="dashboard-content" id="dashboardContent">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="/home">Home</a></li>
+              <li class="breadcrumb-item"><a href="/user-profile">Profile</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Account Details</li>
+            </ol>
+        </nav>
+
+        <div class="form-container">
+            <h2>Personal Information</h2>
+
+            <form id="personalInfoForm">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" class="form-control" value="John Doe" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender" class="form-control" disabled>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" value="john.doe@example.com" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label for="mobile">Mobile Number</label>
+                    <input type="tel" id="mobile" class="form-control" value="123-456-7890" disabled>
+                </div>
+
+                <button type="button" class="btn btn-primary" id="editButton">Edit</button>
+                <button type="button" class="btn btn-success" id="saveButton" style="display:none;">Save</button>
+                <button type="button" class="btn btn-secondary" id="cancelButton" style="display:none;">Cancel</button>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+    const editButton = document.getElementById('editButton');
+    const saveButton = document.getElementById('saveButton');
+    const cancelButton = document.getElementById('cancelButton');
+    const inputs = document.querySelectorAll('#personalInfoForm input, #personalInfoForm select');
+
+    editButton.addEventListener('click', () => {
+        inputs.forEach(input => input.disabled = false);
+        editButton.style.display = 'none';
+        saveButton.style.display = 'inline-block';
+        cancelButton.style.display = 'inline-block';
+    });
+
+    cancelButton.addEventListener('click', () => {
+        inputs.forEach(input => input.disabled = true);
+        saveButton.style.display = 'none';
+        cancelButton.style.display = 'none';
+        editButton.style.display = 'inline-block';
+    });
+
+    saveButton.addEventListener('click', () => {
+        // Add save functionality here
+        inputs.forEach(input => input.disabled = true);
+        saveButton.style.display = 'none';
+        cancelButton.style.display = 'none';
+        editButton.style.display = 'inline-block';
+    });
+</script>

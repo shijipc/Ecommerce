@@ -40,11 +40,11 @@
                            <div class="col-lg-4 mb-4">
                                <label class="form-label">Brand</label>
                                <select class="form-select border" name="brand">  
-                                     
-                                <option value="">
-                                               
+                                  <%for(let i=0;i<brand.length;i++){%>
+                                <option value="<%=brand[i].brandName%>">
+                                    <%=brand[i].brandName%>           
                                 </option>    
-                                
+                                <%}%>
                                </select>
                                <div id="brand-error" class="error-message"></div>
                            </div>
@@ -71,13 +71,28 @@
                                    </div>
                                    <div id="salePrice-error" class="error-message"></div>
                                </div>
-                               <div class="col-lg-4">
+
+                               <div class="mb-4">
+                                <label class="form-label">Sizes and Quantities</label>
+                                <div id="sizes-container">
+                                    <!-- Container to dynamically add sizes and quantities -->
+                                    <div class="size-quantity-row" style="margin-bottom: 10px;">
+                                        <input type="number" placeholder="Size" name="sizes[0][size]" class="form-control border size-input" style="width: 120px; display: inline-block;" required>
+                                        <input type="number" placeholder="Quantity" name="sizes[0][quantity]" class="form-control border" style="width: 120px; display: inline-block;" required>
+                                        <span class="remove-size-btn" style="cursor: pointer; margin-left: 10px; color: red;" onclick="removeSizeEntry(this)">&#10006;</span>
+                                        <div class="error-message" style="color: red; font-size: 12px; display: none;">This size already exists. Please enter a different size.</div>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="addSizeQuantityRow()" class="btn btn-secondary mt-2">Add More Sizes</button>
+                            </div>
+
+                               <!-- <div class="col-lg-4">
                                    <div class="mb-4">
                                        <label class="form-label">Quantity</label>
                                        <input placeholder="" name="quantity" type="text" class="form-control border">
                                        <div id="quantity-error" class="error-message"></div>
                                    </div>
-                               </div>
+                               </div> -->
                            </div>
                            <div class="row">
                               
@@ -102,180 +117,226 @@
                                             </option>  
                                              <%}%>
                                            </select>
+                                           <br>
+
+                                          <!-- <label class="form-label">Size</label>
+                                           <select class="form-select border" style="width: 150px;" name="size">                             
+                                            <option value="L">L</option>
+                                            <option value="M">M</option>
+                                            <option value="S">S</option>
+                                           </select> 
+                                            -->
                                            <div id="category-error" class="error-message"></div>
                                        </div>
                                    </div>
                                </div>
                            </div>
                            <div class="card mb-2">
-                               <div class="card-header">
-                                   <h4>Choose images</h4>
-                               </div>
-                               <div class="border row">
-                                   <div id="addedImagesContainer" class="thumbnails-container"></div>
-                               </div>
-                               <div class="row">
-                                   <div class="card-body align-items-center" style="margin-bottom: 20px;">
-                                       <img src="" alt="" id="imgView1">
-                                                                   <input class="form-control" type="file" name="images" id="input1"
-                                                                       accept="image/png, image/jpeg, image/jpg"
-                                                                       onchange="viewImage1(event), viewImage(event, 1)">
-                                                                       <div id="images-error" class="error-message"></div>
-                                                               </div>
-                                                               <div class="image-cropper d-flex align-items-center"
-                                                                   style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
-                                                                   <img src="" id="croppedImg1" alt="">
-                                                                   <button type="button" id="saveButton1" class="btn-sm btn-primary">Save</button>
-                                                               </div>
-                                                           </div>
-                                                          
-                                                           <div class="row">
-                                                               <div class="card-body align-items-center" style="margin-bottom: 20px;">
-                                                                   <img src="" alt="" id="imgView2">
+                            <div class="card-header">
+                                <h4>Choose images</h4>
+                            </div>
+                            <div class="border row">
+                                <div id="addedImagesContainer" class="thumbnails-container"></div>
+                            </div>
+                            <div class="row">
+                                <div class="card-body align-items-center" style="margin-bottom: 20px;">
+                                    <img src="" alt="" id="imgView1">
+                                    <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/jpg" onchange="validateImageFile(event, 1)">
+
+                                                                    <div id="images-error" class="error-message"></div>
+                                                            </div>
+                                                            <div class="image-cropper d-flex align-items-center"
+                                                                style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
+                                                                <img src="" id="croppedImg1" alt="">
+                                                                <button type="button" id="saveButton1" class="btn-sm btn-primary">Save</button>
+                                                            </div>
+                                                        </div>
+                                                       
+                                                        <div class="row">
+                                                            <div class="card-body align-items-center" style="margin-bottom: 20px;">
+                                                                <img src="" alt="" id="imgView2">
 
 
-                                                                   <input class="form-control" type="file" name="images" id="input2"
-                                                                       accept="image/png, image/jpeg, image/jpg"
-                                                                       onchange="viewImage2(event),viewImage(event, 2)">
-                                                               </div>
-                                                               <div class="image-cropper d-flex align-items-center"
-                                                                   style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
-                                                                   <img src="" id="croppedImg2" alt="">
-                                                                   <button type="button" id="saveButton2" class="btn-sm btn-primary">Save</button>
-                                                               </div>
-                                                           </div>
-                                                          
-                                                           <div class="row">
-                                                               <div class="card-body align-items-center" style="margin-bottom: 20px;">
-                                                                   <img src="" alt="" id="imgView3">
+                                                                <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/jpg" onchange="validateImageFile(event, 2)">
+
+                                                            </div>
+                                                            <div class="image-cropper d-flex align-items-center"
+                                                                style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
+                                                                <img src="" id="croppedImg2" alt="">
+                                                                <button type="button" id="saveButton2" class="btn-sm btn-primary">Save</button>
+                                                            </div>
+                                                        </div>
+                                                       
+                                                        <div class="row">
+                                                            <div class="card-body align-items-center" style="margin-bottom: 20px;">
+                                                                <img src="" alt="" id="imgView3">
 
 
-                                                                   <input class="form-control" type="file" name="images" id="input3"
-                                                                       accept="image/png, image/jpeg, image/jpg"
-                                                                       onchange="viewImage3(event),viewImage(event, 3)">
-                                                               </div>
-                                                               <div class="image-cropper d-flex align-items-center"
-                                                                   style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
-                                                                   <img src="" id="croppedImg3" alt="">
-                                                                   <button type="button" id="saveButton3" class="btn-sm btn-primary">Save</button>
-                                                               </div>
-                                                            </div>              
-                                            </div>
-                           </div>
-                           <div>
-                <button class="btn btn-md rounded font-sm hover-up"  type="button" onclick="validateAndSubmit()">Publish</button>
-                           </div>
-                       </form>
-                   </div>
-               </div>
-           </div>
-       </div>
-   </section>
+                                                                <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/jpg" onchange="validateImageFile(event, 3)">
+
+                                                            </div>
+                                                            <div class="image-cropper d-flex align-items-center"
+                                                                style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
+                                                                <img src="" id="croppedImg3" alt="">
+                                                                <button type="button" id="saveButton3" class="btn-sm btn-primary">Save</button>
+                                                            </div>
+                                                        </div>
+                                                       
+                                                        <div class="row">
+                                                            <div class="card-body align-items-center" style="margin-bottom: 20px;">
+                                                                <img src="" alt="" id="imgView4">
+
+
+                                                       
+                                                                <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/jpg" onchange="validateImageFile(event, 4)">
+
+                                                            </div>
+                                                            <div class="image-cropper d-flex align-items-center"
+                                                                style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
+                                                                <img src="" id="croppedImg4" alt="">
+                                                                <button type="button" id="saveButton4" class="btn-sm btn-primary">Save</button>
+                                                            </div>
+                                                        </div>
+                       
+                                                    </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-md rounded font-sm hover-up"  type="submit" onclick="validateAndSubmit()
+">Publish</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
-    
+<%- include("../../views/partials/admin/footer") %>
+
+
 <script>
-    function validateAndSubmit(){
-        if(validateForm()){
-            document.forms[0].submit();           
-        }
-    }
 
-    //for preview image
-    function viewImage1(event){
-        document.getElementById("imgView1").src=URL.createObjectURL(event.target.files[0])
-    }
-   
-    function viewImage2(event){
-        document.getElementById("imgView2").src=URL.createObjectURL(event.target.files[0])
-    }
+ function validateAndSubmit(){
+     if(validateForm()){
+         document.querySelector('form').submit();
+     }
+ }
 
-    function viewImage3(event){
-        document.getElementById("imgView3").src=URL.createObjectURL(event.target.files[0])
-    }
+function viewImage1(event){
+ document.getElementById("imgView1").src = URL.createObjectURL(event.target.files[0])
+}
 
-    // function viewImage4(event){
-    //     document.getElementById("imgView4").src=URL.createObjectURL(event.target.files[0])
-    // }
+function viewImage2(event){
+ document.getElementById("imgView2").src = URL.createObjectURL(event.target.files[0])
+}
 
-    function viewImage(event,index){
-       let input=event.target;
-       let reader=new FileReader();
-       reader.onload=function(){
-        let dataURL=reader.result;
-        let image=document.getElementById("imageView"+index);
-        image.src=dataURL;
-        let cropper=new cropper(image,{
-            aspectRatio:1,
-            viewMode:1,
-            guides:true,
-            background:false,
-            autoCropArea:1,
-            zoomable:true
-        });
+function viewImage3(event){
+ document.getElementById("imgView3").src = URL.createObjectURL(event.target.files[0])
+}
+function viewImage4(event){
+ document.getElementById("imgView4").src = URL.createObjectURL(event.target.files[0])
+}
 
-        let cropperContainer=document.querySelector("#croppedImg" + index).parentNode;
-        cropperContainer.style.display='block';
 
-        let saveButton=document.querySelector('#saveButton'+index);
-        saveButton.addEventListener('click',async function(){
 
-            let croppedCanvas=cropper.getCroppedCanvas();
-            let croppedImage=document.getElementById('croppedImg'+index);
-            croppedImage.src=croppedCanvas.toDataURL('image/jpeg',1.0);
+function validateImageFile(event, index) {
+ const input = event.target;
+ const file = input.files[0];
+ const allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+ 
+ if (!allowedExtensions.exec(file.name)) {
+     displayErrorMessage('images-error', 'Please select a valid image file (.jpg or .png).');
+     input.value = '';  // Clear the input field
+     return false;
+ }
+ 
+ // Clear any previous error message
+ document.getElementById('images-error').innerText = '';
 
-            let timestamp=new Date().getTime();
-            let fileName= `cropped-img-${timestamp}-${index}.png`;
+ // Proceed with the preview if the file is valid
+ viewImage(event, index);
+}
 
-            await croppedCanvas.toBlob(blob=>{
-                let input=document.getElementById('input'+index);
-                let imgFile=new File([blob],fileName,blob)
-                const fileList=new DataTransfer();
-                fileList.items.add(imgFile);
-                input.files=fileList.files
-            });
+function viewImage(event, index) {
+ let input = event.target;
+ let reader = new FileReader();
 
-            croppedContainer.style.display='none';
-            cropper.destroy();
-        });
-       };
+ reader.onload = function() {
+     let dataURL = reader.result;
+     let image = document.getElementById("imgView" + index);
+     image.src = dataURL;
 
-       reader.readAsDataURL(input.files[0]);
-       
-    }
-     //for set thumnail for images
-    const selectedImages=[];
-    document.getElementById("input1").addEventListener("change",handleFileSelect);
-    function handleFileSelect(event) {
-    const addedImagesContainer = document.getElementById("addedImagesContainer");
-    addedImagesContainer.innerHTML = ""; // Clear existing thumbnails
-    const files = event.target.files;
+     // Initialize cropper
+     let cropper = new Cropper(image, {
+         aspectRatio: 1,
+         viewMode: 1,
+         guides: true,
+         background: false,
+         autoCropArea: 1,
+         zoomable: true
+     });
 
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const thumbnail = document.createElement("div");
-        thumbnail.classList.add("thumbnail");
+     let cropperContainer = document.querySelector("#croppedImg" + index).parentNode;
+     cropperContainer.style.display = 'block';
 
-        const img = document.createElement("img");
-        img.src = URL.createObjectURL(file);
-        img.alt = "thumbnail";
-        img.style.width = "50px";
-        img.style.height = "auto";
+     let saveButton = document.querySelector('#saveButton' + index);
+     saveButton.addEventListener('click', async function () {
+         let croppedCanvas = cropper.getCroppedCanvas();
+         let croppedImage = document.getElementById("croppedImg" + index);
+         croppedImage.src = croppedCanvas.toDataURL("image/jpeg", 1.0);
 
-        // Add remove icon
-        const removeIcon = document.createElement("span");
-        removeIcon.classList.add("remove-icon");
-        removeIcon.innerHTML = "&times;";
-        removeIcon.addEventListener("click", function () {
-            const index = Array.from(addedImagesContainer.children).indexOf(thumbnail);
-            if (index !== -1) {
-                addedImagesContainer.removeChild(thumbnail);
-            }
-        });
+         let fileName = `cropped-img-${Date.now()}-${index}.png`;
+         croppedCanvas.toBlob(async blob => {
+             let input = document.getElementById('input' + index);
+             let imgFile = new File([blob], fileName, { type: 'image/png' });
+             const fileList = new DataTransfer();
+             fileList.items.add(imgFile);
+             input.files = fileList.files;
+         });
 
-        thumbnail.appendChild(img);
-        thumbnail.appendChild(removeIcon);
-        addedImagesContainer.appendChild(thumbnail);
-    }
+         cropperContainer.style.display = 'none';
+         cropper.destroy();
+     });
+ };
+
+ reader.readAsDataURL(input.files[0]);
+}
+
+
+const selectedImages = [];
+document.getElementById("input1").addEventListener("change",handleFileSelect);
+
+function handleFileSelect(event){
+ const addedImagesContainer = document.getElementById("addedImagesContainer");
+ addedImagesContainer.innerHTML = "";
+ const files = event.target.files;
+
+ for(let i=0;i<files.length;i++){
+     const file = files[i];
+     selectedImages.push(file);
+     const thumbnail = document.createElement("div")
+     thumbnail.classList.add("thumbnail");
+
+     const img = document.createElement("img");
+     img.src = URL.createObjectURL(file);
+     img.alt = "thumbnail"
+     img.style.width = "50px";
+     img.style.height = "auto";
+     const removeIcon = document.createElement("span");
+     removeIcon.classList.add("remove-icon")
+     removeIcon.innerHTML = "&times";
+     removeIcon.addEventListener("click",function(){
+         const index = selectedImages.indexOf(file);
+         if(index!==-1){
+             selectedImages.splice(index,1)
+         }
+         thumbnail.remove();
+     })
+     thumbnail.appendChild(img);
+     thumbnail.appendChild(removeIcon);
+     addedImagesContainer.appendChild(thumbnail)
+ }
 }
 
 
@@ -283,13 +344,15 @@
               clearErrorMessages();
               const name = document.getElementsByName('productName')[0].value;
               const description = document.getElementById('descriptionid').value;
-            //   const brand = document.getElementsByName('brand')[0].value;
+              const brand = document.getElementsByName('brand')[0].value;
               const price = document.getElementsByName('regularPrice')[0].value;
               const saleprice = document.getElementsByName('salePrice')[0].value;
+              const quantity = parseInt(document.querySelector('[name="quantity"]').value.trim(), 10);
               const color = document.getElementsByName('color')[0].value;
               const category = document.getElementsByName('category')[0].value;
+            //   const size=document.getElementsByName('size')[0].value;
               const images = document.getElementById('input1')
-              const quantity=document.getElementsByName('quantity')
+            //   const quantity=document.getElementsByName('quantity')
               let isValid = true
               if (name.trim() === "") {
       displayErrorMessage('productName-error', 'Please enter a product name.');
@@ -307,10 +370,10 @@
       isValid = false;
    }
   
-              if ( parseInt(quantity) < 0) {
-                  displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
-                  isValid = false;
-              }
+            //   if ( parseInt(quantity) < 0) {
+            //       displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
+            //       isValid = false;
+            //   }
   
               if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
                   displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
@@ -321,10 +384,16 @@
                   displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
                   isValid = false;
               }
+
               if (parseFloat(price) <= parseFloat(saleprice)) {
       displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
       isValid = false;
    }
+   if (isNaN(quantity) || quantity < 0) {
+        displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
+        isValid = false;
+    }
+
   
   
               if (color.trim() === "") {
@@ -332,11 +401,17 @@
                   isValid = false;
               }
   
-  
+    //validate images
               if (images.files.length === 0) {
                   displayErrorMessage("images-error",'Please select an image.');
                   isValid = false;
-              }
+              } else {
+                 const imgView1 = document.getElementById("imgView1");
+                 if (!imgView1.src || imgView1.src === "") {
+                    displayErrorMessage("images-error", "Please load a valid image.");
+                    isValid = false;
+                 }
+             }
               return isValid;
           }
 
@@ -354,9 +429,64 @@
                   element.innerText = '';
               });
               const errorMessage = document.getElementById('errorMessage');
-  
-  
           }
+
+
+          function addSizeQuantityRow() {
+    const container = document.getElementById('sizes-container');
+    const index = container.children.length;
+
+    // Create new size-quantity row
+    const newRow = document.createElement('div');
+    newRow.classList.add('size-quantity-row');
+    newRow.style.marginBottom = '10px';
+    newRow.innerHTML = `
+        <input type="number" placeholder="Size" name="sizes[${index}][size]" class="form-control border size-input" style="width: 120px; display: inline-block;" required>
+        <input type="number" placeholder="Quantity" name="sizes[${index}][quantity]" class="form-control border" style="width: 120px; display: inline-block;" required>
+        <span class="remove-size-btn" style="cursor: pointer; margin-left: 10px; color: red;" onclick="removeSizeEntry(this)">&#10006;</span>
+        <div class="error-message" style="color: red; font-size: 12px; display: none;">This size already exists. Please enter a different size.</div>
+    `;
+
+    // Append new row to container
+    container.appendChild(newRow);
+
+    // Add event listener to the new size input field for duplicate checking
+    const newSizeInput = newRow.querySelector('.size-input');
+    newSizeInput.addEventListener('input', function () {
+        checkDuplicateSizes(newSizeInput);
+    });
+}
+
+// Function to check for duplicate sizes
+function checkDuplicateSizes(newSizeInput) {
+    const container = document.getElementById('sizes-container');
+    
+    // Get the current value of the new size input
+    const newSizeValue = newSizeInput.value.trim();
+    
+    // Collect all existing size values
+    const allSizeInputs = container.querySelectorAll('.size-input');
+    const existingSizes = Array.from(allSizeInputs)
+        .filter(input => input !== newSizeInput) // Exclude the current new input being checked
+        .map(input => input.value.trim());
+    
+    // Check if the new size is a duplicate
+    const errorMessage = newSizeInput.parentNode.querySelector('.error-message');
+    
+    if (existingSizes.includes(newSizeValue)) {
+        errorMessage.style.display = 'block'; // Show error message
+        newSizeInput.classList.add('error-border'); // Optionally, add a red border to indicate error
+    } else {
+        errorMessage.style.display = 'none'; // Hide error message
+        newSizeInput.classList.remove('error-border'); // Remove error border if no duplicates
+    }
+}
+
+// Function to remove a size-quantity row
+function removeSizeEntry(element) {
+    element.parentNode.remove();
+}
+
 
 </script>
 

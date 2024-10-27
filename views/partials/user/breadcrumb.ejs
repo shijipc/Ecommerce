@@ -1,0 +1,52 @@
+<style>
+
+    /* Breadcrumb container */
+    .breadcrumb {
+        list-style: none; /* Remove default list styles */
+        padding: 0;       /* Remove padding */
+        margin: 0;        /* Remove margin */
+        display: flex;    /* Align items in a row */
+        align-items: center; /* Vertically center items */
+    }
+    
+    /* Breadcrumb list items */
+    .breadcrumb li {
+        display: inline;  /* Display list items inline */
+        margin-right: 8px; /* Space between items */
+    }
+    
+    /* Breadcrumb links */
+    .breadcrumb li a {
+        text-decoration: none; /* Remove underline */
+        color: #007bff;       /* Set link color */
+    }
+    
+    .breadcrumb li a:hover {
+        text-decoration: underline; /* Underline on hover */
+    }
+    
+    /* Separator between breadcrumb items */
+    .breadcrumb li + li::before {
+        content: '>';       /* Add separator */
+        margin-right: 8px;  /* Space between separator and item */
+        color: #6c757d;     /* Separator color */
+    }
+    
+    
+    </style>
+    
+    
+    <nav>
+      <ul class="breadcrumb">
+          <% if (breadcrumbs && breadcrumbs.length) { %>
+              <% breadcrumbs.forEach(function(crumb, index) { %>
+                  <li>
+                      <a href="<%= crumb.link %>"><%= crumb.name %></a>
+                  </li>
+                  <% if (index < breadcrumbs.length - 1) { %>
+                      <li>&gt;</li>
+                  <% } %>
+              <% }); %>
+          <% } %>
+      </ul>
+    </nav>

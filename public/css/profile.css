@@ -1,0 +1,88 @@
+/* General Layout */
+body, html {
+    margin: 0;
+    padding: 0;
+    /* height: 100%; */
+    font-family: Arial, sans-serif;
+}
+
+/* Header */
+header {
+    width: 100%;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    /* padding: 15px 0; */
+    font-size: 24px;
+    margin-bottom: 0; /* No gap below header */
+}
+
+/* Container for the main layout */
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sidebar and main content layout */
+.main-layout {
+    display: flex;
+    flex: 1;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 20%;
+    background-color: #f8f8f8;
+    padding: 0; /* Remove padding */
+    box-shadow: 2px 0px 5px rgba(0,0,0,0.1);
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin-bottom: 10px;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    display: block;
+    padding: 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar ul li a.active, .sidebar ul li a:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Main content */
+.main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
+/* Content section visibility */
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+}
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    margin-top: auto;
+    width: 100%;
+}

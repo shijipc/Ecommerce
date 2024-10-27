@@ -29,6 +29,10 @@ const userSchema=new Schema({
         type:String,
         required:false,   
     },
+    gender:{
+        type:String,
+        required:false
+    },
     isBlocked:{
         type:Boolean,
         default:false
@@ -36,7 +40,12 @@ const userSchema=new Schema({
     isAdmin:{
         type:Boolean,
         default:false
-    },cart:[{
+    },
+    address: [
+        { type: Schema.Types.ObjectId, 
+        ref: 'Address' 
+    }],
+    cart:[{
         type:Schema.Types.ObjectId,
         ref:"Cart",
     }],

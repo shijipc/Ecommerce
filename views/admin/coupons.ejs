@@ -1,0 +1,406 @@
+<%- include("../../views/partials/admin/header") %>
+  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Coupons</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <style>
+    .content { width: 80%; margin: auto; }
+    .header-actions { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+    .form-container {
+      background-color: #f9f9f9; padding: 20px; border-radius: 10px;
+      margin-bottom: 20px; display: none; width: 100%; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .form-container input, .form-container select {
+      width: calc(100% - 10px); padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px;
+    }
+    button[type="submit"] { margin-top: 15px; padding: 10px 15px; background-color: #6661ed; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th { background-color: #f2f2f2; }
+    .message { margin-top: 10px; padding: 10px; border-radius: 5px; }
+    .success { background-color: #d4edda; color: #155724; }
+    .error { background-color: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h3>Coupons</h3>
+    <div class="header-actions">
+      <button style="background-color:chocolate;padding: 10px 15px;border: none;color: #ddd;" onclick="toggleForm()">Create Coupon</button>
+    </div>
+
+
+    <!-- Add search box and button here -->
+    <div class="search-container" style="margin-bottom: 20px; width: 100%;">
+      <input type="text" id="searchInput" placeholder="Search coupons..." style="width: calc(100% - 100px); padding: 8px; ">
+      <button onclick="searchCoupons()" style="padding: 10px 25px; background-color: #6661ed; color: white; border: none; cursor: pointer;">Search</button>
+    </div>
+
+    <div class="form-container">
+      <h2 id="form-title">Create Coupon</h2>
+      <div id="message" class="message" style="display:none;"></div>
+      <form id="coupon-form">
+        <input type="text" name="code" placeholder="Coupon Code" required>
+        <input type="text" name="description" placeholder="Description" required>
+        <select name="discountType" required>
+          <option value="percentage">Percentage</option>
+          <option value="flat">Flat Amount</option>
+        </select>
+        <input type="number" name="discountValue" placeholder="Discount Value" required>
+        <input type="number" name="minPurchaseAmount" placeholder="Min Purchase Amount" required>
+        <input type="number" name="maxPurchaseAmount" placeholder="Max Purchase Amount" required>
+        <input type="date" name="startDate" required>
+        <input type="date" name="endDate" required>
+        <input type="number" name="usageLimit" placeholder="Usage Limit" required>
+        <select name="status" required>
+          <option value="Active">Active</option>
+          <option value="Expired">Expired</option>
+          <option value="Used">Used</option>
+          <option value="Not available">Not available</option>
+        </select>
+        <br>
+        <button style="background-color: chocolate;border: none;border-radius: 5px;color: white;" type="button" onclick="createCoupon()">Save Coupon</button>
+      </form>
+    </div>
+
+    
+    <!-- Coupon Table -->
+    <table id="coupon-table">
+      <thead>
+        <tr>
+          <th>Coupon Code</th>
+          <th>Description</th>
+          <th>Discount Type</th>
+          <th>Discount Value</th>
+          <th>Min Purchase</th>
+          <th>Max Purchase</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Status</th>
+          <th>Usage Limit</th>
+          <th>Created Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% coupons.forEach(coupon => { %>
+          <tr>
+            <td data-coupon-id="<%= coupon._id %>"><%= coupon.code %></td>
+            <td><%= coupon.description %></td>
+            <td><%= coupon.discountType %></td>
+            <td><%= coupon.discountValue %></td>
+            <td><%= coupon.minPurchaseAmount %></td>
+            <td><%= coupon.maxPurchaseAmount %></td>
+            <td><%= coupon.startDate.toDateString() %></td>
+            <td><%= coupon.endDate.toDateString() %></td>
+            <td><%= coupon.status %></td>
+            <td><%= coupon.usageLimit %></td>
+            <td><%= coupon.createdAt.toDateString() %></td>
+            <td>
+              <button 
+              style="background-color: rgb(230, 91, 91);padding: 8px 22px;border: none; border-radius: 5px; " 
+              onclick="deleteCoupon('<%= coupon._id %>')"
+            >
+              Delete
+            </button>
+              <br>
+
+              <button 
+              onclick="editCoupon('<%= coupon._id %>')" 
+              class="edit-btn"
+              style="margin-left: 5px; background-color: #78e34a; padding: 7px 30px; border-radius: 5px; border: none; color: white;"
+              type="button"
+            >
+              Edit
+            </button>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    
+    
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+ // Toggle the Create Coupon Form
+function toggleForm() {
+  const form = document.querySelector(".form-container");
+  form.style.display = form.style.display === "none" ? "block" : "none";
+}
+
+
+  //  for searching coupons
+   function searchCoupons() {
+      const searchTerm = document.getElementById('searchInput').value;
+      window.location.href = `/admin/coupons?search=${encodeURIComponent(searchTerm)}`;
+    }
+
+
+// Create Coupon using AJAX and Display Alerts with Swal.fire
+async function createCoupon() {
+  const form = document.getElementById("coupon-form");
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData);
+
+  try {
+    const response = await fetch("/admin/coupons/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: result.message,
+        showConfirmButton: false,
+        timer: 2000,
+      }).then(() => {
+        // Redirect to the coupons page
+        window.location.href = "/admin/coupons";
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: result.message,
+      });
+    }
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Oops!",
+      text: "An error occurred: " + error.message,
+    });
+  }
+}
+
+
+// Add a New Row to the Coupon Table
+function addCouponRow(coupon) {
+  const table = document.getElementById("coupon-table");
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td>${coupon.code}</td>
+    <td>${coupon.description}</td>
+    <td>${coupon.discountType}</td>
+    <td>${coupon.discountValue}</td>
+    <td>${coupon.minPurchaseAmount}</td>
+    <td>${coupon.maxPurchaseAmount}</td>
+    <td>${new Date(coupon.startDate).toDateString()}</td>
+    <td>${new Date(coupon.endDate).toDateString()}</td>
+    <td>${coupon.status}</td>
+    <td>${coupon.usageLimit}</td>
+    <td>${new Date().toDateString()}</td>
+    <td><button onclick="deleteCoupon('${coupon._id}')">Delete</button></td>
+  `;
+  table.appendChild(row);
+}
+
+// Delete a Coupon
+async function deleteCoupon(couponId) {
+  try {
+    const response = await fetch(`/admin/coupons/${couponId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText);
+    }
+
+    const result = await response.json();
+
+    Swal.fire({
+      icon: "success",
+      title: "Coupon Deleted!",
+      text: result.message,
+      showConfirmButton: false,
+      timer: 2000,
+    });
+
+    // Remove the coupon row from the table
+    const row = document.querySelector(`td[data-coupon-id="${couponId}"]`).parentNode;
+    row.parentNode.removeChild(row);
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Oops!",
+      text: "An error occurred: " + error.message,
+    });
+  }
+}
+
+//edit coupon
+
+async function editCoupon(couponId) {
+    try {
+        const response = await fetch(`/admin/coupons/${couponId}`, {
+            method: "GET",
+            headers: { 
+                "Content-Type": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            },
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to fetch coupon');
+        }
+
+        const { coupon } = await response.json();
+
+        // Populate the form
+        const form = document.getElementById("coupon-form");
+        const formTitle = document.querySelector(".form-container h2"); // Changed selector to target h2 directly
+        formTitle.textContent = "Edit Coupon";
+        
+        // Set form values
+        const formFields = {
+            'code': coupon.code,
+            'description': coupon.description,
+            'discountType': coupon.discountType,
+            'discountValue': coupon.discountValue,
+            'minPurchaseAmount': coupon.minPurchaseAmount,
+            'maxPurchaseAmount': coupon.maxPurchaseAmount,
+            'startDate': new Date(coupon.startDate).toISOString().split('T')[0],
+            'endDate': new Date(coupon.endDate).toISOString().split('T')[0],
+            'usageLimit': coupon.usageLimit,
+            'status': coupon.status
+        };
+
+        Object.entries(formFields).forEach(([field, value]) => {
+            const element = form.querySelector(`[name="${field}"]`);
+            if (element) {
+                element.value = value;
+            }
+        });
+
+        // Add or update hidden coupon ID input
+        let idInput = form.querySelector('input[name="id"]');
+        if (!idInput) {
+            idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = 'id';
+            form.appendChild(idInput);
+        }
+        idInput.value = coupon._id;
+
+        // Show form container
+        document.querySelector(".form-container").style.display = "block";
+        
+        // Update form submit handler
+        form.onsubmit = saveCoupon;
+
+    } catch (error) {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: error.message || "Failed to load coupon details"
+        });
+    }
+}
+
+
+// async function editCoupon(couponId) {
+//   try {
+//     const response = await fetch(`/admin/coupons/${couponId}`, {
+//       method: "GET",
+//       headers: { "Content-Type": "application/json" },
+//     });
+
+//     if (!response.ok) {
+//       const errorText = await response.text();
+//       throw new Error(errorText);
+//     }
+
+//     const { coupon } = await response.json();
+
+//     // Populate the form with the coupon data
+//     document.querySelector("#form-title").textContent = "Edit Coupon";
+//     document.querySelector("input[name='code']").value = coupon.code;
+//     document.querySelector("input[name='description']").value = coupon.description;
+//     document.querySelector("select[name='discountType']").value = coupon.discountType;
+//     document.querySelector("input[name='discountValue']").value = coupon.discountValue;
+//     document.querySelector("input[name='minPurchaseAmount']").value = coupon.minPurchaseAmount;
+//     document.querySelector("input[name='maxPurchaseAmount']").value = coupon.maxPurchaseAmount;
+//     document.querySelector("input[name='startDate']").value = new Date(coupon.startDate).toISOString().split('T')[0];
+//     document.querySelector("input[name='endDate']").value = new Date(coupon.endDate).toISOString().split('T')[0];
+//     document.querySelector("input[name='usageLimit']").value = coupon.usageLimit;
+//     document.querySelector("select[name='status']").value = coupon.status;
+
+//     // Add a hidden input for the coupon ID
+//     const idInput = document.createElement('input');
+//     idInput.type = 'hidden';
+//     idInput.name = 'id';
+//     idInput.value = coupon._id;
+//     document.getElementById("coupon-form").appendChild(idInput);
+
+//     // Show the form
+//     document.querySelector(".form-container").style.display = "block";
+
+//     // Change the form submit button to call saveCoupon instead of createCoupon
+//     document.querySelector("#coupon-form button[type='button']").onclick = saveCoupon;
+//   } catch (error) {
+//     Swal.fire({
+//       icon: "error",
+//       title: "Oops!",
+//       text: "An error occurred: " + error.message,
+//     });
+//   }
+// }
+
+// async function saveCoupon() {
+//   const form = document.getElementById("coupon-form");
+//   const formData = new FormData(form);
+//   const data = Object.fromEntries(formData);
+
+//   try {
+//     const response = await fetch(`/admin/coupons/${data.id}`, {
+//       method: "PUT",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify(data),
+//     });
+
+//     const result = await response.json();
+
+//     if (response.ok) {
+//       Swal.fire({
+//         icon: "success",
+//         title: "Success",
+//         text: result.message,
+//         showConfirmButton: false,
+//         timer: 2000,
+//       }).then(() => {
+//         // Refresh the page or update the table
+//         window.location.reload();
+//       });
+//     } else {
+//       Swal.fire({
+//         icon: "error",
+//         title: "Error",
+//         text: result.message,
+//       });
+//     }
+//   } catch (error) {
+//     Swal.fire({
+//       icon: "error",
+//       title: "Oops!",
+//       text: "An error occurred: " + error.message,
+//     });
+//   }
+// }
+
+  </script>
+  

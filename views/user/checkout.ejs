@@ -1,0 +1,425 @@
+<%- include("../../views/partials/user/header") %>
+<style>
+     
+    body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .container {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+    }
+    .addresses {
+        width: 60%;
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+    }
+    .addresses h3 {
+        margin-bottom: 20px;
+    }
+    .new-address-btn {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+    .new-address-btn:hover {
+        background-color: #2980b9;
+    }
+    .card {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+    }
+    .card input[type="radio"] {
+        margin-right: 10px;
+    }
+    .edit-btn {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 10px;
+    }
+    .edit-btn:hover {
+        background-color: #2980b9;
+    }
+    .new-address-form {
+        display: none;
+        margin-top: 20px;
+    }
+    .new-address-form input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+    .cart-summary {
+        width: 35%;
+        background-color: #f1f1f1;
+        padding: 20px;
+        border-radius: 5px;
+    }
+    .cart-summary h2 {
+        margin-bottom: 20px;
+    }
+    .cart-summary .item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    .cart-summary .total {
+        font-weight: bold;
+        margin-top: 20px;
+        font-size: 18px;
+    }
+    .payment-methods {
+        margin-top: 20px;
+    }
+    .payment-methods label {
+        display: block;
+        margin-bottom: 10px;
+    }
+    .place-order-btn {
+        width: 100%;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 15px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+    .place-order-btn:hover {
+        background-color: #218838;
+    }
+
+    /* Styling for coupon section */
+    .coupon-section {
+        margin-top: 20px;
+    }
+
+    .coupon-section input {
+        width: 60%;
+        padding: 8px;
+        margin-right: 10px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+
+    .coupon-section button {
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .coupon-section button:hover {
+        background-color: #218838;
+    }
+
+    .coupon-msg {
+        color: red;
+        margin-top: 10px;
+    }
+</style>
+</head>
+<body>
+
+<div class="breadcrumbs">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <p class="bread"><span><a href="/">Home</a></span> / <span><a href="/cart">Shopping Cart</a></span>/<span>Checkout</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="addresses">
+        <button class="new-address-btn" onclick="toggleNewAddressForm()">NEW ADDRESS</button>
+
+        <div id="addressList">
+            <% if (addresses.length > 0) { %>
+                <% addresses.forEach(address => { %>
+                    <div class="card" data-address-id="<%= address._id %>">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= address.house %></h5>
+                            <p class="card-text"><%= address.place %>, <%= address.city %>, <%= address.state %> <%= address.pin %>, <%= address.landMark %></p>
+                            <p class="card-text">Phone: <%= address.contactNo %></p>
+                            <input type="radio" name="selectedAddress" value="<%= address._id %>" onclick="selectAddress('<%= address._id %>')"> Select this address
+                            <button class="edit-btn" onclick="editAddress('<%= address._id %>')">Edit</button>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p>No addresses found. Please add a new address.</p>
+            <% } %>    
+        </div>
+
+        <div class="new-address-form" id="newAddressForm" style="display:none;">
+            <h2>Add New Address</h2>
+            <form id="addressForm" onsubmit="saveAddress(event)">
+                <input type="text" name="house" placeholder="House" required>
+                <input type="text" name="place" placeholder="Place">
+                <input type="text" name="city" placeholder="City" required>
+                <input type="text" name="state" placeholder="State" required>
+                <input type="text" name="pin" placeholder="Pin" required>
+                <input type="tel" name="contactNo" placeholder="Contact Number" required>
+                <button type="submit" class="edit-btn">Save Address</button>
+                <button type="button" class="cancel-btn" onclick="cancelAddressForm()">Cancel</button>
+                <input type="hidden" id="addressId" name="addressId" value="">
+            </form>
+        </div>
+    </div>
+
+    <div class="coupon-section">
+        <input type="text" id="couponCodeInput" placeholder="Enter Coupon Code">
+        <button id="applyCouponBtn">Apply Coupon</button>
+        <button id="removeCouponBtn" style="display:none;">Remove Coupon</button>
+        <div class="coupon-msg" id="couponMessage"></div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Right Column for Cart Total and Payment Method -->
+        <div class="cart-detail">
+            <h2>Cart Total</h2>
+            <ul>
+                <li>
+                    <span>Subtotal</span>
+                    <span>₹<%= cartData.items.reduce((sum, item) => sum + item.totalPrice, 0) %></span>
+                    <ul>
+                        <% cartData.items.forEach(item => { %>
+                            <li>
+                                <span><%= item.quantity %> x <%= item.product.productName %></span>
+                                <span>₹<%= item.totalPrice %></span>
+                            </li>
+                        <% }) %>
+                    </ul>
+                </li>
+                <li><span>Coupon Discount</span><span id="couponDiscount">₹0.00</span></li>
+                <li><span>Shipping</span><span>₹<%= shippingCost %></span></li>
+                <li>
+                    <span>Order Total</span>
+                    <span id="orderTotal">₹<%= cartData.items.reduce((sum, item) => sum + item.totalPrice, 0) %></span>
+                </li>
+            </ul>
+        </div>
+        <form id="checkoutForm" onsubmit="handleFormSubmit(event)">
+            <input type="hidden" name="cartId" value="<%= cartData._id %>">
+            <input type="hidden" name="addressId" id="addressIdForOrder">
+            <input type="hidden" name="appliedCoupon" id="appliedCoupon" value="">
+
+            <!-- Payment Methods -->
+            <div class="payment-methods">
+                <h2>Payment Method</h2>
+                <label><input type="radio" name="paymentMethod" value="Online Payment" required> Online Payment (Razorpay)</label>
+                <label><input type="radio" name="paymentMethod" value="Cash On Delivery" required> Cash on Delivery</label>
+            </div>
+
+            <button type="submit" class="place-order-btn">Place Order</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Toggle new address form for both new and edit operations
+function toggleNewAddressForm(address = null) {
+    const form = document.getElementById('newAddressForm');
+    const formTitle = document.querySelector('#newAddressForm h2');
+
+    form.style.display = 'block';
+
+    if (address) {
+        formTitle.innerText = 'Edit Address';
+        document.querySelector('input[placeholder="House"]').value = address.house;
+        document.querySelector('input[placeholder="Place"]').value = address.place;
+        document.querySelector('input[placeholder="City"]').value = address.city;
+        document.querySelector('input[placeholder="State"]').value = address.state;
+        document.querySelector('input[placeholder="Pin"]').value = address.pin;
+        document.querySelector('input[placeholder="Contact Number"]').value = address.contactNo;
+        document.getElementById('addressId').value = address._id;
+    } else {
+        formTitle.innerText = 'Add New Address';
+        document.getElementById('addressForm').reset();
+        document.getElementById('addressId').value = '';
+    }
+}
+
+// Function to save address (both for new and edit)
+async function saveAddress(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData);
+
+    const addressId = document.getElementById('addressId').value;
+    const url = addressId ? `/edit-Address/${addressId}` : '/add-new-address';
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+            alert('Address saved successfully!');
+            location.reload();
+        } else {
+            const errorMessage = await response.text();
+            alert(`Error: ${errorMessage}`);
+        }
+    } catch (error) {
+        console.error('Error saving address:', error);
+        alert('An error occurred while saving the address.');
+    }
+}
+
+// Handle radio button click to select the address
+function selectAddress(addressId) {
+    document.getElementById('addressIdForOrder').value = addressId;
+}
+
+// Handle form submission for checkout
+// function handleFormSubmit(event) {
+//     event.preventDefault();
+    
+//     const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+//     if (!selectedAddress) {
+//         alert('Please select an address for delivery.');
+//         return;
+//     }
+    
+//     const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+//     if (!paymentMethod) {
+//         alert('Please select a payment method.');
+//         return;
+//     }
+
+//     const formData = new FormData(event.target);
+//     const data = Object.fromEntries(formData);
+
+//     fetch('/placeOrder', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'X-Requested-With': 'XMLHttpRequest'
+//         },
+//         body: JSON.stringify(data),
+//         credentials: 'include'
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.orderId) {
+//             window.location.href = `/orderConfirmation/${data.orderId}`;
+//         } else {
+//             alert('Error placing order: ' + data.error);
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Error:', error);
+//         alert('An error occurred while placing the order.');
+//     });
+// }
+
+// Handle edit button click to load form with address details
+function editAddress(addressId) {
+    const addressCard = document.querySelector(`.card[data-address-id="${addressId}"]`);
+    const house = addressCard.querySelector('.card-title').innerText;
+    const details = addressCard.querySelector('.card-text').innerText.split(", ");
+    const [place, city, statePin] = details;
+    const [state, pin] = statePin.split(" ");
+    const contactNo = addressCard.querySelector('.card-text:last-of-type').innerText.split(": ")[1];
+
+    const address = {
+        _id: addressId,
+        house,
+        place,
+        city,
+        state,
+        pin,
+        contactNo
+    };
+
+    toggleNewAddressForm(address);
+}
+
+// Handle cancel button click to hide the form
+function cancelAddressForm() {
+    document.getElementById('newAddressForm').style.display = 'none';
+    document.getElementById('addressForm').reset();
+}
+</script>
+
+<script>
+   // Handle Apply Coupon Button Click
+   document.getElementById('applyCouponBtn').addEventListener('click', async () => {
+        const couponCode = document.getElementById('couponCodeInput').value.trim();
+        if (!couponCode) return alert('Please enter a coupon code.');
+
+        try {
+            const response = await fetch('/coupons/apply/coupon._id',
+             { method: 'POST' });
+            const result = await response.json();
+
+            if (result.success) {
+                document.getElementById('couponDiscount').textContent = `₹${result.discount}`;
+                document.getElementById('orderTotal').textContent = `₹${result.newTotal}`;
+                document.getElementById('couponMessage').textContent = 'Coupon applied successfully!';
+                document.getElementById('appliedCoupon').value = couponCode;
+
+                document.getElementById('applyCouponBtn').style.display = 'none';
+                document.getElementById('removeCouponBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('couponMessage').textContent = result.message;
+            }
+        } catch (error) {
+            console.error('Error applying coupon:', error);
+        }
+    });
+
+    // Handle Remove Coupon Button Click
+    document.getElementById('removeCouponBtn').addEventListener('click', () => {
+        document.getElementById('couponDiscount').textContent = '₹0.00';
+        document.getElementById('orderTotal').textContent = `₹<%= orderTotal %>`;
+        document.getElementById('couponMessage').textContent = '';
+        document.getElementById('appliedCoupon').value = '';
+
+        document.getElementById('applyCouponBtn').style.display = 'inline-block';
+        document.getElementById('removeCouponBtn').style.display = 'none';
+    });
+
+    // Handle Checkout Form Submission
+    function handleFormSubmit(event) {
+        event.preventDefault();
+        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+        if (!selectedAddress) return alert('Please select an address.');
+
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+        if (!paymentMethod) return alert('Please select a payment method.');
+
+        event.target.submit();
+    }
+    </script>
+
+<%- include("../../views/partials/user/footer") %>

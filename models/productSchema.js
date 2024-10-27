@@ -1,6 +1,7 @@
 const mongoose=require("mongoose");
 const {Schema}=mongoose;
-
+const {v4:uuidv4} = require("uuid");
+const mongoosePaginate = require('mongoose-paginate-v2'); 
 
 const productSchema=new Schema({
     productName:{
@@ -11,9 +12,14 @@ const productSchema=new Schema({
         type:String,
         required:true
     },
+    skuNumber: {  
+        type:String,
+        default: ()=>uuidv4(),
+        unique:true
+    },
     brand:{
         type:String,
-        required:false
+        required:true
     },
     category:{
         type:Schema.Types.ObjectId,
@@ -28,13 +34,9 @@ const productSchema=new Schema({
         type:Number,
         required:true
     },
-    productOffer:{
+    offerPrice:{
         type:Number,
         default:0
-    },
-    quantity:{
-        type:Number,
-        default:true
     },
     color:{
         type:String,
@@ -53,8 +55,23 @@ const productSchema=new Schema({
         enum:["Available","out of stock","Discounted"],
         required:true,
         default:"Available"
-    },     
+    },  
+    sizes: {
+        type: [{
+            size: { type: String, required: true },
+            quantity: { type: Number, required: true }
+        }],
+        required: true
+    },
+      ratings: {
+        type: Number,
+        min: 0,
+        max: 5,
+        default: 0, 
+      },   
 },{timestamps:true});
+
+productSchema.plugin(mongoosePaginate);
 
 const Product=mongoose.model("Product",productSchema);
 

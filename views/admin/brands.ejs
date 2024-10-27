@@ -1,0 +1,186 @@
+<%- include("../../views/partials/admin/header") %>
+<style>
+  .pagination-container {
+    text-align: center;
+  }
+
+  .pagination {
+    display: inline-block;
+  }
+
+  .pagination a,
+  .pagination .current-page {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 0 2px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    color: #333;
+  }
+
+  .pagination a:hover {
+    background-color: #f5f5f5;
+  }
+
+  .error-message {
+    color: red;
+  }
+
+  .table td {
+    vertical-align: middle;
+  }
+
+  .table .btn {
+    padding: 5px 10px;
+    font-size: 14px;
+  }
+
+  .d-flex {
+    gap: 10px;
+  }
+
+  .badge {
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .form-error {
+    color: red;
+    font-size: 12px;
+  }
+</style>
+
+<section class="content-main">
+  <div class="content-header">
+    <div>
+      <h2 class="content-title card-title">Brands</h2>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="row">
+        <!-- Form to add new brand -->
+        <div class="col-md-3">
+          <form method="post" action="/admin/addBrand" enctype="multipart/form-data" onsubmit="return validateForm()">
+            <div class="mb-4">
+              <label for="brand_name" class="form-label">Brand Name</label>
+              <input type="text" name="name" id="brandName" placeholder="Type here" class="form-control" />
+              <span id="nameError" class="form-error"></span>
+            </div>
+
+            <label for="brand_image" class="form-label">Brand Image</label>
+            <div class="input-upload">
+              <input class="form-control border" name="image" type="file" id="brandImage" />
+              <span id="imageError" class="form-error"></span>
+            </div>
+
+            <div class="d-grid">
+              <button class="btn btn-primary mt-20" type="submit">Add Brand</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Table showing brands -->
+        <div class="col-md-7 ml-105">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Brand</th>
+                  <th>Logo</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% data.reverse().forEach((brand) => { %>
+                  <tr>
+                    <!-- Brand Name -->
+                    <td class="text-start"><%= brand.brandName %></td>
+
+                    <!-- Brand Logo -->
+                    <td class="text-start">
+                      <div class="d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden;">
+                        <img src="/uploads/re-image/<%= brand.brandImage[0] %>" alt="<%= brand.brandName %>" class="img-fluid rounded-circle" style="width: 100%; height: auto" />
+                      </div>
+                    </td>
+
+                    <!-- Status Column: Display Blocked or Active based on brand status -->
+                    <td class="text-start">
+                      <% if (brand.isBlocked===true) { %>
+                        <span class="badge rounded-pill alert-danger" style="width: 60px;">Blocked</span>
+                      <% } else { %>
+                        <span class="badge rounded-pill alert-success" style="width: 60px;">Active</span>
+                      <% } %>
+                    </td>
+
+                    <!-- Action Buttons: Block/Unblock/Delete -->
+                    <td class="text-start">
+                      <div class="d-flex">
+                        <% if (brand.isBlocked===false) { %>
+                          <button class="btn btn-danger me-2">
+                            <a href="/admin/blockBrand?id=<%= brand._id %>" class="text-white">Block</a>
+                          </button>
+                        <% } else { %>
+                          <button class="btn btn-success me-2">
+                            <a href="/admin/unblockBrand?id=<%= brand._id %>" class="text-white">Unblock</a>
+                          </button>
+                        <% } %>
+
+                        <button class="btn btn-danger" onclick="return confirmDelete()">
+                          <a href="/admin/deleteBrand?id=<%= brand._id %>" class="text-white">Delete</a>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-container">
+    <div class="pagination">
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="?page=<%= i %>" class="<%= current === i ? 'current-page' : '' %>"><%= i %></a>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<script>
+  function validateForm() {
+    var brandName = document.getElementById('brandName').value;
+    var brandImage = document.getElementById('brandImage').value;
+    var isValid = true;
+
+    // Clear previous error messages
+    document.getElementById('nameError').innerText = "";
+    document.getElementById('imageError').innerText = "";
+
+    // Validate brand name
+    if (brandName === "") {
+      document.getElementById('nameError').innerText = "Brand name is required";
+      isValid = false;
+    }
+
+    // Validate brand image
+    if (brandImage === "") {
+      document.getElementById('imageError').innerText = "Brand image is required";
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  function confirmDelete() {
+    return confirm("Are you sure you want to delete this brand?");
+  }
+</script>
+
+<%- include("../../views/partials/admin/footer") %>

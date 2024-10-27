@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-	<title>Footwear - Free Bootstrap 4 Template by Colorlib</title>
+	<title>Footwear</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -9,31 +9,31 @@
 	<link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
 	
 	<!-- Animate.css -->
-	<link rel="stylesheet" href="css/animate.css">
+	<link rel="stylesheet" href="/css/animate.css">
 	<!-- Icomoon Icon Fonts-->
-	<link rel="stylesheet" href="css/icomoon.css">
+	<link rel="stylesheet" href="/css/icomoon.css">
 	<!-- Ion Icon Fonts-->
-	<link rel="stylesheet" href="css/ionicons.min.css">
+	<link rel="stylesheet" href="/css/ionicons.min.css">
 	<!-- Bootstrap  -->
-	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="/css/bootstrap.min.css">
 
 	<!-- Magnific Popup -->
-	<link rel="stylesheet" href="css/magnific-popup.css">
+	<link rel="stylesheet" href="/css/magnific-popup.css">
 
 	<!-- Flexslider  -->
-	<link rel="stylesheet" href="css/flexslider.css">
+	<link rel="stylesheet" href="/css/flexslider.css">
 
 	<!-- Owl Carousel -->
-	<link rel="stylesheet" href="css/owl.carousel.min.css">
-	<link rel="stylesheet" href="css/owl.theme.default.min.css">
+	<link rel="stylesheet" href="/css/owl.carousel.min.css">
+	<link rel="stylesheet" href="/css/owl.theme.default.min.css">
 	
 	<!-- Date Picker -->
-	<link rel="stylesheet" href="css/bootstrap-datepicker.css">
+	<link rel="stylesheet" href="/css/bootstrap-datepicker.css">
 	<!-- Flaticons  -->
 	<link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
 
 	<!-- Theme style  -->
-	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="/css/style.css">
 	<!-- font-awesome -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
  
@@ -120,18 +120,17 @@
 							<ul class="menu-1 d-flex align-items-center">
 								<li class="active"><a href="/">Home</a></li>
 								<li class="has-dropdown">
-									<a href="men.html">Shop</a>
+									<a href="/shop">Shop</a>
 									<ul class="dropdown">
-										<li><a href="product-detail.html">Product Detail</a></li>
-										<li><a href="cart.html">Shopping Cart</a></li>
-										<li><a href="checkout.html">Checkout</a></li>
+										<li><a href="/cart">Shopping Cart</a></li>
+										<li><a href="/checkout">Checkout</a></li>
 										<li><a href="order-complete.html">Order Complete</a></li>
-										<li><a href="add-to-wishlist.html">Wishlist</a></li>
+										<li><a href="/wishlist">Wishlist</a></li>
 									</ul>
 								</li>
-								<li><a href="women.html">Offer</a></li>
-								<li><a href="about.html">About</a></li>
-								<li><a href="contact.html">Contact</a></li>
+								<li><a href="/offer">Offer</a></li>
+								<li><a href="/about">About</a></li>
+								<li><a href="/contact">Contact</a></li>
 							</ul>
 
 							<!--  sign-in links and cart -->
@@ -140,7 +139,7 @@
 	  <div class="dropdown">
 		<a href="#" class="sign-in-link"><%= locals.user.name %></a>
 		<div class="dropdown-content">
-		  <a href="/userProfile">Profile</a>
+		  <a href="/user-profile">Profile</a> 
 		  <a href="/logout">Logout</a>
 		</div>
 	  </div>
@@ -149,7 +148,8 @@
 	  <li><a href="/login" class="sign-in-link">Login</a></li>
 	<% } %>
 	<li class="cart">
-	  <a href="cart.html"><i class="icon-shopping-cart"></i> Cart [0]</a>
+		
+	  <a href="/cart"><i class="icon-shopping-cart"></i> Cart [0]</a>
 	</li>
   </ul>
   

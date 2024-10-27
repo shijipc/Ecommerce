@@ -1,0 +1,530 @@
+
+<%-include("../../views/partials/user/header") %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<body>
+  <div class="product-details-container">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="#">Product-details</a></li>
+        <li class="breadcrumb-item active" aria-current="page"><%= product.productName %></li>
+      </ol>
+    </nav>
+
+    <div class="container" style="display: flex; align-items: flex-start; margin: 20px;">
+      <div class="image-gallery">
+        <% for (let i = 0; i < 4 && i < product.productImage.length; i++) { %>
+          <div class="image-container">
+            <img src="/uploads/re-image/<%= product.productImage[i] %>" alt="Product Image" class="product-image" id="productImage<%= i %>">
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Product Details -->
+      <div class="product-details">
+        <h2 class="product-title"><%= product.productName %></h2>
+        <div class="product-rating" style="cursor: pointer;">
+          <i class="fas fa-star" data-value="1"></i>
+          <i class="fas fa-star" data-value="2"></i>
+          <i class="fas fa-star" data-value="3"></i>
+          <i class="fas fa-star" data-value="4"></i>
+          <i class="fas fa-star" data-value="5"></i>
+          (25 Reviews)
+        </div>
+        <div class="product-price">
+          ₹<%= product.offerPrice || product.salePrice %> <span style="text-decoration: line-through;">₹<%= product.regularPrice %></span>
+        </div>
+        <div class="product-description">
+          <%= product.description %>
+        </div>
+        <ul>
+          <li>
+            <span>Color:<%= product.color %></span>
+            <span class="colors">
+              <span class="color" style="background-color: #000000;"></span>
+              <span class="color" style="background-color: #ff0000;"></span>
+            </span>
+          </li>
+          <ul>
+            <li>
+              <span>Size-UK:</span>
+              <span class="sizes">
+                <% product.sizes.forEach(size => { %>
+                  <span class="size" data-size="<%= size.size %>" data-quantity="<%= size.quantity %>">
+                    <%= size.size %>
+                  </span>
+                <% }) %>
+              </span>
+            </li>
+          </ul>
+          <p id="stock-info" style="margin-right: 23.5rem; color: #ff0000;">
+            Please select a size to see stock availability.
+          </p>
+          <div class="input-group mb-4" style="margin-top: 2rem;">
+            <span class="input-group-btn">
+              <button type="button" class="quantity-left-minus btn" data-type="minus" data-field="">
+                <i class="icon-minus2"></i>
+              </button>
+            </span>
+            <input type="text" id="quantity" name="quantity" value="1" min="1" max="100" style="width: 2rem; text-align: center; height: 36px !important;">
+            <span class="input-group-btn ml-1">
+              <button type="button" class="quantity-right-plus btn" data-type="plus" data-field="">
+                <i class="icon-plus2"></i>
+              </button>
+            </span>
+          </div>
+          <div class="row">
+            <div class="col-sm-12 text-center">
+              <% if (product.sizes.reduce((acc, total) => acc += total.quantity, 0) > 0) { %>
+                <div class="button-group" style="display: flex; justify-content: center; gap: 10px; margin-right: 20rem;padding-left: 25%;">
+                  <!-- Add to Wishlist Button -->
+                  <a href="#" onclick="addToWishlist('<%= product._id %>')" class="btn btn-secondary btn-addtowishlist" style="color: rgb(241, 242, 248);">
+                    <i class="fas fa-heart"></i> Add to Wishlist
+                  </a>
+
+                  <!-- Add to Cart Button -->
+                  <a href="#" onclick="addToCart('<%= product._id %>', parseInt(document.getElementById('quantity').value),getSelectedSize())" class="btn btn-primary btn-addtocart">
+                    <i class="icon-shopping-cart"></i> Add to Cart
+                  </a>
+                </div>
+
+                <p style="margin-right: 23.5rem; color: #ff0000;">
+                  stocks left <%= product.sizes.reduce((acc, total) => acc = acc + total.quantity, 0) %>
+                </p>
+              <% } else { %>
+                <p style="margin-right: 23.5rem; color: #ff0000;">
+                  OUT OF STOCK
+                </p>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="product-delivery" style="margin-left: 39rem;">
+        <i class="fas fa-truck"></i>
+        Free Delivery
+        <span>Enter your postal code for Delivery Availability</span>
+      </div>
+      <div class="product-return" style="margin-left: 39rem;">
+        <i class="fas fa-sync-alt"></i>
+        Free 30 Days Returns. Details
+      </div>
+    </div> -->
+<h3 style="padding-left: 20px;">Related products</h3>
+<div class="row row-pb-md">
+  <% products.forEach((product) => { %>
+    <% if (product) { %>
+      <div class="col-lg-3 mb-4 text-center">
+        <div class="product-entry border">
+          <a href="/product-details/<%= product._id %>" class="prod-img">
+            <% if (product.productImage && product.productImage.length > 0) { %>
+              <img src="/uploads/re-image/<%= product.productImage[0] %>" class="img-fluid" alt="<%= product.productName %>">
+            <% } else { %>
+              <img src="/path/to/default/image.jpg" class="img-fluid" alt="No Image Available">
+            <% } %>
+          </a>
+          <div class="desc">
+            <h2><a href="/product-details/<%= product._id %>"><%= product.productName %></a></h2>
+            <span class="price">₹<%= product.offerPrice || product.salePrice %>.00</span>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  <% }); %>
+</div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+
+
+function getSelectedSize() {
+    const selectedSize = document.querySelector('.size.selected');
+    return selectedSize ? selectedSize.dataset.size : null;
+}
+
+
+    const mainImage = document.getElementById('main-image');
+    const relatedItems = document.querySelectorAll('.related-items .item img');
+    const quantityInput = document.getElementById('quantity');
+
+    relatedItems.forEach(item => {
+      item.addEventListener('mouseover', () => {
+        mainImage.src = item.dataset.zoom;
+      });
+    });
+
+   
+
+    document.querySelector('.quantity-left-minus').addEventListener('click', function () {
+      let quantity = parseInt(quantityInput.value);
+      if (quantity > 1) {
+        quantityInput.value = quantity - 1;
+      }
+      return quantity
+    });
+
+    document.querySelector('.quantity-right-plus').addEventListener('click', function () {
+      let quantity = parseInt(quantityInput.value);
+      if (quantity < 100) {
+        quantityInput.value = quantity + 1;
+      }
+    });
+
+
+  
+const sizeElements = document.querySelectorAll('.size');
+const stockInfo = document.getElementById('stock-info');
+
+sizeElements.forEach(size => {
+    size.addEventListener('click', function() {
+        sizeElements.forEach(s => s.classList.remove('selected'));
+        this.classList.add('selected');
+
+        const selectedSize = this.dataset.size;
+        const availableStock = this.dataset.quantity;
+
+        if (availableStock > 0) {
+            stockInfo.textContent = `In stock: ${availableStock} items available for size ${selectedSize}`;
+            stockInfo.style.color = '#00ff00';
+        } else {
+            stockInfo.textContent = `OUT OF STOCK for size ${selectedSize}`;
+            stockInfo.style.color = '#ff0000';
+        }
+    });
+});
+
+async function addToCart(productId, quantity) {
+
+  const selectedSize = getSelectedSize(); // Make sure this function exists and returns the selected size
+    if (!selectedSize) {
+        Swal.fire({
+            title: 'Error',
+            text: 'Please select a size.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    try {
+        const response = await fetch('/add-cart', { // Note: Changed from '/cart' to '/add-cart'
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId, quantity, selectedSize })
+        });
+
+       
+        
+        if (response.ok) {
+            const result = await response.json();
+            Swal.fire({
+                title: 'Added to Cart!',
+                text: result.message || 'The product was added to your cart.',
+                icon: 'success',
+                confirmButtonText: 'Continue Shopping',
+                timer: 3000,
+                timerProgressBar: true
+            })
+            .then(() => {
+        // Reload the page after user acknowledges success
+        window.location.reload();
+      });
+        } else {
+            const errorData = await response.json();
+            Swal.fire({
+                title: 'Error',
+                text: errorData.message || 'Error adding product to cart.',
+                icon: 'error',
+                confirmButtonText: 'Try Again'
+            });
+        }
+      } catch (error) {
+        console.error('Error adding to cart:', error);
+        Swal.fire({
+            title: 'Error',
+            text: 'An error occurred. Please try again later.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    }
+}
+
+  </script>
+  <script>
+  async function addToWishlist(productId) {
+  // const selectedSize = getSelectedSize();
+  // const quantity = parseInt(document.getElementById('quantity').value);
+
+  // if (!selectedSize || isNaN(quantity) || quantity <= 0) {
+  //   Swal.fire({
+  //     title: 'Error',
+  //     text: 'Please select a valid size and quantity.',
+  //     icon: 'error',
+  //     confirmButtonText: 'OK',
+  //   });
+  //   return;
+  // }
+
+  try {
+    const response = await fetch('/wishlist', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        productId,  // Ensure productId is correctly passed
+        // size: selectedSize,
+        // quantity
+      }),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      Swal.fire({
+        title: 'Success!',
+        text: result.message,
+        icon: 'success',
+        confirmButtonText: 'OK',
+      });
+    } else {
+      const errorData = await response.json();
+      Swal.fire({
+        title: 'Error!',
+        text: errorData.message || 'Could not add to wishlist.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    Swal.fire({
+      title: 'Error!',
+      text: 'An error occurred. Please try again.',
+      icon: 'error',
+      confirmButtonText: 'OK',
+    });
+  }
+}
+
+
+  </script>
+</body>
+</html>
+
+<%-include("../../views/partials/user/footer") %>
+<style>
+  
+
+  /* Product Image Styling */
+  .image-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    width: 50%;
+  }
+
+  .image-gallery img {
+    width: 200px;
+    height: 200px;
+    margin-right: 10px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+
+  /* Product Details Styling */
+  .product-details {
+    width: 50%;
+    padding-left: 20px;
+  }
+
+  .product-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .product-rating {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .product-rating i {
+    color: #ffcc00;
+    margin-right: 5px;
+  }
+
+  .product-price {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .product-description {
+    margin-bottom: 10px;
+  }
+
+  .product-details ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .product-details li {
+    margin-bottom: 5px;
+  }
+
+  .product-details ul li span {
+    font-weight: bold;
+  }
+
+  .product-buttons {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .product-buttons button {
+    background-color: #ff0000;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+
+  .product-delivery,
+  .product-return {
+    margin-bottom: 10px;
+  }
+
+  .related-items {
+    margin-top: 20px;
+  }
+
+  .related-items h3 {
+    margin-bottom: 10px;
+  }
+
+  .related-items .item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .related-items .item img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-right: 10px;
+  }
+
+  .related-items .item .details {
+    flex-grow: 1;
+  }
+
+  .related-items .item .details h4 {
+    margin-bottom: 5px;
+  }
+
+  .related-items .item .details .price {
+    font-weight: bold;
+  }
+
+  .image-gallery {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .image-container {
+    position: relative;
+    overflow: hidden;
+    width: 200px; 
+    height: 200px; 
+  }
+
+  .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease; 
+  }
+
+  .image-container:hover .product-image {
+    transform: scale(1.5); /* Scale the image when hovering */
+  }
+
+
+  .sizes {
+  display: flex;
+  gap: 10px; 
+  margin-top: 5px; 
+}
+
+.size {
+  padding: 10px 15px; 
+  border: 2px solid #ccc; 
+  border-radius: 5px; 
+  cursor: pointer; 
+  transition: all 0.3s ease; 
+  background-color: white; 
+}
+
+.size:hover {
+  background-color: #f0f0f0; 
+}
+
+.size.selected {
+  border-color: #007bff;
+  background-color: #e0f7ff; 
+  font-weight: bold; 
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px; 
+    margin-right: 20rem; 
+}
+
+.row.row-pb-md {
+  display: flex; /* Use flexbox for the row */
+  justify-content: center; /* Center the products */
+  flex-wrap: wrap; /* Allow wrapping of product items */
+  margin: 0; /* Remove any default margin */
+  padding: 0; /* Remove any default padding */
+}
+
+.product-entry {
+  width: 200px; /* Set a fixed width for product containers */
+  height: 250px; /* Set a fixed height for product containers */
+  display: flex; /* Use flexbox for the container */
+  flex-direction: column; /* Stack items vertically */
+  justify-content: flex-start; /* Align items at the start */
+  align-items: center; /* Center items horizontally */
+  margin: 0; /* Remove margin to eliminate gaps */
+}
+
+.prod-img {
+  width: 100%; /* Make the image container take the full width */
+  height: 150px; /* Set a fixed height for the images */
+  overflow: hidden; /* Hide overflow to ensure images fit */
+}
+
+.prod-img img {
+  width: 100%; /* Make the image take up the full width of the container */
+  height: 100%; /* Make the image take up the full height of the container */
+  object-fit: cover; /* Ensure the image covers the container without stretching */
+}
+
+.desc {
+  text-align: center; /* Center text within the description */
+}
+
+</style>

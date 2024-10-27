@@ -1,24 +1,29 @@
 const User=require("../models/userSchema");
 
 
-const userAuth=(req,res,next)=>{
-    if(req.session.user){   //user undo nnu check cheyyukayanu
-        User.findById(req.session.user)
-        .then(data=>{
-            if(data && !data.isBlocked){
+const userAuth = async (req, res, next) => {
+    try {
+        const userId = req.session.user || (req.user && req.user._id);
+
+        if (userId) {
+            const user = await User.findById(userId);
+
+            if (user && !user.isBlocked) {
+                req.user = user; // Add this line
+                res.locals.user = user;
                 next();
-            }else{
-                res.redirect("/login");
+            } else {
+                console.log("User is blocked or not found:", userId);
+                res.status(401).json({ success: false, message: 'Please login' });
             }
-        })
-        .catch(error=>{
-             console.log("Error in user auth middleware");
-             res.status(500).send("Internal Server error");
-        })
-    }else{
-        res.redirect("/login");
+        } else {
+            res.status(401).json({ success: false, message: 'Please login' });
+        }
+    } catch (error) {
+        console.error("Error in user auth middleware:", error);
+        res.status(500).json({ success: false, message: 'Server error occurred' });
     }
-}
+};
 
 
 const adminAuth=(req,res,next)=>{

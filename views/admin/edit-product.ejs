@@ -1,4 +1,5 @@
 <%- include("../../views/partials/admin/header") %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <head>
    <style>
        .thumbnails-container {
@@ -48,11 +49,11 @@
                            <div class="col-lg-4 mb-4">
                                <label class="form-label">Brand</label>
                                <select class="form-select border" name="brand">
-                                  
-                                       <option value="">
-                                          
-                                       </option>
-                                      
+                                  <%for(let i=0;i<brand.length;i++){%>
+                                    <option value="<%=brand[i].brandName%>">
+                                       <%=brand[i].brandName%>   
+                                    </option>
+                                    <%}%>
                                </select>
                                <div id="brand-error" class="error-message"></div>
 
@@ -81,14 +82,37 @@
                                    </div>
                                    <div id="salePrice-error" class="error-message"></div>
                                </div>
-                               <div class="col-lg-4">
+
+                               <div class="mb-4">
+                                <label class="form-label">Sizes and Quantities</label>
+                                <div id="sizes-container">
+                                    <% product.sizes.forEach((size, index) => { %>
+                                    <div class="size-quantity-row" style="margin-bottom: 10px;">
+                                        <input type="number" placeholder="Size" name="sizes[<%= index %>][size]" 
+                                               class="form-control border size-input" 
+                                               value="<%= size.size %>" style="width: 120px; display: inline-block;" required>
+                                        <input type="number" placeholder="Quantity" name="sizes[<%= index %>][quantity]" 
+                                               class="form-control border" value="<%= size.quantity %>" 
+                                               style="width: 120px; display: inline-block;" required>
+                                        <span class="remove-size-btn" style="cursor: pointer; margin-left: 10px; color: red;" 
+                                              onclick="removeSizeEntry(this)">&#10006;</span>
+                                        <div class="error-message" style="color: red; font-size: 12px; display: none;">
+                                            This size already exists. Please enter a different size.
+                                        </div>
+                                    </div>
+                                    <% }) %>
+                                </div>
+                                <button type="button" onclick="addSizeQuantityRow()" class="btn btn-secondary mt-2">Add More Sizes</button>
+                            </div>
+                            
+                               <!-- <div class="col-lg-4">        
                                    <div class="mb-4">
                                        <label class="form-label">Quantity</label>
                                        <input name="quantity" type="text" value="<%=product.quantity%>"
                                            class="form-control border">
                                            <div id="quantity-error" class="error-message"></div>
                                    </div>
-                               </div>
+                               </div> -->
                            </div>
                            <div class="row">
                              
@@ -117,6 +141,13 @@
                                                   <%}%>
                                            </select>
 
+                                           <!-- <label class="form-label">Size</label>
+                                           <select class="form-select border" style="width: 150px;" name="size">                             
+                                            <option value="L">L</option>
+                                            <option value="M">M</option>
+                                            <option value="S">S</option>
+                                           </select>  -->
+
 
                                            <div id="category-error" class="error-message"></div>
                                        </div>
@@ -130,16 +161,13 @@
                                   <%for(let i=0;i<product.productImage.length;i++){%>
                                        <div class="col-md-12">
                                            <div class="mb-4">
-                                               <div class="col-12">
-                                                   <td>
-                                                       <input type="hidden" value="<%=product.productImage[i]%>" id="imageDatas">
-                                                       <img class="rounded" style="width: 50px; height: 60px;"
-                                                           src="/uploads/re-image/<%=product.productImage[i]%>"
-                                                           alt="">
-                                                       <i onclick="deleteSingleImage('<%=product.productImage[i]%>','<%=product._id%>')" style="position: absolute; margin-left: .5rem; cursor: pointer;" class="fa-thin fa-x"></i>
-                                                   </td>
-                                               </div>
-                                              
+                                            <div class="col-12" style="position: relative;">
+                                                <input type="hidden" value="<%= product.productImage[i] %>" id="imageDatas">
+                                                <img class="rounded" style="width: 50px; height: 60px;" src="/uploads/re-image/<%= product.productImage[i] %>" alt="Image">                          
+                                                <i onclick="deleteSingleImage('<%= product.productImage[i] %>', '<%= product._id %>')" 
+                                                   style="position: absolute; top: 0; right: 0; margin-right: .5rem; cursor: pointer;" 
+                                                   class="fa fa-times"></i>
+                                            </div>                      
                                            </div>
                                        </div>
                                        <%}%>
@@ -184,21 +212,8 @@
                                                                    <img src="" id="croppedImg3" alt="">
                                                                    <button type="button" id="saveButton3" class="btn-sm btn-primary">Save</button>
                                                                </div>
-                                                           </div>
+                                                           </div>                                   
                                                           
-                                                           <!-- <div class="row">
-                                                               <div class="card-body align-items-center" style="margin-bottom: 20px;">
-                                                                   <img src="" alt="" id="imgView4">
-                                                                   <input class="form-control" type="file" name="images" id="input4"
-                                                                       accept="image/png, image/jpeg, image/jpg"
-                                                                       onchange="viewImage4(event),viewImage(event, 4)">
-                                                               </div>
-                                                               <div class="image-cropper d-flex align-items-center"
-                                                                   style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
-                                                                   <img src="" id="croppedImg4" alt="">
-                                                                   <button type="button" id="saveButton4" class="btn-sm btn-primary">Save</button>
-                                                               </div>
-                                                           </div> -->
                                </div>
                            </div>
                            <div>
@@ -215,6 +230,10 @@
        </div>
    </section>
    <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 <%- include("../../views/partials/admin/footer") %>
 
 <script>
@@ -225,64 +244,72 @@
        document.forms[0].submit();
     }
     }
-    
-    
-    
-    
+      
     function validateForm() {
-       let imageDatas = false
-               console.log("validate form");
-               clearErrorMessages();
-               const name = document.getElementsByName('productName')[0].value;
-               const description = document.getElementsByName('descriptionData')[0].value;
-            //    const brand = document.getElementsByName('brand')[0].value;
-               const price = document.getElementsByName('regularPrice')[0].value;
-               const saleprice = document.getElementsByName('salePrice')[0].value;
-               const color = document.getElementsByName('color')[0].value;
-               const category = document.getElementsByName('category')[0].value;
-               const images = document.getElementById('input1')
-               const quantity=document.getElementsByName('quantity')
-    imageDatas = document.getElementById("imageDatas")?.value;
-               let isValid = true;    
-               if (name.trim() === "") {
-       displayErrorMessage('productName-error', 'Please enter a product name.');
-       isValid = false;
+    console.log("Validating form");
+    clearErrorMessages();
+    let isValid = true;
+
+    const name = document.getElementsByName('productName')[0].value;
+    const description = document.getElementsByName('descriptionData')[0].value;
+    const price = document.getElementsByName('regularPrice')[0].value;
+    const saleprice = document.getElementsByName('salePrice')[0].value;
+    const color = document.getElementsByName('color')[0].value;
+    const imageDatas = document.getElementById("imageDatas")?.value;
+    const images = document.getElementById('input1');
+
+    if (name.trim() === "") {
+        displayErrorMessage('productName-error', 'Please enter a product name.');
+        isValid = false;
     }
-              
-               if (description=== '') {
-                   displayErrorMessage('description-error', 'Please enter a product description.');
-                   isValid = false;
-               } 
-    
-    
-               if ( parseInt(quantity) < 0) {
-                   displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
-                   isValid = false;
-               }
-    
-    
-    
-    
-               if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
-                   displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
-                   isValid = false;
-               }
-              if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
-                   displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
-                   isValid = false;
-               }
-              
-               if (color.trim() === "") {
-                   displayErrorMessage('color-error', 'Please enter a color.');
-                   isValid = false;
-               }
-               if (!imageDatas && images.files.length === 0) {
-                   displayErrorMessage("images-error",'Please select an image.');
-                   isValid = false;
-               }
-               return isValid;
-           }
-          
+
+    if (description === '') {
+        displayErrorMessage('description-error', 'Please enter a product description.');
+        isValid = false;
+    }
+
+    if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
+        displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
+        isValid = false;
+    }
+
+    if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
+        displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
+        isValid = false;
+    }
+
+    if (color.trim() === "") {
+        displayErrorMessage('color-error', 'Please enter a color.');
+        isValid = false;
+    }
+
+    if (!imageDatas && images.files.length === 0) {
+        displayErrorMessage("images-error", 'Please select an image.');
+        isValid = false;
+    }
+
+    // Validate sizes
+    const sizeInputs = document.querySelectorAll('.size-input');
+    const sizes = new Set();
+    sizeInputs.forEach(input => {
+        const size = input.value;
+        if (sizes.has(size)) {
+            const errorDiv = input.parentNode.querySelector('.error-message');
+            errorDiv.textContent = 'This size already exists. Please enter a different size.';
+            errorDiv.style.display = 'block';
+            isValid = false;
+        } else {
+            sizes.add(size);
+        }
+    });
+
+    if (!isValid) {
+        event.preventDefault(); // Prevent form submission if validation fails
+    }
+
+    return isValid;
+   }
+  
            function displayErrorMessage(elementId, message) {
                var errorElement = document.getElementById(elementId);
                errorElement.innerText = message;
@@ -300,9 +327,6 @@
     
            }
     
-    
-    
-    
     function viewImage1(event) {
                document.getElementById('imgView1').src = URL.createObjectURL(event.target.files[0])
            }
@@ -317,16 +341,25 @@
                document.getElementById('imgView3').src = URL.createObjectURL(event.target.files[0])
            }
     
-    
-        //    function viewImage4(event) {
-        //        document.getElementById('imgView4').src = URL.createObjectURL(event.target.files[0])
-        //    }
-    
-    
-    
+           function viewImage4(event) {
+               document.getElementById('imgView4').src = URL.createObjectURL(event.target.files[0])
+           }
     
            function viewImage(event, index) {
                let input = event.target;
+
+               let file = input.files[0];
+              let validImageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+
+              // Check if file is an image
+             if (!validImageTypes.includes(file.type)) {
+                 displayErrorMessage('images-error', 'Please upload a valid image file (JPEG, PNG).');
+                 input.value = ''; // Clear the input
+                 return; // Stop further processing
+            } else {
+            clearErrorMessages('images-error'); // Clear error message if valid image
+        }
+
                let reader = new FileReader();
                reader.onload = function () {
                    let dataURL = reader.result;
@@ -357,9 +390,10 @@
                            input.files = fileList.files
                        });
                        cropperContainer.style.display = 'none';
+                       cropper.destroy();
                    });
                };
-               reader.readAsDataURL(input.files[0]);
+               reader.readAsDataURL(files);
            }
     
     
@@ -397,18 +431,71 @@
                }
            };
 
-           function deleteSingleImage(imageId,productId){
-              $.ajax({
-                url:"/admin/deleteImage",
-                method:'post',
-                data:{imageNameToServer:imageId,productIdToServer:productId},
-                success:((response)=>{
-                    if(response.status===true){
-                        window.location.reload();
-                    }
-                })
-              })
-           }
+    function deleteSingleImage(imageId, productId) {
+    $.ajax({
+        url: "/admin/deleteImage",
+        method: "POST",
+        data: {
+            imageNameToServer: imageId,
+            productIdToServer: productId
+        },
+        success: function (response) {
+            if (response.status === true) {
+                window.location.reload();
+            } else {
+                alert('Image deletion failed');
+            }
+        },
+        error: function (error) {
+            console.log(error);
+            alert('An error occurred while deleting the image');
+        }
+    });
+}
+
            
-       </script>
-    
+ </script>
+    <script>
+        function addSizeQuantityRow() {
+    const index = document.querySelectorAll('.size-quantity-row').length;
+    const row = document.createElement('div');
+    row.className = 'size-quantity-row';
+    row.style.marginBottom = '10px';
+    row.innerHTML = `
+        <input type="number" placeholder="Size" name="sizes[${index}][size]" 
+               class="form-control border size-input" style="width: 120px; display: inline-block;" required>
+        <input type="number" placeholder="Quantity" name="sizes[${index}][quantity]" 
+               class="form-control border" style="width: 120px; display: inline-block;" required>
+        <span class="remove-size-btn" style="cursor: pointer; margin-left: 10px; color: red;" 
+              onclick="removeSizeEntry(this)">&#10006;</span>
+        <div class="error-message" style="color: red; font-size: 12px; display: none;">
+            This size already exists. Please enter a different size.
+        </div>
+    `;
+    document.getElementById('sizes-container').appendChild(row);
+
+    // Add event listener for size input validation
+    const sizeInput = row.querySelector('.size-input');
+    sizeInput.addEventListener('change', validateSize);
+}
+
+function validateSize(event) {
+    const currentSize = event.target.value;
+    const allSizes = document.querySelectorAll('.size-input');
+    const errorDiv = event.target.parentNode.querySelector('.error-message');
+
+    let isDuplicate = false;
+    allSizes.forEach(input => {
+        if (input !== event.target && input.value === currentSize) {
+            isDuplicate = true;
+        }
+    });
+
+    if (isDuplicate) {
+        errorDiv.textContent = 'This size already exists. Please enter a different size.';
+        errorDiv.style.display = 'block';
+    } else {
+        errorDiv.style.display = 'none';
+    }
+}
+        </script>

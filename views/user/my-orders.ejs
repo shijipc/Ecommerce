@@ -1,0 +1,261 @@
+<%- include("../../views/partials/user/header") %>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<style>
+    .order-item {
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+    .order-image img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    .status-icon {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .delivered {
+        background-color: blue;
+    }
+    .pending {
+        background-color: orange;
+    }
+    .processing {
+        background-color: green;
+    }
+    .cancelled {
+        background-color: red;
+    }
+    .default {
+        background-color: gray;
+    }
+</style>
+
+<body>
+<div class="container">
+    <h1>Your Orders</h1>
+    <div class="search-container">
+        <input type="text" id="search" placeholder="Search your orders here">
+        <button id="searchBtn" class="btn btn-success">Search Orders</button>
+    </div>
+
+    <% if (orders && orders.length > 0) { %>
+        <% orders.forEach((order) => { %>
+            <% order.items.forEach((item) => { %>
+                <div class="order-item p-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-2">
+                            <div class="order-image">
+                                <% if (item.product && item.product.productImage && item.product.productImage.length > 0) { %>
+                                    <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="Order Image" class="img-fluid">
+                                <% } else { %>
+                                    <img src="/uploads/product-images/placeholder.jpeg" alt="Product Deleted" class="img-fluid">
+                                <% } %>
+                            </div>
+                            <br><br>
+                            <p class="mb-0 mt-2">Order ID: <%= order.orderId %></p>
+                        </div>
+                        <div class="col-md-3">
+                            <h5><%= item.product.productName %></h5>
+                            <p class="mb-0">SKU: <%= item.product.skuNumber %></p>
+                            <p class="mb-0">Color: <%= item.product.color %></p>
+                        </div>
+                        <div class="col-md-2">
+                            <p class="font-weight-bold mb-0">Price: ₹<%= item.regularPrice %></p>
+                            <p class="mb-0">Quantity: <%= item.quantity %></p>
+                            <p class="mb-0">Total: ₹<%= (item.regularPrice * item.quantity).toFixed(2) %></p>
+                            
+                            <div class="mt-2" style="background-color: #f8d7da; padding: 8px; border-radius: 5px;">
+                                <p class="font-weight-bold text-success mb-0">Sale Price: ₹<%= item.saledPrice.toFixed(2) %></p>
+                                <p class="text-success mb-0">Total Discount: ₹<%= ((item.regularPrice * item.quantity) -  (item.saledPrice * item.quantity)).toFixed(2) %></p>
+                                <p class="text-success mb-0">Saled Total: ₹<%= (item.saledPrice * item.quantity).toFixed(2) %></p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="order-status">
+                                <% if (item.itemOrderStatus === 'Delivered') { %>
+                                    <div class="status-icon delivered"></div>
+                                <% } else if (item.itemOrderStatus === 'Pending') { %>
+                                    <div class="status-icon pending"></div>
+                                <% } else if (item.itemOrderStatus === 'Processing') { %>
+                                    <div class="status-icon processing"></div>
+                                <% } else if (item.itemOrderStatus === 'Cancelled') { %>
+                                    <div class="status-icon cancelled"></div>
+                                <% } else { %>
+                                    <div class="status-icon default"></div>
+                                <% } %>
+                                <span><%= item.itemOrderStatus %></span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3 text-right">
+                            <p class="mb-2"><%= order.date.toLocaleString() %></p>
+                            <br>
+                            <% if (item.itemOrderStatus === 'Pending' || item.itemOrderStatus === 'Processing') { %>
+                                <button class="btn btn-sm btn-danger cancel-order-btn" data-item-order-id="<%= item.itemOrderId %>">Cancel Item</button>
+                            <% } else if (item.itemOrderStatus === 'Delivered') { %>
+                                <% 
+                                    const deliveryDate = item.deliveryDate || order.date;
+                                    const currentDate = new Date();
+                                    const daysSinceDelivery = Math.floor((currentDate - new Date(deliveryDate)) / (1000 * 60 * 60 * 24));
+                                %>
+                                <% if (daysSinceDelivery <= 7) { %>
+                                    <button class="btn btn-sm btn-warning return-order-btn" data-item-order-id="<%= item.itemOrderId %>">Return</button>
+                                <% } else { %>
+                                    <small class="text-muted">Return period expired</small>
+                                <% } %>
+                            <% } %>
+                            <a href="/my-order/order-details/<%= order.orderId %>/<%= item.product._id %>">
+                                <button class="btn btn-warning">View Order</button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% }) %>
+    <% } else { %>
+        <p>No orders found.</p>
+    <% } %>
+</div>
+
+<!-- Modal for Cancel Confirmation -->
+
+<div id="cancelModal" class="modal">
+    <div class="modal-content">
+        <h4>Select Reason for Cancellation</h4>
+        <form id="cancelForm" onsubmit="submitCancellation(event)">
+            <input type="hidden" id="cancelItemOrderId" name="itemOrderId">
+            <div>
+                <label><input type="radio" name="reason" value="Found cheaper alternative" required> Found cheaper alternative</label>
+            </div>
+            <div>
+                <label><input type="radio" name="reason" value="Delivery is too late" required> Delivery is too late</label>
+            </div>
+            <div>
+                <label><input type="radio" name="reason" value="Changed my mind" required> Changed my mind</label>
+            </div>
+            <div>
+                <label><input type="radio" name="reason" value="Other" required> Other</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="button" class="btn btn-secondary" onclick="closeCancelModal()">Close</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); }
+    .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 50%; }
+    .btn { margin-right: 10px; }
+</style>
+
+<script>
+  // Wait for DOM content to load before adding event listeners
+  document.addEventListener('DOMContentLoaded', function () {
+    // Cancel order event listener
+    document.querySelectorAll('.cancel-order-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const itemOrderId = e.target.getAttribute('data-item-order-id');
+            console.log('Order ID:', itemOrderId);
+            document.getElementById('cancelItemOrderId').value = itemOrderId;
+            document.getElementById('cancelModal').style.display = 'block';
+        });
+    });
+
+    // Close the modal
+    window.closeCancelModal = function() {
+        document.getElementById('cancelModal').style.display = 'none';
+    };
+  
+    window.submitCancellation = async function(event) {
+        event.preventDefault();
+        
+        const form = document.getElementById('cancelForm');
+        const formData = new FormData(form);
+        const itemOrderId = formData.get('itemOrderId');
+        const reason = formData.get('reason');
+
+        try {
+            const response = await fetch('/cancel-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    itemOrderId: itemOrderId,
+                    reason: reason
+                })
+            });
+            
+            const result = await response.json();
+
+            if (result.success) {
+                alert(result.message);
+                location.reload();  // Reload page to reflect changes
+            } else {
+                alert('Error cancelling order: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error cancelling order');
+        }
+    };
+});
+
+  </script>
+  
+  
+<script>
+  //    Cancel order event listener
+  //  document.querySelectorAll('.cancel-order-btn').forEach(btn => {
+    //     btn.addEventListener('click', async (e) => {
+    //         const itemOrderId = e.target.getAttribute('data-item-order-id');
+    //         const response = await fetch('/cancel-order', {
+    //             method: 'POST',
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify({ itemOrderId })
+    //         });
+
+    //         const result = await response.json();
+    //         if (result.success) {
+    //             alert('Order canceled successfully');
+    //             location.reload();  // Refresh the page to update order status
+    //         } else {
+    //             alert(result.message);
+    //         }
+    //     });
+    // });
+
+    // // Polling to auto-refresh orders status
+    // setInterval(async () => {
+    //     const response = await fetch('/user/my-orders');
+    //     const updatedOrders = await response.text();  // Assuming response is HTML
+    //     document.querySelector('.container').innerHTML = updatedOrders;  // Replace the order section
+    // }, 10000);  // Poll every 10 seconds for updates
+
+    // Search function (optional, if you want to implement search functionality)
+    document.getElementById('searchBtn').addEventListener('click', async () => {
+        const searchText = document.getElementById('search').value;
+        const response = await fetch(`/user/my-orders?search=${encodeURIComponent(searchText)}`);
+        const filteredOrders = await response.text();  // Assuming response is HTML
+        document.querySelector('.container').innerHTML = filteredOrders;  // Replace the order section
+    });
+document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const orderId = e.target.getAttribute('data-order-id');
+        // Implement view order logic (e.g., show order details page)
+        window.location.href = `/order-details/${orderId}`;
+    });
+});
+
+</script> 
+
+
+    <%- include("../../views/partials/user/footer") %>    

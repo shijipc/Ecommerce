@@ -4,19 +4,20 @@ const adminController=require("../controllers/admin/adminControllers");
 const customerController=require("../controllers/admin/customerController");
 const categoryController=require("../controllers/admin/categoryController");
 const productController=require("../controllers/admin/productController");
+const brandController=require("../controllers/admin/brandController");
+const orderController=require("../controllers/admin/orderManagementController");
+const couponController=require("../controllers/admin/couponController");
+
 
 const {userAuth,adminAuth}=require("../middlewares/auth");
-const multer=require("multer");
-const storage=require("../helpers/multer");
-// Initialize multer with storage settings
-const uploads=multer({storage:storage});
+const uploads=require("../helpers/multer");
 
 router.get("/pageerror",adminController.pageerror);
 
 //login mgmt
 router.get("/login",adminController.loadLogin);
 router.post("/login",adminController.login);
-router.get("/",adminAuth,adminController.loadDashboard);
+router.get("/dashboard",adminAuth,adminController.loadDashboard);
 router.get("/logout",adminController.logout);
 
 //customer mgmt
@@ -35,9 +36,17 @@ router.get("/editCategory",adminAuth,categoryController.getEditCategory);
 router.get("/editCategory",adminAuth,categoryController.getEditCategory);
 router.post("/editCategory/:id",adminAuth,categoryController.editCategory);
 
+//brand mgmt
+
+router.get("/brands",adminAuth,brandController.getBrandPage);
+router.post("/addBrand",adminAuth,uploads.single("image"),brandController.addBrand);
+router.get("/blockBrand",adminAuth,brandController.blockBrand);
+router.get("/unBlockBrand",adminAuth,brandController.unBlockBrand);
+router.get("/deleteBrand",adminAuth,brandController.deleteBrand);
+
 //Product Management
 router.get("/addProducts",adminAuth,productController.getProductAddPage);
-router.post("/addProducts",adminAuth,uploads.array("images",3),productController.addProducts);
+router.post("/addProducts",adminAuth,uploads.array("images",4),productController.addProducts);
 router.get("/products",adminAuth,productController.getAllProducts);
 router.post("/addProductOffer",adminAuth,productController.addProductOffer);
 router.post("/removeProductOffer",adminAuth,productController.removeProductOffer);
@@ -47,6 +56,19 @@ router.get("/editProduct",adminAuth,productController.getEditProduct);
 router.post("/editProduct/:id",adminAuth,uploads.array("images",3),productController.editProduct);
 router.post("/deleteImage",adminAuth,productController.deleteSingleImage);
 
+
+//order management
+router.get('/orders',adminAuth,orderController.getAdminOrders);
+router.post('/updateItemStatus',adminAuth, orderController.updateItemStatus);
+router.post('/updateOrderStatus',adminAuth, orderController.updateOrderStatus);
+router.get('/orderDetails/:orderId', adminAuth, orderController.getOrderDetails);
+
+//coupon
+router.get('/coupons',adminAuth,couponController.getCoupons); 
+router.post('/coupons/create',adminAuth, couponController.createCoupon);
+router.delete("/coupons/:id", adminAuth, couponController.deleteCoupon);
+// router.get("/coupons/:id", adminAuth, couponController.getCouponById);
+router.put("/coupons/:id", adminAuth, couponController.updateCoupon);
 
 
 module.exports=router;

@@ -1,0 +1,119 @@
+.sidebar-heading {
+    display: flex;
+    align-items: center;
+    font-weight: bold;      /* Make the text bold */
+    color: black;           /* Set text color to black */
+    padding: 10px 5px;     /* Add some padding */
+  }
+  
+  .sidebar-heading i {
+    margin-right: 10px;     /* Add some space between the icon and the text */
+  }
+  
+  .sidebar-heading a {
+    text-decoration: none;  /* Remove underline from the link */
+    color: black;           /* Set link color to black */
+    font-size: 24px;        /* Adjust the font size */
+  }
+  
+
+
+.dashboard-container {
+    display: flex;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-right: 1px solid #dee2e6;
+}
+
+.sidebar-item {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-item i {
+    margin-right: 10px;
+}
+
+.sidebar-item a {
+    text-decoration: none;
+    color: #333;
+}
+
+.dashboard-content {
+    flex: 1;
+    padding: 20px;
+}
+
+.dashboard-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card .card-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.dashboard-card .card-body {
+    display: flex;
+    align-items: center;
+}
+
+.dashboard-card .card-body i {
+    font-size: 2rem;
+    margin-right: 10px;
+}
+
+.dashboard-card .card-body .card-text {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.account-info, .billing-address {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.account-info .user-info, .billing-address .user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.account-info .user-info i, .billing-address .user-info i {
+    font-size: 1.5rem;
+    margin-right: 10px;
+}
+
+.account-info .user-details, .billing-address .user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.account-info .user-details span, .billing-address .user-details span {
+    margin-bottom: 5px;
+}
+
+.edit-button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.edit-button:hover {
+    background-color: #0056b3;
+}
