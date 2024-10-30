@@ -103,16 +103,7 @@
         </div>
       </div>
 
-      <!-- <div class="product-delivery" style="margin-left: 39rem;">
-        <i class="fas fa-truck"></i>
-        Free Delivery
-        <span>Enter your postal code for Delivery Availability</span>
-      </div>
-      <div class="product-return" style="margin-left: 39rem;">
-        <i class="fas fa-sync-alt"></i>
-        Free 30 Days Returns. Details
-      </div>
-    </div> -->
+     
 <h3 style="padding-left: 20px;">Related products</h3>
 <div class="row row-pb-md">
   <% products.forEach((product) => { %>
@@ -198,7 +189,7 @@ sizeElements.forEach(size => {
 
 async function addToCart(productId, quantity) {
 
-  const selectedSize = getSelectedSize(); // Make sure this function exists and returns the selected size
+  const selectedSize = getSelectedSize(); 
     if (!selectedSize) {
         Swal.fire({
             title: 'Error',
@@ -210,7 +201,7 @@ async function addToCart(productId, quantity) {
     }
 
     try {
-        const response = await fetch('/add-cart', { // Note: Changed from '/cart' to '/add-cart'
+        const response = await fetch('/add-cart', { 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -256,35 +247,28 @@ async function addToCart(productId, quantity) {
 
   </script>
   <script>
-  async function addToWishlist(productId) {
-  // const selectedSize = getSelectedSize();
-  // const quantity = parseInt(document.getElementById('quantity').value);
 
-  // if (!selectedSize || isNaN(quantity) || quantity <= 0) {
-  //   Swal.fire({
-  //     title: 'Error',
-  //     text: 'Please select a valid size and quantity.',
-  //     icon: 'error',
-  //     confirmButtonText: 'OK',
-  //   });
-  //   return;
-  // }
 
+async function addToWishlist(productId) {
   try {
     const response = await fetch('/wishlist', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        productId,  // Ensure productId is correctly passed
-        // size: selectedSize,
-        // quantity
-      }),
+      body: JSON.stringify({ productId }),
     });
 
-    if (response.ok) {
-      const result = await response.json();
+    const result = await response.json();
+
+    if (response.status === 409) {
+      Swal.fire({
+        title: 'Already Added!',
+        text: result.message,
+        icon: 'info',
+        confirmButtonText: 'OK',
+      });
+    } else if (response.ok) {
       Swal.fire({
         title: 'Success!',
         text: result.message,
@@ -292,10 +276,9 @@ async function addToCart(productId, quantity) {
         confirmButtonText: 'OK',
       });
     } else {
-      const errorData = await response.json();
       Swal.fire({
         title: 'Error!',
-        text: errorData.message || 'Could not add to wishlist.',
+        text: result.message || 'Could not add to wishlist.',
         icon: 'error',
         confirmButtonText: 'OK',
       });
@@ -310,6 +293,61 @@ async function addToCart(productId, quantity) {
     });
   }
 }
+
+//   async function addToWishlist(productId) {
+//   // const selectedSize = getSelectedSize();
+//   // const quantity = parseInt(document.getElementById('quantity').value);
+
+//   // if (!selectedSize || isNaN(quantity) || quantity <= 0) {
+//   //   Swal.fire({
+//   //     title: 'Error',
+//   //     text: 'Please select a valid size and quantity.',
+//   //     icon: 'error',
+//   //     confirmButtonText: 'OK',
+//   //   });
+//   //   return;
+//   // }
+
+//   try {
+//     const response = await fetch('/wishlist', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         productId,  // Ensure productId is correctly passed
+//         // size: selectedSize,
+//         // quantity
+//       }),
+//     });
+
+//     if (response.ok) {
+//       const result = await response.json();
+//       Swal.fire({
+//         title: 'Success!',
+//         text: result.message,
+//         icon: 'success',
+//         confirmButtonText: 'OK',
+//       });
+//     } else {
+//       const errorData = await response.json();
+//       Swal.fire({
+//         title: 'Error!',
+//         text: errorData.message || 'Could not add to wishlist.',
+//         icon: 'error',
+//         confirmButtonText: 'OK',
+//       });
+//     }
+//   } catch (error) {
+//     console.error('Error:', error);
+//     Swal.fire({
+//       title: 'Error!',
+//       text: 'An error occurred. Please try again.',
+//       icon: 'error',
+//       confirmButtonText: 'OK',
+//     });
+//   }
+// }
 
 
   </script>
@@ -494,37 +532,37 @@ async function addToCart(productId, quantity) {
 }
 
 .row.row-pb-md {
-  display: flex; /* Use flexbox for the row */
-  justify-content: center; /* Center the products */
-  flex-wrap: wrap; /* Allow wrapping of product items */
-  margin: 0; /* Remove any default margin */
-  padding: 0; /* Remove any default padding */
+  display: flex; 
+  justify-content: center; 
+  flex-wrap: wrap; 
+  margin: 0; 
+  padding: 0; 
 }
 
 .product-entry {
-  width: 200px; /* Set a fixed width for product containers */
-  height: 250px; /* Set a fixed height for product containers */
-  display: flex; /* Use flexbox for the container */
-  flex-direction: column; /* Stack items vertically */
-  justify-content: flex-start; /* Align items at the start */
-  align-items: center; /* Center items horizontally */
-  margin: 0; /* Remove margin to eliminate gaps */
+  width: 200px; 
+  height: 250px; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: flex-start; 
+  align-items: center; 
+  margin: 0; 
 }
 
 .prod-img {
-  width: 100%; /* Make the image container take the full width */
-  height: 150px; /* Set a fixed height for the images */
-  overflow: hidden; /* Hide overflow to ensure images fit */
+  width: 100%; 
+  height: 150px; 
+  overflow: hidden; 
 }
 
 .prod-img img {
-  width: 100%; /* Make the image take up the full width of the container */
-  height: 100%; /* Make the image take up the full height of the container */
-  object-fit: cover; /* Ensure the image covers the container without stretching */
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover; 
 }
 
 .desc {
-  text-align: center; /* Center text within the description */
+  text-align: center; 
 }
 
 </style>

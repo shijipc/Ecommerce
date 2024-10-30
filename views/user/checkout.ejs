@@ -140,9 +140,12 @@
         margin-top: 10px;
     }
 </style>
+
 </head>
 <body>
-
+<div>
+    
+</div>
 <div class="breadcrumbs">
     <div class="container">
         <div class="row">
@@ -173,6 +176,30 @@
             <% } else { %>
                 <p>No addresses found. Please add a new address.</p>
             <% } %>    
+
+            <div class="coupon-section">
+                <div class="form-group">
+                    <label for="availableCoupons">Select a Coupon:</label>
+                    <select id="availableCoupons" name="coupon" class="form-control">
+                        <option value="">Select a coupon</option>
+                        <% if (coupons && coupons.length > 0) { %>
+                            <% coupons.forEach(coupon => { %>
+                                <option value="<%= coupon._id %>">
+                                    <%= coupon.code %> - <%= coupon.description %> (Valid until: <%= new Date(coupon.endDate).toLocaleDateString() %>)
+                                </option>
+                            <% }) %>
+                        <% } else { %>
+                            <option value="">No coupons available</option>
+                        <% } %>
+                    </select>
+                </div>
+
+                <button type="button" id="applyCouponBtn" class="btn btn-primary">Apply Coupon</button>
+                <button type="button" id="removeCouponBtn" class="btn btn-danger" style="display:none;">Remove Coupon</button>
+                <div class="coupon-msg" id="couponMessage"></div>
+            </div>
+            
+            
         </div>
 
         <div class="new-address-form" id="newAddressForm" style="display:none;">
@@ -189,13 +216,6 @@
                 <input type="hidden" id="addressId" name="addressId" value="">
             </form>
         </div>
-    </div>
-
-    <div class="coupon-section">
-        <input type="text" id="couponCodeInput" placeholder="Enter Coupon Code">
-        <button id="applyCouponBtn">Apply Coupon</button>
-        <button id="removeCouponBtn" style="display:none;">Remove Coupon</button>
-        <div class="coupon-msg" id="couponMessage"></div>
     </div>
 
     <div class="col-lg-4">
@@ -226,13 +246,14 @@
         <form id="checkoutForm" onsubmit="handleFormSubmit(event)">
             <input type="hidden" name="cartId" value="<%= cartData._id %>">
             <input type="hidden" name="addressId" id="addressIdForOrder">
-            <input type="hidden" name="appliedCoupon" id="appliedCoupon" value="">
+            <input type="hidden" name="appliedCouponId" id="appliedCouponId" value="">
 
             <!-- Payment Methods -->
             <div class="payment-methods">
                 <h2>Payment Method</h2>
                 <label><input type="radio" name="paymentMethod" value="Online Payment" required> Online Payment (Razorpay)</label>
                 <label><input type="radio" name="paymentMethod" value="Cash On Delivery" required> Cash on Delivery</label>
+                <label><input type="radio" name="paymentMethod" value="WalletPayment" required> Pay from Wallet</label>
             </div>
 
             <button type="submit" class="place-order-btn">Place Order</button>
@@ -372,42 +393,52 @@ function cancelAddressForm() {
 </script>
 
 <script>
-   // Handle Apply Coupon Button Click
-   document.getElementById('applyCouponBtn').addEventListener('click', async () => {
-        const couponCode = document.getElementById('couponCodeInput').value.trim();
-        if (!couponCode) return alert('Please enter a coupon code.');
+   document.addEventListener('DOMContentLoaded', () => {
+    const couponDropdown = document.getElementById('couponDropdown');
+    const applyCouponBtn = document.getElementById('applyCouponBtn');
+    const couponMessage = document.getElementById('couponMessage');
+    const couponDiscount = document.getElementById('couponDiscount');
+    const orderTotal = document.getElementById('orderTotal');
+
+    applyCouponBtn.addEventListener('click', async () => {
+        const selectedCouponCode = couponDropdown.value;
+
+        if (!selectedCouponCode) {
+            alert('Please select a coupon.');
+            return;
+        }
 
         try {
-            const response = await fetch('/coupons/apply/coupon._id',
-             { method: 'POST' });
+            const response = await fetch(`/coupons/apply/${selectedCouponCode}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+
             const result = await response.json();
 
             if (result.success) {
-                document.getElementById('couponDiscount').textContent = `₹${result.discount}`;
-                document.getElementById('orderTotal').textContent = `₹${result.newTotal}`;
-                document.getElementById('couponMessage').textContent = 'Coupon applied successfully!';
-                document.getElementById('appliedCoupon').value = couponCode;
-
-                document.getElementById('applyCouponBtn').style.display = 'none';
+                couponDiscount.textContent = `₹${result.discount}`;
+                orderTotal.textContent = `₹${result.newTotal}`;
+                couponMessage.textContent = 'Coupon applied successfully!';
+                applyCouponBtn.style.display = 'none';
                 document.getElementById('removeCouponBtn').style.display = 'inline-block';
             } else {
-                document.getElementById('couponMessage').textContent = result.message;
+                couponMessage.textContent = result.message;
             }
         } catch (error) {
             console.error('Error applying coupon:', error);
         }
     });
 
-    // Handle Remove Coupon Button Click
     document.getElementById('removeCouponBtn').addEventListener('click', () => {
-        document.getElementById('couponDiscount').textContent = '₹0.00';
-        document.getElementById('orderTotal').textContent = `₹<%= orderTotal %>`;
-        document.getElementById('couponMessage').textContent = '';
-        document.getElementById('appliedCoupon').value = '';
-
-        document.getElementById('applyCouponBtn').style.display = 'inline-block';
+        couponDiscount.textContent = '₹0.00';
+        orderTotal.textContent = `₹<%= orderTotal %>`;
+        couponMessage.textContent = '';
+        applyCouponBtn.style.display = 'inline-block';
         document.getElementById('removeCouponBtn').style.display = 'none';
     });
+});
+
 
     // Handle Checkout Form Submission
     function handleFormSubmit(event) {

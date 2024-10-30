@@ -10,6 +10,7 @@ const checkoutController=require("../controllers/user/checkoutController");
 const  orderController=require("../controllers/user/orderController");
 const wishlistController = require("../controllers/user/wishlistController");
 
+
 const {userAuth}=require("../middlewares/auth");
 
 //error
@@ -68,7 +69,7 @@ router.get("/offer",userAuth,offerController.loadOfferPage);
 
 //checkout
 router.get("/cart/checkout/:id", userAuth, checkoutController.getCheckout);
-router.post('/api/coupons/apply/:code',userAuth, checkoutController.applyCoupon);
+router.post('/coupons/apply/:code',userAuth, checkoutController.applyCoupon);
 router.post('/placeOrder', userAuth,checkoutController.placeOrder);
 
 
@@ -83,6 +84,7 @@ router.post('/wishlist',userAuth,wishlistController.addToWishlist);
 router.get('/wishlist',userAuth, wishlistController.getWishlist);
 router.delete('/wishlist/delete',userAuth, wishlistController.deleteWishlistItem);
 
+//coupon mgmnt
 
 
 

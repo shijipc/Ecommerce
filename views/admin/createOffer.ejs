@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create new offer</title>
+<style>
+    .main {
+        margin-left: 120px;
+    }
+
+    @media screen and (max-width: 920px) {
+        .main {
+            margin: 0;
+        }
+    }
+
+    .error {
+        color: red;
+        font-size: 0.9em;
+        margin-top: 5px;
+    }
+    
+    #productField, #categoryField {
+        display: none;
+    }
+</style>
+<body>
+    <%- include("../../views/partials/admin/header") %>
+
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-md-12 main">
+                    <div class="card mt-5">
+                        <div class="card-header text-center">
+                            <br><br><br>
+                            <h2 class="mb-0">Create New Offer</h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="offerForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="offerCode" class="form-label">Offer Code</label>
+                                        <input type="text" class="form-control" id="offerCode" name="offerCode" required>
+                                        <div class="error" id="offerCodeError"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="title" class="form-label">Title</label>
+                                        <input type="text" class="form-control" id="title" name="title" required>
+                                        <div class="error" id="titleError"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="description" class="form-label">Description</label>
+                                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                                        <div class="error" id="descriptionError"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="discountType" class="form-label">Discount Type</label>
+                                        <select class="form-select" id="discountType" name="discountType" required>
+                                            <option value="percentage">Percentage</option>
+                                            <option value="flat">Flat Amount</option>
+                                        </select>
+                                        <div class="error" id="discountTypeError"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="discountValue" class="form-label">Discount Value</label>
+                                        <input type="number" class="form-control" id="discountValue" name="discountValue" required>
+                                        <div class="error" id="discountValueError"></div>
+                                    </div>
+                                    
+                                </div>
+                                <div class="row">
+                                  
+                                    <div class="col-md-6 mb-3">
+                                        <label for="offerType" class="form-label">Offer Type</label>
+                                        <select class="form-select" id="offerType" name="offerType" required onchange="toggleProductCategory()">
+                                            <option value="product">Product</option>
+                                            <option value="category">Category</option>
+                                        </select>
+                                        <div class="error" id="offerTypeError"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3" id="productField">
+                                        <label for="product" class="form-label">Select Product</label>
+                                        <select class="form-control" id="product" name="product">
+                                            <option value="">--Select Product--</option>
+                                            <option value="all">All Products</option> 
+                                            <% products.forEach(function(product) { %>
+                                                <option value="<%= product._id %>"><%= product.productName %></option>
+                                            <% }); %>
+                                        </select>
+                                        <div class="error" id="productError"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3" id="categoryField">
+                                        <label for="category" class="form-label">Select Category</label>
+                                        <select class="form-control" id="category" name="category">
+                                            <option value="">--Select Category--</option>
+                                            <option value="all">All Categories</option> 
+                                            <% categories.forEach(function(category) { %>
+                                                <option value="<%= category._id %>"><%= category.name %></option>
+                                            <% }); %>
+                                        </select>
+                                        <div class="error" id="categoryError"></div>
+                                    </div>
+                                </div>
+                               
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="startDate" class="form-label">Start Date</label>
+                                        <input type="date" class="form-control" id="startDate" name="startDate" required>
+                                        <div class="error" id="startDateError"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="endDate" class="form-label">End Date</label>
+                                        <input type="date" class="form-control" id="endDate" name="endDate" required>
+                                        <div class="error" id="endDateError"></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="status" class="form-label">Status</label>
+                                        <select class="form-select" id="status" name="status" required>
+                                            <option value="active">Active</option>
+                                            <option value="expired">Expired</option>
+                                            <option value="upcoming">Upcoming</option>
+                                            <option value="inactive">Inactive</option>
+                                        </select>
+                                        <div class="error" id="statusError"></div>
+                                    </div>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg">Create Offer</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+ function toggleProductCategory() {
+ const offerType = document.getElementById('offerType').value;
+ const productField = document.getElementById('productField');
+ const categoryField = document.getElementById('categoryField');
+
+ if (offerType === 'product') {
+     productField.style.display = 'block';
+     categoryField.style.display = 'none';
+     document.getElementById('product').required = true;
+     document.getElementById('category').required = false;
+ } else if (offerType === 'category') {
+     productField.style.display = 'none';
+     categoryField.style.display = 'block';
+     document.getElementById('product').required = false;
+     document.getElementById('category').required = true;
+ } else {
+     productField.style.display = 'none';
+     categoryField.style.display = 'none';
+     document.getElementById('product').required = false;
+     document.getElementById('category').required = false;
+ }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+ 
+ document.getElementById('productField').style.display = 'block';
+ document.getElementById('product').required = true;
+
+ document.getElementById('offerForm').addEventListener('submit', function(e) {
+     e.preventDefault();
+     if (validateForm()) {
+         addOffer();
+     }
+ });
+
+ 
+ document.getElementById('discountType').addEventListener('change', function() {
+     validateDiscountValue();
+ });
+
+ 
+ document.getElementById('discountValue').addEventListener('input', function() {
+     validateDiscountValue();
+ });
+});
+
+function validateForm() {
+ let isValid = true;
+ const fields = ['offerCode', 'title', 'offerType', 'discountType', 'discountValue', 'startDate', 'endDate', 'status'];
+
+ fields.forEach(field => {
+     const value = document.getElementById(field).value.trim();
+     const errorElement = document.getElementById(`${field}Error`);
+
+     if (!value) {
+         errorElement.textContent = `${field.charAt(0).toUpperCase() + field.slice(1)} is required.`;
+         isValid = false;
+     } else {
+         errorElement.textContent = '';
+     }
+ });
+
+ const offerType = document.getElementById('offerType').value;
+ if (offerType === 'product' && !document.getElementById('product').value) {
+     document.getElementById('productError').textContent = 'Product is required for product offers.';
+     isValid = false;
+ }
+ if (offerType === 'category' && !document.getElementById('category').value) {
+     document.getElementById('categoryError').textContent = 'Category is required for category offers.';
+     isValid = false;
+ }
+
+ 
+ const startDate = new Date(document.getElementById('startDate').value);
+ const endDate = new Date(document.getElementById('endDate').value);
+ const today = new Date();
+ today.setHours(0, 0, 0, 0);  
+
+ 
+ if (endDate < today) {
+     document.getElementById('endDateError').textContent = 'End date cannot be before today.';
+     isValid = false;
+ }
+ else if (startDate > endDate) {
+     document.getElementById('endDateError').textContent = 'End date must be after start date.';
+     isValid = false;
+ } else {
+     document.getElementById('endDateError').textContent = '';  
+ }
+
+ isValid = validateDiscountValue() && isValid;
+
+ return isValid;
+}
+
+
+function validateDiscountValue() {
+ const discountType = document.getElementById('discountType').value;
+ const discountValue = parseFloat(document.getElementById('discountValue').value);
+ const errorElement = document.getElementById('discountValueError');
+
+ if (discountType === 'percentage') {
+     if (isNaN(discountValue) || discountValue <= 0 || discountValue > 60) {
+         errorElement.textContent = 'Percentage discount must be between 0 and 60.';
+         return false;
+     }
+ } else if (discountType === 'flat') {
+     if (isNaN(discountValue) || discountValue <= 0 || discountValue > 100) {
+         errorElement.textContent = 'Flat discount must be between 0 and 100.';
+         return false;
+     }
+ }
+
+ errorElement.textContent = '';
+ return true;
+}
+
+function addOffer() {
+ const formData = new FormData(document.getElementById('offerForm'));
+ const offerData = Object.fromEntries(formData.entries());
+
+ if (offerData.offerType === 'product') {
+     delete offerData.Categories;
+ } else if (offerData.offerType === 'category') {
+     delete offerData.product;
+ } else {
+     delete offerData.product;
+     delete offerData.Categories;
+ }
+
+ fetch('/admin/createOffer/addOffer', {
+     method: 'POST',
+     headers: {
+         'Content-Type': 'application/json',
+     },
+     body: JSON.stringify(offerData)
+ })
+ .then(response => response.json())
+ .then(data => {
+     if (data.success) {
+         Swal.fire({
+             title: 'Success!',
+             text: 'Offer created successfully',
+             icon: 'success',
+             confirmButtonText: 'OK'
+         }).then((result) => {
+             if (result.isConfirmed) {
+                 window.location.href = '/admin/offers';
+             }
+         });
+     } else {
+         Swal.fire({
+             title: 'Error!',
+             text: data.message || 'Failed to create offer',
+             icon: 'error',
+             confirmButtonText: 'OK'
+         });
+     }
+ })
+ .catch(error => {
+     console.error('Error:', error);
+     Swal.fire({
+         title: 'Error!',
+         text: 'An unexpected error occurred',
+         icon: 'error',
+         confirmButtonText: 'OK'
+     });
+ });
+}
+ </script>
+
+</body>
+</html>

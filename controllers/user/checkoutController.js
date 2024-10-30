@@ -32,12 +32,16 @@ const getCheckout = async (req, res) => {
         // Calculate totals
         let subtotal = 0;
         cartData.items.forEach(item => {
-            item.totalPrice = item.product.salePrice * item.quantity;// Calculate total for each item
+            item.totalPrice = item.product.salePrice * item.quantity;
             subtotal += item.product.salePrice * item.quantity;
         });
 
-        const shippingCost = 0; // Assume free shipping for now
+        const shippingCost = 0; 
         const orderTotal = subtotal + shippingCost;
+
+          
+          const coupons = await Coupon.find({ status: "Active" }); 
+
 
         res.render('checkout', { 
             addresses: userAddresses,            
@@ -45,7 +49,8 @@ const getCheckout = async (req, res) => {
             cartData,
             subtotal,
             shippingCost,
-            orderTotal
+            orderTotal,
+            coupons  
         });
     } catch (error) {
         console.error("Error during checkout page load:", error);
@@ -95,7 +100,7 @@ const placeOrder = async (req, res) => {
 
         const { addressId, paymentMethod, cartId,appliedCoupon } = req.body;
 
-        // Log received data for debugging
+       
         console.log('Received order data:', { userId, addressId, paymentMethod, cartId });
 
         // Validate if the address exists
@@ -119,11 +124,11 @@ const placeOrder = async (req, res) => {
         if (appliedCoupon) {
             const coupon = await Coupon.findOne({ code: appliedCoupon });
             if (coupon) {
-                totalPrice -= coupon.discountValue; // Adjust logic if percentage-based
+                totalPrice -= coupon.discountValue; 
             }
         }
 
-        const shippingCost = 0; // Adjust if needed
+        const shippingCost = 0; 
         const finalAmount = totalPrice + shippingCost;
         console.log('Total price:', totalPrice, 'Final amount:', finalAmount);
 
@@ -148,15 +153,15 @@ const placeOrder = async (req, res) => {
             })),
             actualPrice: totalPrice,
             offerPrice: finalAmount,
-            discount: 0, // Adjust if you implement discounts
+            discount: 0, 
             status: 'Processing',
             payment: [{
                 method: paymentMethod,
                 status: paymentMethod === 'Cash On Delivery' ? 'pending' : 'completed'
             }],
             totalPrice: finalAmount,
-            orderType: 'Retail', // Adjust if needed
-            shippingMethod: 'Standard', // Adjust if needed
+            orderType: 'Retail', 
+            shippingMethod: 'Standard', 
         });
 
         console.log('New order data:', newOrder);

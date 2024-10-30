@@ -262,9 +262,9 @@ function updateQuantity(productId, change, itemSize) {
 
         Swal.fire('Updated', 'Quantity updated successfully', 'success');
     })
-    .then(() => {
-        window.location.reload();
-    })
+    // .then(() => {
+    //     window.location.reload();
+    // })
     .catch(error => {
         console.error('Error:', error.message);
         Swal.fire('Error', error.message, 'error');
@@ -295,7 +295,7 @@ function updateQuantity(productId, change, itemSize) {
                 });
 
 
-                const data = await response.json(); // Parse the response
+                const data = await response.json(); 
 
                 if (response.ok && data.success) {
                     // Show success message

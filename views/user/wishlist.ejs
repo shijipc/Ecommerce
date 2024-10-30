@@ -38,33 +38,32 @@
                     <img src="/uploads/product-images/<%= item.product.productImage[0] %>" 
                          alt="<%= item.product.productName %>" class="product-image">
                 
-                    <div class="product-details">
-                        <div class="product-name" style="padding-left: 15px;">
-                            <%= item.product.productName %>
+                         <div class="product-details">
+                            <!-- Corrected anchor link -->
+                            <a href="/product-details/<%= item.product._id %>" 
+                               class="product-name" 
+                               style="padding-left: 15px; font-weight: bold; text-decoration: none; color: #333;">
+                                <%= item.product.productName %>
+                            </a>
+                        
+                            <% if (item.product.status === 'Available') { %>
+                                <div class="product-price">
+                                    ₹<%= item.product.salePrice %>
+                                    <span class="original-price">₹<%= item.product.regularPrice %></span>
+                                    <span class="discount">
+                                        <%= Math.round((1 - item.product.salePrice / item.product.regularPrice) * 100) %> % off
+                                    </span>
+                                </div>
+                            <% } else { %>
+                                <div class="unavailable">Currently unavailable</div>
+                            <% } %>
                         </div>
-                
-                        <!-- <input type="hidden" class="item-size" value="<%= item.size %>"> -->
-                
-                        <% if (item.product.status === 'Available') { %>
-                            <div class="product-price">
-                                ₹<%= item.product.salePrice %>
-                                <span class="original-price">₹<%= item.product.regularPrice %></span>
-                                <span class="discount">
-                                    <%= Math.round((1 - item.product.salePrice / item.product.regularPrice) * 100) %>% off
-                                </span>
-                            </div>
-                        <% } else { %>
-                            <div class="unavailable">Currently unavailable</div>
-                        <% } %>
-                    </div>
+                        
                 
                     <!-- DELETE BUTTON -->
                    
-                    <button 
-                        class="delete-item" 
-                        
-                        data-product-id="<%= item.product._id %>" 
-                        >
+                    <button class="delete-item" 
+                    data-product-id="<%= item.product._id %>">
                         ❌
                     </button>
                 </div>
@@ -83,7 +82,7 @@
     deleteButtons.forEach(button => {
         button.addEventListener('click', async function () {
             const productId = this.getAttribute('data-product-id');
-            console.log('Delete button clicked:', { productId }); // Debugging log
+            console.log('Delete button clicked:', { productId }); 
 
             if (!productId) {
                 return Swal.fire("Error", "Incomplete product data. Please try again.", "error");
@@ -113,7 +112,7 @@
                 });
 
                 const result = await response.json();
-                console.log('Delete response:', result); // Debugging log
+                console.log('Delete response:', result); 
 
                 if (result.success) {
                     Swal.fire("Deleted!", "Item removed from your wishlist.", "success").then(() => {
@@ -127,15 +126,14 @@
                     Swal.fire("Error", result.error || "Failed to remove item. Please try again.", "error");
                 }
             } catch (error) {
-                console.error('Error:', error); // Log errors for debugging
+                console.error('Error:', error); 
                 Swal.fire("Oops!", "An error occurred. Please try again.", "error");
             }
         });
     });
 });
 
-
-    </script>
+</script>
 </body>
 </html>
 <%- include("../../views/partials/user/footer") %>

@@ -7,6 +7,7 @@ const productController=require("../controllers/admin/productController");
 const brandController=require("../controllers/admin/brandController");
 const orderController=require("../controllers/admin/orderManagementController");
 const couponController=require("../controllers/admin/couponController");
+const adminOfferController=require("../controllers/admin/adminOfferController");
 
 
 const {userAuth,adminAuth}=require("../middlewares/auth");
@@ -67,8 +68,15 @@ router.get('/orderDetails/:orderId', adminAuth, orderController.getOrderDetails)
 router.get('/coupons',adminAuth,couponController.getCoupons); 
 router.post('/coupons/create',adminAuth, couponController.createCoupon);
 router.delete("/coupons/:id", adminAuth, couponController.deleteCoupon);
-// router.get("/coupons/:id", adminAuth, couponController.getCouponById);
+router.get("/coupons/:id", adminAuth, couponController.editCoupon);
 router.put("/coupons/:id", adminAuth, couponController.updateCoupon);
+
+//offer
+router.get("/adminOffer", adminAuth,adminOfferController.offer);
+router.get("/createOffer",adminAuth,adminOfferController.createOffer);
+router.post("/createOffer/addOffer",adminAuth,adminOfferController.addOffer)
+router.delete("/offers/deleteOffer/:offerId",adminAuth, adminOfferController.deleteOffer)
+
 
 
 module.exports=router;
