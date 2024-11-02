@@ -94,7 +94,12 @@ const cart = async (req, res, next) => {
             return res.status(401).json({ error: 'User not authenticated' });
         }
 
-        let cart = await Cart.findOne({ userId: userId }).populate('items.product').exec();
+        let cart = await Cart.findOne({ userId: userId })
+      .populate({
+        path: 'items.product',
+        populate: [{ path: 'brand' }, { path: 'category' }]
+      })
+      .exec();
 
        
         if (!cart) {
@@ -105,7 +110,7 @@ const cart = async (req, res, next) => {
             await cart.save();
         }
 
-      
+        
         if (cart.items.length > 0 && cart.items.some(item => item.product && item.product.isBlocked)) {
             const blockedItems = cart.items.filter(item => item.product.isBlocked);
             cart.items = cart.items.filter(item => !item.product.isBlocked);
@@ -124,30 +129,72 @@ const cart = async (req, res, next) => {
         let distinctProductCount = 0;
         let totalDiscount = 0;  
         const deliveryCharges = 0;
+        let cartUpdated = false;
         
 
         if (cart.items.length > 0) {
             const distinctProducts = new Set(); 
+            
             for (const item of cart.items) {
                 if (item.product) {
+                    const currentPrice =
+            item.product.offerPrice && item.product.offerPrice < item.product.salePrice
+              ? item.product.offerPrice
+              : item.product.salePrice < item.product.regularPrice
+              ? item.product.salePrice
+              : item.product.regularPrice;
+
+          const currentDiscountAmount =
+            item.product.offerPrice && item.product.offerPrice < item.product.regularPrice
+              ? item.product.regularPrice - item.product.offerPrice
+              : item.product.salePrice < item.product.regularPrice
+              ? item.product.regularPrice - item.product.salePrice
+              : 0;
+
+          
+          if (
+            item.price !== currentPrice || 
+            item.discountAmount !== currentDiscountAmount || 
+            item.regularPrice !== item.product.regularPrice
+          ) {
+            item.price = currentPrice;
+            item.discountAmount = currentDiscountAmount;
+            item.regularPrice = item.product.regularPrice;
+            cartUpdated = true;
+          }
+
+          totalPrice += item.regularPrice * item.quantity;
+          totalDiscount += currentDiscountAmount * item.quantity;
+          totalItems += item.quantity;
+          distinctProducts.add(item.product._id.toString());
+        }
+      }
+
+      distinctProductCount = distinctProducts.size;
+
+    
+      if (cartUpdated) {
+        await cart.save();
+      }
+    }
                     
-                    totalPrice += item.product.salePrice * item.quantity;  
-                    totalItems += item.quantity;  
+        //             totalPrice += item.product.salePrice * item.quantity;  
+        //             totalItems += item.quantity;  
 
                   
-                    const discountAmount = item.product.offerPrice && item.product.offerPrice < item.product.salePrice
-                        ? item.product.salePrice - item.product.offerPrice
-                        : 0;
+        //             const discountAmount = item.product.offerPrice && item.product.offerPrice < item.product.salePrice
+        //                 ? item.product.salePrice - item.product.offerPrice
+        //                 : 0;
 
-                    totalDiscount += discountAmount * item.quantity;  
-                    distinctProducts.add(item.product._id.toString());
-                }
-            }
-            distinctProductCount = distinctProducts.size;
+        //             totalDiscount += discountAmount * item.quantity;  
+        //             distinctProducts.add(item.product._id.toString());
+        //         }
+        //     }
+        //     distinctProductCount = distinctProducts.size;
 
-         
-            await cart.save();
-        }
+            
+        //     await cart.save();
+        // }
 
    
         const totalAmount = totalPrice - totalDiscount + deliveryCharges;

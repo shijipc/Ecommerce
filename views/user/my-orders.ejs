@@ -72,7 +72,7 @@
                             <p class="mb-0">Total: ₹<%= (item.regularPrice * item.quantity).toFixed(2) %></p>
                             
                             <div class="mt-2" style="background-color: #f8d7da; padding: 8px; border-radius: 5px;">
-                                <p class="font-weight-bold text-success mb-0">Sale Price: ₹<%= item.saledPrice.toFixed(2) %></p>
+                                <p class="font-weight-bold text-success mb-0">Actual Price: ₹<%= item.regularPrice.toFixed(2) %></p>
                                 <p class="text-success mb-0">Total Discount: ₹<%= ((item.regularPrice * item.quantity) -  (item.saledPrice * item.quantity)).toFixed(2) %></p>
                                 <p class="text-success mb-0">Saled Total: ₹<%= (item.saledPrice * item.quantity).toFixed(2) %></p>
                             </div>
@@ -240,20 +240,55 @@
     //     document.querySelector('.container').innerHTML = updatedOrders;  // Replace the order section
     // }, 10000);  // Poll every 10 seconds for updates
 
+
+
+
     // Search function (optional, if you want to implement search functionality)
     document.getElementById('searchBtn').addEventListener('click', async () => {
-        const searchText = document.getElementById('search').value;
-        const response = await fetch(`/user/my-orders?search=${encodeURIComponent(searchText)}`);
-        const filteredOrders = await response.text();  // Assuming response is HTML
-        document.querySelector('.container').innerHTML = filteredOrders;  // Replace the order section
-    });
-document.querySelectorAll('.view-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        const orderId = e.target.getAttribute('data-order-id');
-        // Implement view order logic (e.g., show order details page)
-        window.location.href = `/order-details/${orderId}`;
-    });
+  const searchText = document.getElementById('search').value;
+
+  if (!searchText) {
+    alert("Please enter an Order ID to search.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`/orders/search?orderId=${encodeURIComponent(searchText)}`);
+    const data = await response.json();
+
+    if (data.success && data.order) {
+      // Generate HTML for the specific order in card format
+      const order = data.order;
+      const orderCard = `
+        <div class="order-card p-3 mb-4">
+          <h5>Order ID: ${order.orderId}</h5>
+          <p><strong>Total Price:</strong> ₹${order.totalPrice}</p>
+          <p><strong>Status:</strong> ${order.status}</p>
+          <h6>Items:</h6>
+          ${order.items.map(item => `
+            <div class="item-card">
+              <p><strong>Product Name:</strong> ${item.product.productName}</p>
+              <p><strong>Quantity:</strong> ${item.quantity}</p>
+              <p><strong>Price per Item:</strong> ₹${item.regularPrice}</p>
+              <p><strong>Total:</strong> ₹${(item.regularPrice * item.quantity).toFixed(2)}</p>
+              <p><strong>Status:</strong> ${item.itemOrderStatus}</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      // Update the container to display the order card
+      document.querySelector('.container').innerHTML = orderCard;
+    } else {
+      document.querySelector('.container').innerHTML = `<p>${data.message || "Order not found"}</p>`;
+    }
+  } catch (error) {
+    console.error("Error searching for order:", error);
+    alert("An error occurred while searching for the order.");
+  }
 });
+
+
 
 </script> 
 

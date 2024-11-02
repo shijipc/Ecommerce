@@ -16,11 +16,12 @@ const wishlistSchema=new Schema({
         },
         size: {
             type: String,
-            required: false,
+            required: true,
           },
           quantity: {
             type: Number,
-            required: false,
+            required: true,
+            default: 1
           },
         addedOn:{
             type:Date,

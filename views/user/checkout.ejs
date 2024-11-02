@@ -178,6 +178,39 @@
             <% } %>    
 
             <div class="coupon-section">
+                <div class="row">               
+                    <div class="col-md-11">
+                        <div class="coupon-details">
+                            <form id="couponForm">
+                                <div class="form-group">
+                                    <label for="availableCoupons">Select a Coupon:</label>
+                                    <select id="availableCoupons" name="coupon" class="form-control">
+                                        <option value="">Select a coupon</option>
+                                        <% if (coupons && coupons.length > 0) { %>
+                                            <% coupons.forEach(coupon => { %>
+                                                <option value="<%= coupon._id %>">
+                                                    <%= coupon.code %> - <%= coupon.description %> (Valid until: <%= new Date(coupon.endDate).toLocaleDateString() %>)
+                                                </option>
+                                            <% }) %>
+                                        <% } else { %>
+                                            <option value="">No coupons available</option>
+                                        <% } %>
+                                    </select>
+                                </div>
+
+                                <button type="button" id="applyCouponBtn" class="btn btn-primary">Apply Coupon</button>
+                                <button type="button" id="removeCouponBtn" class="btn btn-danger" style="display:none;">Remove Coupon</button>
+                                
+                            </form>
+                            <div id="couponMessage"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+<!-- 
+            <div class="coupon-section">
                 <div class="form-group">
                     <label for="availableCoupons">Select a Coupon:</label>
                     <select id="availableCoupons" name="coupon" class="form-control">
@@ -198,7 +231,7 @@
                 <button type="button" id="removeCouponBtn" class="btn btn-danger" style="display:none;">Remove Coupon</button>
                 <div class="coupon-msg" id="couponMessage"></div>
             </div>
-            
+             -->
             
         </div>
 
@@ -225,21 +258,34 @@
             <ul>
                 <li>
                     <span>Subtotal</span>
-                    <span>₹<%= cartData.items.reduce((sum, item) => sum + item.totalPrice, 0) %></span>
+                    <span>₹<%= subtotal %></span>
+
                     <ul>
                         <% cartData.items.forEach(item => { %>
                             <li>
-                                <span><%= item.quantity %> x <%= item.product.productName %></span>
-                                <span>₹<%= item.totalPrice %></span>
+                                <span>size:(<%= item.size %>),<%= item.quantity %> x(<%= item.product.productName%>)</span> 
+                                 <span><%= item.discount %></span>
+                                 <span class="product-price">
+                                            
+                                    <% if (item.product.offerPrice && item.product.offerPrice < item.product.regularPrice) { %>
+                                         ₹<%= Math.round(item.product.offerPrice * item.quantity) %>   
+                                    <% } else if (item.product.salePrice < item.product.regularPrice) { %>
+                                        ₹<%= item.product.salePrice * item.quantity %>
+                                    <% } else { %>
+                                        <%= item.product.regularPrice * item.quantity %>
+                                    <% } %>
+                                </p>
+                                
                             </li>
                         <% }) %>
                     </ul>
                 </li>
-                <li><span>Coupon Discount</span><span id="couponDiscount">₹0.00</span></li>
+                
+                <li><span>Coupon Discount</span><span id="couponDiscount">₹<%= typeof discountAmount !== 'undefined' ? discountAmount : '0.00' %></span></li>
                 <li><span>Shipping</span><span>₹<%= shippingCost %></span></li>
                 <li>
                     <span>Order Total</span>
-                    <span id="orderTotal">₹<%= cartData.items.reduce((sum, item) => sum + item.totalPrice, 0) %></span>
+                    <span id="orderTotal">₹<%=subtotal  %></span>
                 </li>
             </ul>
         </div>
@@ -260,6 +306,7 @@
         </form>
     </div>
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <script>
 // Toggle new address form for both new and edit operations
@@ -322,46 +369,47 @@ function selectAddress(addressId) {
 }
 
 // Handle form submission for checkout
-// function handleFormSubmit(event) {
-//     event.preventDefault();
+function handleFormSubmit(event) {
+    event.preventDefault();
     
-//     const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
-//     if (!selectedAddress) {
-//         alert('Please select an address for delivery.');
-//         return;
-//     }
+    const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+    if (!selectedAddress) {
+        alert('Please select an address for delivery.');
+        return;
+    }
     
-//     const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
-//     if (!paymentMethod) {
-//         alert('Please select a payment method.');
-//         return;
-//     }
+    
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+    if (!paymentMethod) {
+        alert('Please select a payment method.');
+        return;
+    }
 
-//     const formData = new FormData(event.target);
-//     const data = Object.fromEntries(formData);
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData);
 
-//     fetch('/placeOrder', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'X-Requested-With': 'XMLHttpRequest'
-//         },
-//         body: JSON.stringify(data),
-//         credentials: 'include'
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         if (data.orderId) {
-//             window.location.href = `/orderConfirmation/${data.orderId}`;
-//         } else {
-//             alert('Error placing order: ' + data.error);
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Error:', error);
-//         alert('An error occurred while placing the order.');
-//     });
-// }
+    fetch('/placeOrder', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(data),
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.orderId) {
+            window.location.href = `/orderConfirmation/${data.orderId}`;
+        } else {
+            alert('Error placing order: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while placing the order.');
+    });
+}
 
 // Handle edit button click to load form with address details
 function editAddress(addressId) {
@@ -393,64 +441,75 @@ function cancelAddressForm() {
 </script>
 
 <script>
-   document.addEventListener('DOMContentLoaded', () => {
-    const couponDropdown = document.getElementById('couponDropdown');
-    const applyCouponBtn = document.getElementById('applyCouponBtn');
-    const couponMessage = document.getElementById('couponMessage');
-    const couponDiscount = document.getElementById('couponDiscount');
-    const orderTotal = document.getElementById('orderTotal');
-
-    applyCouponBtn.addEventListener('click', async () => {
-        const selectedCouponCode = couponDropdown.value;
-
-        if (!selectedCouponCode) {
-            alert('Please select a coupon.');
-            return;
-        }
-
-        try {
-            const response = await fetch(`/coupons/apply/${selectedCouponCode}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+     $(document).ready(function() {
+            
+            $('#applyCouponBtn').click(function() {
+                const couponId = $('#availableCoupons').val();
+                if (!couponId) {
+                    $('#couponMessage').text('Please select a coupon').removeClass('text-success').addClass('text-danger');
+                    return;
+                }
+    
+                $.ajax({
+                    url: '/cart/apply-coupon',
+                    method: 'POST',
+                    data: { couponId: couponId },
+                    success: function(response) {
+                        $('#subtotal').text('₹' + response.subtotal);
+                        $('#discount').text('- ₹' + response.discount);
+                        $('#couponDiscount').text('₹' + response.discountAmount); 
+                        $('#shippingCost').text('₹' + response.shippingCost);
+                        $('#totalAmount').text('₹' + response.total);
+                        $('#orderTotal').text('₹' + response.orderTotal);
+                        $('#hiddenorderTotal').val(response.orderTotal);
+                        $('#savingsMessage').text('You will save ₹' + response.discount + ' on this order');
+                        $('#appliedCouponId').val(response.couponId);
+                        $('#couponMessage').text('Coupon applied successfully!').removeClass('text-danger').addClass('text-success');                      
+                        $('#availableCoupons').prop('disabled', true);
+                        $('#applyCouponBtn').hide();
+                        $('#removeCouponBtn').show(); 
+                    },
+                    error: function(xhr) {
+                        const errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred while applying the coupon.';
+                        $('#couponMessage').text(errorMessage).removeClass('text-success').addClass('text-danger');
+                    }
+                });
             });
-
-            const result = await response.json();
-
-            if (result.success) {
-                couponDiscount.textContent = `₹${result.discount}`;
-                orderTotal.textContent = `₹${result.newTotal}`;
-                couponMessage.textContent = 'Coupon applied successfully!';
-                applyCouponBtn.style.display = 'none';
-                document.getElementById('removeCouponBtn').style.display = 'inline-block';
-            } else {
-                couponMessage.textContent = result.message;
-            }
-        } catch (error) {
-            console.error('Error applying coupon:', error);
-        }
-    });
-
-    document.getElementById('removeCouponBtn').addEventListener('click', () => {
-        couponDiscount.textContent = '₹0.00';
-        orderTotal.textContent = `₹<%= orderTotal %>`;
-        couponMessage.textContent = '';
-        applyCouponBtn.style.display = 'inline-block';
-        document.getElementById('removeCouponBtn').style.display = 'none';
-    });
-});
-
-
-    // Handle Checkout Form Submission
-    function handleFormSubmit(event) {
-        event.preventDefault();
-        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
-        if (!selectedAddress) return alert('Please select an address.');
-
-        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
-        if (!paymentMethod) return alert('Please select a payment method.');
-
-        event.target.submit();
-    }
+    
+    
+            $('#removeCouponBtn').click(function() {
+                $.ajax({
+                    url: '/cart/remove-coupon', 
+                    method: 'POST', 
+                    success: function(response) {
+                        $('#subtotal').text('₹' + response.totalPrice);
+                        $('#discount').text('₹' + response.discount); 
+                       
+                        $('#deliveryCharges').text('₹' + response.deliveryCharges);
+                        $('#totalAmount').text('₹' + response.total);
+                        $('#finalTotal').text('₹' + response.finalTotal);
+                        $('#hiddenFinalTotal').val(response.finalTotal);
+                        $('#savingsMessage').text('Coupon removed.');
+                        $('#appliedCouponId').val(''); 
+                        $('#couponMessage').text('Coupon removed successfully!').removeClass('text-danger').addClass('text-success');
+    
+                        
+                        $('#availableCoupons').prop('disabled', false);
+                        $('#applyCouponBtn').show();
+                        $('#removeCouponBtn').hide(); 
+                    },
+                    error: function(xhr) {
+                        const errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred while removing the coupon.';
+                        $('#couponMessage').text(errorMessage).removeClass('text-success').addClass('text-danger');
+                    }
+                });
+            });
+    
+            $('#paymentForm').submit(function() {
+                const finalTotal = $('#finalTotal').text().replace('₹', '');
+                $('#hiddenFinalTotal').val(finalTotal);
+            });
+        });
     </script>
 
 <%- include("../../views/partials/user/footer") %>

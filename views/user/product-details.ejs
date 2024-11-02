@@ -34,7 +34,7 @@
           (25 Reviews)
         </div>
         <div class="product-price">
-          ₹<%= product.offerPrice || product.salePrice %> <span style="text-decoration: line-through;">₹<%= product.regularPrice %></span>
+          ₹<%= Math.round(product.offerPrice )|| product.salePrice %>  <span style="text-decoration: line-through;">₹<%= product.regularPrice %></span>
         </div>
         <div class="product-description">
           <%= product.description %>
@@ -52,7 +52,10 @@
               <span>Size-UK:</span>
               <span class="sizes">
                 <% product.sizes.forEach(size => { %>
-                  <span class="size" data-size="<%= size.size %>" data-quantity="<%= size.quantity %>">
+                  <span class="size" 
+                  data-size="<%= size.size %>" 
+                  data-quantity="<%= size.quantity %>">
+
                     <%= size.size %>
                   </span>
                 <% }) %>
@@ -80,9 +83,10 @@
               <% if (product.sizes.reduce((acc, total) => acc += total.quantity, 0) > 0) { %>
                 <div class="button-group" style="display: flex; justify-content: center; gap: 10px; margin-right: 20rem;padding-left: 25%;">
                   <!-- Add to Wishlist Button -->
-                  <a href="#" onclick="addToWishlist('<%= product._id %>')" class="btn btn-secondary btn-addtowishlist" style="color: rgb(241, 242, 248);">
+                  <a href="#" onclick="addToWishlist('<%= product._id %>', getSelectedSize())"  class="btn btn-secondary btn-addtowishlist" style="color: rgb(241, 242, 248);">
                     <i class="fas fa-heart"></i> Add to Wishlist
                   </a>
+
 
                   <!-- Add to Cart Button -->
                   <a href="#" onclick="addToCart('<%= product._id %>', parseInt(document.getElementById('quantity').value),getSelectedSize())" class="btn btn-primary btn-addtocart">
@@ -129,13 +133,10 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
-
-
 function getSelectedSize() {
     const selectedSize = document.querySelector('.size.selected');
     return selectedSize ? selectedSize.dataset.size : null;
 }
-
 
     const mainImage = document.getElementById('main-image');
     const relatedItems = document.querySelectorAll('.related-items .item img');
@@ -245,109 +246,66 @@ async function addToCart(productId, quantity) {
     }
 }
 
-  </script>
-  <script>
+   
 
+async function addToWishlist(productId,quantity) {
+  const selectedSize = getSelectedSize(); 
+  console.log('Selected Size:', selectedSize);
 
-async function addToWishlist(productId) {
-  try {
-    const response = await fetch('/wishlist', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ productId }),
-    });
-
-    const result = await response.json();
-
-    if (response.status === 409) {
-      Swal.fire({
-        title: 'Already Added!',
-        text: result.message,
-        icon: 'info',
-        confirmButtonText: 'OK',
-      });
-    } else if (response.ok) {
-      Swal.fire({
-        title: 'Success!',
-        text: result.message,
-        icon: 'success',
-        confirmButtonText: 'OK',
-      });
-    } else {
-      Swal.fire({
-        title: 'Error!',
-        text: result.message || 'Could not add to wishlist.',
-        icon: 'error',
-        confirmButtonText: 'OK',
-      });
+    if (!selectedSize) {
+        Swal.fire({
+            title: 'Error',
+            text: 'Please select a size.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+        return;
     }
-  } catch (error) {
-    console.error('Error:', error);
-    Swal.fire({
-      title: 'Error!',
-      text: 'An error occurred. Please try again.',
-      icon: 'error',
-      confirmButtonText: 'OK',
-    });
-  }
+
+    try {
+        const response = await fetch('/wishlist', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId,selectedSize,quantity})
+        });
+        console.log('Sending request with:', { productId, selectedSize });
+        const result = await response.json();
+        
+        if (response.ok) {
+           
+            Swal.fire({
+                title: 'Added to wishlist!',
+                text: result.message || 'The product was added to your wishlist.',
+                icon: 'success',
+                confirmButtonText: 'Continue Shopping',
+                timer: 3000,
+                timerProgressBar: true
+            })
+            .then(() => {
+        // Reload the page after user acknowledges success
+        window.location.reload();
+      });
+        } else {
+           
+            Swal.fire({
+                title: 'Error',
+                text: result.message || 'Error adding product to wishlist.',
+                icon: 'error',
+                confirmButtonText: 'Try Again'
+            });
+        }
+      } catch (error) {
+        console.error('Error adding to wishlist:', error);
+        Swal.fire({
+            title: 'Error',
+            text: 'An error occurred. Please try again later.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    }
 }
-
-//   async function addToWishlist(productId) {
-//   // const selectedSize = getSelectedSize();
-//   // const quantity = parseInt(document.getElementById('quantity').value);
-
-//   // if (!selectedSize || isNaN(quantity) || quantity <= 0) {
-//   //   Swal.fire({
-//   //     title: 'Error',
-//   //     text: 'Please select a valid size and quantity.',
-//   //     icon: 'error',
-//   //     confirmButtonText: 'OK',
-//   //   });
-//   //   return;
-//   // }
-
-//   try {
-//     const response = await fetch('/wishlist', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({
-//         productId,  // Ensure productId is correctly passed
-//         // size: selectedSize,
-//         // quantity
-//       }),
-//     });
-
-//     if (response.ok) {
-//       const result = await response.json();
-//       Swal.fire({
-//         title: 'Success!',
-//         text: result.message,
-//         icon: 'success',
-//         confirmButtonText: 'OK',
-//       });
-//     } else {
-//       const errorData = await response.json();
-//       Swal.fire({
-//         title: 'Error!',
-//         text: errorData.message || 'Could not add to wishlist.',
-//         icon: 'error',
-//         confirmButtonText: 'OK',
-//       });
-//     }
-//   } catch (error) {
-//     console.error('Error:', error);
-//     Swal.fire({
-//       title: 'Error!',
-//       text: 'An error occurred. Please try again.',
-//       icon: 'error',
-//       confirmButtonText: 'OK',
-//     });
-//   }
-// }
 
 
   </script>

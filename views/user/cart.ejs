@@ -137,13 +137,20 @@
                                         <h5 class="product-name" style="font-size: 18px;"><%= item.product.productName %></h5>
 
                                         <p class="product-price">
-                                            <% if (item.product.offerPrice && item.product.offerPrice < item.product.salePrice) { %>
-                                                <del>₹<%= item.product.salePrice %></del> 
-                                                <span>₹<%= item.product.offerPrice %></span>
+                                            ₹<% if (item.product.offerPrice && item.product.offerPrice < item.product.salePrice) { %>
+                                             
+                                              <del><%= item.product.regularPrice %></del> ₹<%= item.product.offerPrice %>
+                                            <% } else if (item.product.salePrice < item.product.regularPrice) { %>
+                                              
+                                              <del><%= item.product.regularPrice %></del> ₹<%= item.product.salePrice %>
+                                            <% } else if (item.product.salePrice === item.product.regularPrice && item.product.offerPrice && item.productId.offerPrice < item.productId.salePrice) { %>
+                                              
+                                              <del><%= item.product.regularPrice %></del> ₹<%= item.product.offerPrice %>
                                             <% } else { %>
-                                                <span>₹<%= item.product.salePrice %></span>
+                                              
+                                              <%= item.product.regularPrice %>
                                             <% } %>
-                                        </p>
+                                          </p>
                                         <div class="quantity-control">
                                             <form id="updateQuantityForm-<%= item.product._id %>-<%= item.size %>" onsubmit="return false;">
                                                 <input type="hidden" name="productId" value="<%= item.product._id %>">
@@ -197,23 +204,23 @@
                     <h3>PRICE DETAILS</h3>
                     <div class="summary-item">
                         <span>Total price (<%= distinctProductCount %> items)</span>
-                        <span>₹<%= totalPrice %></span>
+                        <span>₹<%= (totalPrice-totalDiscount).toFixed(2)  %></span>
                     </div>
                     <div class="summary-item">
                         <span>Discount</span>
-                        <span>-₹<%= totalDiscount || 0 %></span>
+                        <span>-₹<%= Math.round(totalDiscount) || 0 %></span>
                     </div>
-                    <div class="summary-item">
+                    <!-- <div class="summary-item">
                         <span>Coupons Discount</span>
                         <span>-₹ 0</span>
-                    </div>
+                    </div> -->
                     <div class="summary-item">
                         <span>Delivery Charges</span>
                         <span><%= deliveryCharges ? `₹${deliveryCharges}` : 'Free' %></span>
                     </div>
                     <div class="summary-total">
                         <span>Total Amount</span>
-                        <span>₹<%= totalAmount %></span>
+                        <span>₹ <%= Math.round(totalAmount) %></span>
                     </div>
                     <a href="#" id="checkout-link"  class="place-order-btn"><button style="background-color: #27d030;">BUY NOW</button></a>
                 </div>
@@ -262,9 +269,9 @@ function updateQuantity(productId, change, itemSize) {
 
         Swal.fire('Updated', 'Quantity updated successfully', 'success');
     })
-    // .then(() => {
-    //     window.location.reload();
-    // })
+    .then(() => {
+        window.location.reload();
+    })
     .catch(error => {
         console.error('Error:', error.message);
         Swal.fire('Error', error.message, 'error');

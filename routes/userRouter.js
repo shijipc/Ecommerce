@@ -69,7 +69,7 @@ router.get("/offer",userAuth,offerController.loadOfferPage);
 
 //checkout
 router.get("/cart/checkout/:id", userAuth, checkoutController.getCheckout);
-router.post('/coupons/apply/:code',userAuth, checkoutController.applyCoupon);
+router.post('/cart/apply-coupon',userAuth, checkoutController.applyCoupon);
 router.post('/placeOrder', userAuth,checkoutController.placeOrder);
 
 
@@ -77,6 +77,7 @@ router.post('/placeOrder', userAuth,checkoutController.placeOrder);
 router.get('/orderConfirmation/:orderId',userAuth,orderController.orderConfirmation);
 router.get('/my-orders',userAuth,orderController.getMyOrders);
 router.post('/cancel-order', userAuth,orderController.cancelOrder);
+router.get("/orders/search",userAuth,orderController.getOrderByOrderId);
 router.get('/my-order/order-details/:orderId/:itemId',userAuth, orderController.getOrderDetails);
 
 //wishlist

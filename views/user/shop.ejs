@@ -208,7 +208,27 @@
 								</a>
 								<div class="desc">
 									<h5><a href="/product-details/<%= product._id %>"><%= product.productName %></a></h5>
-									<span class="price">₹<%= product.salePrice %></span>
+									<!-- <span class="price">₹<%= product.salePrice %></span> -->
+								
+									<span class="price"><% if (product.offerPrice && product.offerPrice < product.salePrice) { %>
+																		 
+										<span class="money" style="text-decoration: line-through;">₹<%= product.regularPrice %></span>
+										<span class="money" style="color: red; font-weight: bold;">₹<%= product.offerPrice %></span>
+									  <% } else if (product.salePrice < product.regularPrice) { %>
+									   
+										<span class="money" style="text-decoration: line-through;">₹<%= product.regularPrice %></span>
+										<span class="money" style="color: red; font-weight: bold;">₹<%= product.salePrice %></span>
+									  <% } else if (product.salePrice === product.regularPrice && product.offerPrice && product.offerPrice < product.salePrice) { %>
+										
+										<span class="money" style="text-decoration: line-through;">₹<%= product.regularPrice %></span>
+										<span class="money" style="color: red; font-weight: bold;">₹<%= product.offerPrice %></span>
+									  <% } else { %>
+									  
+										<span class="money">₹<%= product.regularPrice %></span>
+									  <% } %></span>
+
+
+
 									<!-- <form id="addToCartForm-<%= product._id %>" onsubmit="return false;">
 										<input type="hidden" name="productId" value="<%= product._id %>">
 										<input type="hidden" name="quantity" value="1">
@@ -250,7 +270,7 @@
 												<h6><%= product.productName %></h6>
 												
 												<h5>₹<%= product.salePrice %></h5>
-																							 -->
+																							 
 											</div>
 										</div>
 									</div>

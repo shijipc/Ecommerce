@@ -268,7 +268,9 @@
                                             <a href="/product-details/<%= product._id %>"><%= product.productName %></a>
                                         </h5>
                                         <div class="price-cart">
-                                            <span class="price">₹<%= product.salePrice %></span>
+                                            <!-- <span class="price">₹<%= product.salePrice %></span> -->
+                                            <del class="price">₹<%= product.salePrice %></del> 
+									        <span class="price">₹<%= product.offerPrice %></span>
                                         </div>
                                     </div>
                                 </div>

@@ -75,7 +75,7 @@ router.put("/coupons/:id", adminAuth, couponController.updateCoupon);
 router.get("/adminOffer", adminAuth,adminOfferController.offer);
 router.get("/createOffer",adminAuth,adminOfferController.createOffer);
 router.post("/createOffer/addOffer",adminAuth,adminOfferController.addOffer)
-router.delete("/offers/deleteOffer/:offerId",adminAuth, adminOfferController.deleteOffer)
+router.delete("/adminOffer/:offerId",adminAuth, adminOfferController.deleteOffer)
 
 
 

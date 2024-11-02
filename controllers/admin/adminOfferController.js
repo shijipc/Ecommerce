@@ -122,7 +122,13 @@ const createOffer = async (req, res) => {
       }
   
      
-      await Offer.findByIdAndDelete(offerId);
+      const deletedOffer = await Offer.findByIdAndDelete(offerId);
+      if (!deletedOffer) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to delete offer",
+        });
+      }
   
      
       await updateProductOfferPrice();

@@ -1,4 +1,5 @@
 <%- include("../../views/partials/admin/header") %>
+<link rel="stylesheet" href="/path-to-fontawesome/css/all.min.css">
 
 <div class="content-wrapper" style="background-color: #f8f9fa; min-height: 100vh;">
   <div class="container-fluid py-5">
@@ -91,8 +92,8 @@
   </div>
 </div>
 
-<!-- Include necessary JS libraries -->
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
   function deleteOffer(offerId) {
     Swal.fire({
@@ -103,11 +104,23 @@
       confirmButtonText: 'Yes, delete it!',
     }).then((result) => {
       if (result.isConfirmed) {
-        fetch(`/admin/adminOffer/${offerId}`, { method: 'DELETE' })
-          .then((response) => response.json())
+        fetch(`/admin/adminOffer/${offerId}`, { 
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+        })
+          .then((response) => {
+            if (!response.ok) {
+            throw new Error('Failed to delete the offer');
+          }
+          return response.json();
+        })
           .then((data) => {
             Swal.fire(data.message, '', data.success ? 'success' : 'error').then(() => window.location.reload());
-          });
+          })
+          .catch((error) => {
+          console.error('Error:', error);
+          Swal.fire('Error', 'Unable to delete the offer', 'error');
+        });
       }
     });
   }

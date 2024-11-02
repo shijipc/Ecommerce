@@ -6,6 +6,7 @@ const bcrypt=require("bcrypt");
 const Product=require("../../models/productSchema");
 const Cart=require("../../models/cartSchema");
 const Address = require("../../models/addressSchema");
+const Offer=require("../../models/offerSchema");
 
 const pageNotFound=async(req,res)=>{
     try{
@@ -15,39 +16,47 @@ const pageNotFound=async(req,res)=>{
     }
 }
 
-const loadHomepage=async(req,res)=>{
-    try{
+const loadHomepage = async (req, res) => {
+  try {
+    let userId;
 
-        let userId;
+    // Get listed categories
+    const categories = await Category.find({ isListed: true });
 
-        const categories=await Category.find({isListed:true});
-        const products=await Product.find(
-            {
-               isBlocked:false,
-               category:{$in:categories.map(category=>category._id)},quantity:{$gt:0} 
-            })
-          
-        if(req.user){
-             userId = req.user; 
-        } else if(req.session.user){
-            userId = req.session.user;
-        }
-        if (userId) {
-            sessionActive =true;
-            const userData = await User.findById(userId);                  
-            // res.locals.user = userData; 
-            return res.render("home", { user: userData,products});
-        
-        }
-        else{
-            return res.render("home",{products});
-        }
-      
-    }catch(error){
-         console.log("Home page not found",error);
-         res.status(500).send("Server error");      
+    // Get all products within listed categories and with quantity > 0
+    const products = await Product.find({
+      isBlocked: false,
+      category: { $in: categories.map((category) => category._id) },
+      quantity: { $gt: 0 },
+    });
+
+   
+
+    if (req.user) {
+      userId = req.user;
+    } else if (req.session.user) {
+      userId = req.session.user;
     }
-}
+
+    if (userId) {
+      const userData = await User.findById(userId);
+      return res.render("home", {
+        user: userData,
+        products,
+    //     products: productsWithActiveOffers.length > 0 ? productsWithActiveOffers : products,
+      });
+    } else {
+      return res.render("home", {
+        products,
+        // products: productsWithActiveOffers.length > 0 ? productsWithActiveOffers : products,
+      });
+    }
+  } catch (error) {
+    console.log("Home page not found", error);
+    res.status(500).send("Server error");
+  }
+};
+
 
 const loadSignup=async(req,res)=>{
     try{
@@ -62,11 +71,30 @@ const loadSignup=async(req,res)=>{
 const loadOfferPage=async(req,res)=>{
         try {
             let userId;  
-            const products = await Product.find({})
-                .populate("category");
+            // const products = await Product.find({})
+            //     .populate("category");
              
             // Fetch latest 4 products (new arrivals)
             const newArrivals = await Product.find({}).sort({ _id: -1 }).limit(4);
+
+             // Get active offers
+    const activeOffers = await Offer.find({ status: 'active' });
+
+    // Collect product and category IDs from active offers
+    const productIdsFromOffers = activeOffers
+      .filter((offer) => offer.product)
+      .map((offer) => offer.product.toString());
+
+    const categoryIdsFromOffers = activeOffers
+      .filter((offer) => offer.category)
+      .map((offer) => offer.category.toString());
+
+    // Filter products by matching either product IDs or category IDs from active offers
+    const productsWithActiveOffers = Product.filter(
+      (product) =>
+        productIdsFromOffers.includes(product._id.toString()) ||
+        categoryIdsFromOffers.includes(product.category.toString())
+    );
     
             if (req.user) {
                 userId = req.user;
@@ -79,14 +107,16 @@ const loadOfferPage=async(req,res)=>{
                 res.locals.user = userData;
                 return res.render("offer", { 
                     user: userData, 
-                    products,
-                    newArrivals 
+                    // products,
+                    newArrivals,
+                    products: productsWithActiveOffers.length > 0 ? productsWithActiveOffers : products,
                     
                 });
             } else {
                 return res.render("offer", { 
-                    products, 
-                    newArrivals
+                    // products, 
+                    newArrivals,
+                    products: productsWithActiveOffers.length > 0 ? productsWithActiveOffers : products,
                 });
             }
     

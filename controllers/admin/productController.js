@@ -2,6 +2,10 @@ const Product=require("../../models/productSchema");
 const Category=require("../../models/categorySchema");
 const Brand=require("../../models/brandSchema");
 const User=require("../../models/userSchema");
+const Offer = require("../../models/offerSchema")
+
+const { updateProductOfferPrice } = require("../../controllers/admin/adminOfferController");
+
 const fs=require("fs");
 const path=require("path");
 const sharp=require("sharp");
@@ -39,6 +43,13 @@ const addProducts=async(req,res)=>{
                     images.push(req.files[i].filename);
                 }
             }
+            
+            const brandId = await Brand.findById(products.brand);
+            if (!brandId) {
+                return res.status(400).json("Invalid brand ID");
+            }
+            
+            
             const categoryId=await Category.findOne({name:products.category});
             if(!categoryId){
                 return res.status(404).join("Invalid category name")
@@ -50,19 +61,39 @@ const addProducts=async(req,res)=>{
                 quantity: sizeObj.quantity
             }));
 
+            let productStatus = products.size.quantity > 0 ? "Available" : "Out of stock";
+
+            const offer = await Offer.findOne({ product: categoryId._id });
+            let offerPrice = products.salePrice;
+            
+            if (offer) {
+                let offerValue;
+                
+                if (offer.discountType === 'percentage') {
+                    offerValue = products.salePrice * (offer.discountValue / 100);
+                } else {
+                    offerValue = offer.discountValue;
+                }
+                
+                offerPrice = products.salePrice - offerValue;
+                offerPrice = Math.max(offerPrice, 0); 
+            }
+
             const newProduct=new Product({
                 productName:products.productName,
                 description:products.description,
-                brand:products.brand,
+                SKUNumber: products.SKUNumber,
+                brand: brandId._id,
                 category:categoryId._id,
                 regularPrice:products.regularPrice,
                 salePrice:products.salePrice,
+                offerPrice: offerPrice,
                 createdOn:new Date(),
                 quantity:products.quantity,
-                sizes,// add size quantity
+                sizes:sizes,
                 color:products.color,
                 productImage:images,
-                status:'Available',
+                status:productStatus,
             });
 
             await newProduct.save();
@@ -273,6 +304,8 @@ const editProduct = async (req, res) => {
         
         console.log('Updating product...');
         const updatedProduct = await Product.findByIdAndUpdate(id, updateFields, { new: true });
+
+        await updateProductOfferPrice(); 
         
         if (!updatedProduct) {
             console.log('Failed to update product');
