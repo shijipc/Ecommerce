@@ -37,11 +37,18 @@ const getAdminOrders = async (req, res) => {
  // Fetch order details
  const getOrderDetails = async (req, res) => {
     try {
-        const orderId = req.params.orderId;  // Get the orderId from the URL
-        const order = await Order.findById(orderId)
-            .populate('items.product')   // Populate product details
-            .populate('user');           // Populate user details
-
+        const orderId = req.params.orderId;  
+        const order = await Order.findById(orderId) 
+            .populate('user')
+            .populate({
+              path: 'items.product',
+              populate: {
+                path: 'brand',
+                select: 'name' 
+              }
+            })
+            .exec();
+            
         if (!order) {
             return res.status(404).render('error', { message: 'Order not found' });
         }

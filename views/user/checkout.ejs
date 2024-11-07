@@ -307,7 +307,8 @@
     </div>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 // Toggle new address form for both new and edit operations
 function toggleNewAddressForm(address = null) {
@@ -368,6 +369,8 @@ function selectAddress(addressId) {
     document.getElementById('addressIdForOrder').value = addressId;
 }
 
+
+
 // Handle form submission for checkout
 function handleFormSubmit(event) {
     event.preventDefault();
@@ -378,12 +381,13 @@ function handleFormSubmit(event) {
         return;
     }
     
-    
     const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
     if (!paymentMethod) {
         alert('Please select a payment method.');
         return;
     }
+
+
 
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData);
@@ -399,17 +403,123 @@ function handleFormSubmit(event) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.orderId) {
-            window.location.href = `/orderConfirmation/${data.orderId}`;
+        if (data.success) {
+            if (data.razorpayOrder) {
+                // Handle Razorpay payment
+                const options = {
+                    key: data.razorpayOrder.key,
+                    amount: data.razorpayOrder.amount * 100,
+                    currency: data.razorpayOrder.currency,
+                    order_id: data.razorpayOrder.id,
+                    name: "Your Store Name",
+                    description: "Order Payment",
+                    handler: function(response) {
+                        verifyPayment(response);
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            handlePaymentDismissal();
+                        }
+                    },
+                    prefill: {
+                        name: "<%= user.name %>",
+                        email: "<%= user.email %>",
+                        contact: "<%= user.phone %>"
+                    },
+                    theme: {
+                        color: "#3399cc"
+                    }
+                };
+                
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } else {
+                // Handle COD or Wallet payment success
+                window.location.href = `/orderConfirmation/${data.orderId}`;
+            }
         } else {
-            alert('Error placing order: ' + data.error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.error || 'Error placing order'
+            });
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while placing the order.');
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while placing the order.'
+        });
     });
 }
+
+function handlePaymentDismissal() {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Payment Cancelled',
+        text: 'You have cancelled the payment. Do you want to try again or view your order?',
+        showCancelButton: true,
+        // confirmButtonText: 'Retry Payment',
+        cancelButtonText: 'View Order'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.reload();
+        } else {
+            window.location.href = `/my-orders`;
+        }
+    });
+}
+
+function verifyPayment(response) {
+    fetch('/verify-payment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(response)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Payment Successful',
+                text: 'Your payment has been processed successfully.',
+                confirmButtonText: 'View Order'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/orderConfirmation/${data.orderId}`;
+                }
+            });
+        } else {
+            throw new Error(data.message || 'Payment verification failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Payment Failed',
+            text: 'Your payment was unsuccessful. Please try again.',
+            // confirmButtonText: 'Retry Payment',
+            showCancelButton: true,
+            cancelButtonText: 'View Orders'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.reload();
+            } else {
+                window.location.href = `/my-orders`;
+            }
+           
+        });
+    });
+}
+
+
+  
+
 
 // Handle edit button click to load form with address details
 function editAddress(addressId) {

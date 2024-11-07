@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Details</title>
+    
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,7 +25,7 @@
         .section {
             border: 1px solid #ddd;
             padding: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 2px;
             border-radius: 5px;
         }
         .product {
@@ -32,11 +33,14 @@
             align-items: center;
         }
         .product img {
-            width: 80px;
-            height: 80px;
+            width: 200px;
+            height: 200px;
             margin-right: 10px;
         }
+        
     </style>
+    </style>
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -48,37 +52,221 @@
                 <p><%= order.user.name %></p>
                 <p><%= order.address.house %>, <%= order.address.place %>, <%= order.address.city %>, <%= order.address.state %> - <%= order.address.pin %></p>
                 <p>Phone: <%= order.address.contactNo %></p>
-                <p>Tracking Number: <%= order.trackingNumber || 'N/A' %></p>
+                <p class="text-muted">This item is tracked by <%= order.items.itemOrderId %></p>
             </div>
 
             <div>
                 <h3>Your Rewards in this Item</h3>
-                <p>₹<%= order.discount %> Saved</p>
-                <p>Payment Method: <%= order.payment[0].method %></p>
-                <p>Payment Status: <%= order.payment[0].status %></p>
+                <% order.items.forEach(item => { %>
+                  <p class="text-success" style="font-size: large;">
+                      <span class="coin-icon">&#9733;</span> 
+                      ₹<%= ((item.regularPrice - item.saledPrice) * item.quantity).toFixed(2) %> Saved 
+                  </p>
+              <% }); %>
+              
+                <h6>Payment Method</h6> 
+                            <% if (order.payment && order.payment.length > 0) { %>
+                              <p><span><%= order.payment[0].method %></span></p>
+                            <% } else { %>
+                              <p>No payment method found</p>
+                            <% } %>
+
+
+                 <!-- <p>Payment Status: <%= order.payment[0].status %></p> -->
+                 <h6>Payment Status</h6> 
+                 <% if (order.payment && order.payment.length > 0) { %>
+                   <p>
+                     <span><%= order.payment[0].status %></span>
+                     <% if (order.payment[0].status === 'pending' && order.payment[0].method !== 'Cash On Delivery' && order.items.itemOrderStatus !== 'Cancelled') { %>
+                       <button id="payNowBtn" class="btn btn-success" style="margin-left: 10px;" data-order-id="<%= order._id %>" data-razorpay-order-id="<%= order.payment[0].razorpayOrderId %>">
+                         Pay Now
+                       </button>
+                     <% } %>
+                   </p>
+                 <% } else { %>
+                   <p>No payment status found</p>
+                 <% } %>                          
+            </div>
+
+            <div class="col-md-4">
+              <h5>Order actions</h5>
+              <% order.items.forEach(item => { %>
+                <% if (item.itemOrderStatus === 'Delivered') { %>
+                  <button class="btn btn-warning mb-2 download-invoice-btn" 
+                          data-order-id="<%= order.orderId %>" 
+                          data-item-id="<%= item.itemOrderId %>">
+                    <i class="fas fa-download"></i> Download Invoice
+                  </button>
+                <% } %>
+              <% }); %>
             </div>
         </div>
+        
+
 
         <% order.items.forEach(item => { %>
             <div class="section product">
                 <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.name %>">
                 <div>
-                    <h4><%= item.product.name %></h4>
+                   
+                    <h4><%= item.product.productName %></h4>
+                    <h5> <%= item.product.brand ? item.product.brand : 'No Brand' %> </h5>
                     <p>Color: <%= item.product.color || 'N/A' %> | SKU: <%= item.product.skuNumber || 'N/A' %></p>
-                    <p>Actual Price: ₹<%= item.regularPrice %></p>
-                    <p>Offer Price: ₹<%= item.salePrice %></p>
-                    <p>Saled Price: ₹<%= item.saledPrice %></p>
-                    <p>Quantity: <%= item.quantity %></p>
-                    <p>Status: <%= item.itemOrderStatus %></p>
-                </div>
-            </div>
-        <% }) %>
+                    <p>Size: <%= item.size %></p>
+                    <!-- <p style="font-size: large;">Actual price: ₹<%= order.items.regularPrice %> <span class="coin-icon">&#9733;</span><%= order.items.quantity %></p>
+                    <p style="font-size: large;" class="text-success">Offer price: ₹<%= order.items.salePrice %> -->
+                    <!-- <p>Offer Price: ₹<%= item.salePrice %></p> -->
+                    <p style="font-size: medium;">Actual price: ₹<%= item.regularPrice*item.quantity %></p>
+                    <p style="font-size: medium;" class="text-success">Saled price: ₹<%= item.salePrice *item.quantity %></p>
+                    <div  style="font-size: large;">
+                      <% order.items.forEach(item => { %>
+                          <% if (item.salePrice !== item.saledPrice) { %>
+                              <p style="font-size: large;" class="text-success">
+                                  Other discount: ₹<%= item.regularPrice - item.saledPrice %>
+                              </p>
 
+                          <% } %>    
+                      <% }); %>
+
+
+                  </div>
+                  
+                    <p style="font-size: medium;">Quantity: <%= item.quantity %></p>
+                    <p style="font-size: medium;">Status: <%= item.itemOrderStatus %></p>
+                </div>
+               <% }) %>
+            </div>
         <div class="section">
             <h3>Total Price</h3>
             <p>₹<%= order.totalPrice %></p>
-        </div>
+        </div>  
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+    
+    document.getElementById('payNowBtn').addEventListener('click', function() {
+  const orderId = this.getAttribute('data-order-id');
+  const razorpayOrderId = this.getAttribute('data-razorpay-order-id');
+
+  console.log("Initiating payment with order ID:", orderId);
+  console.log("Using Razorpay Order ID:", razorpayOrderId);
+
+  fetch(`/my-order/order-details/re-checkout/${orderId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ razorpayOrderId }),
+  })
+  .then(response => {
+    console.log("Received response:", response);
+    return response.json();
+  })
+  .then(data => {
+    console.log("Parsed response data:", data);
+
+    if (data.success) {
+      const options = {
+        "key": "<%= process.env.RAZORPAY_KEY_ID %>",
+        "amount": data.amount,
+        "currency": "INR",
+        "name": "Shoe Mart",
+        "description": "Re-payment for Order",
+        "order_id": data.razorpayOrderId,
+        "handler": function (response) {
+          console.log("Payment successful. Verifying payment with response:", response);
+          verifyPayment(response, orderId);
+        },
+        "prefill": {
+          "name": "<%= order.user.name %>",
+          "email": "<%= order.user.email %>",
+          "contact": "<%= order.user.phone %>"
+        },
+        "theme": {
+          "color": "#3399cc"
+        }
+      };
+      const rzp1 = new Razorpay(options);
+      rzp1.open();
+    } else {
+      console.error("Payment initialization failed:", data.message);
+      alert(data.message || "Unable to initialize payment. Please try again.");
+    }
+  })
+  .catch((error) => {
+    console.error("Fetch error or server issue:", error);
+    alert("An error occurred. Please check your network connection and try again.");
+  });
+});
+
+function verifyPayment(response, orderId) {
+  console.log("Verifying payment for order:", orderId, "with response:", response);
+
+  fetch('/verify-payment', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      razorpay_payment_id: response.razorpay_payment_id,
+      razorpay_order_id: response.razorpay_order_id,
+      razorpay_signature: response.razorpay_signature,
+      orderId: orderId
+    }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log("Verification response data:", data);
+    if (data.success) {
+      window.location.href = '/orderConfirmation';
+    } else {
+      alert(data.message || "Payment verification failed. Please contact support.");
+    }
+  })
+  .catch((error) => {
+    console.error("Verification fetch error:", error);
+    alert("An error occurred during payment verification. Please contact support.");
+  });
+}
+
+    </script>
+
+    <!-- invoice -->
+    <script>
+    document.querySelectorAll('.download-invoice-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const orderId = this.getAttribute('data-order-id');
+        const itemId = this.getAttribute('data-item-id');
+        
+        fetch(`/my-order/${orderId}/download-invoice/${itemId}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/pdf',
+            },
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `Invoice-${orderId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => console.error('Error:', error));
+    });
+});
+
+</script>
+
 </body>
 </html>
 <%- include("../../views/partials/user/footer") %>  

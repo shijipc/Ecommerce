@@ -3,11 +3,13 @@ const Category=require("../../models/categorySchema");
 const env=require("dotenv").config();
 const nodemailer=require("nodemailer");
 const bcrypt=require("bcrypt");
+const crypto = require('crypto');
 const Product=require("../../models/productSchema");
 const Cart=require("../../models/cartSchema");
 const Address = require("../../models/addressSchema");
 const Order=require("../../models/orderSchema");
 const Coupon=require("../../models/couponSchema");
+const razorpay = require('../../config/razorPay'); 
 
 
 
@@ -280,6 +282,11 @@ const placeOrder = async (req, res) => {
             }
         }
 
+          // Check if Cash On Delivery is allowed for this order
+          if (paymentMethod === "Cash On Delivery" && finalTotal > 1000) {
+            return res.status(400).json({ error: "Cash on Delivery is not available for orders above Rs 1000" });
+        }
+
         // Create order
         const orderData = {
             user: userId,
@@ -293,7 +300,7 @@ const placeOrder = async (req, res) => {
                 landMark: selectedAddress.landMark || ''
             },
             items: preparedItems,
-            actualPrice: actualPrice, // Using the new actualPrice instead of totalPrice
+            actualPrice: actualPrice,
             saledPrice: finalTotal,
             offerPrice: finalTotal,
             coupon: appliedCouponId || undefined,
@@ -322,18 +329,22 @@ const placeOrder = async (req, res) => {
                 receipt: `order_rcptid_${order._id}`
             };
 
-            const razorpayOrder = await razorpayInstance.orders.create(razorpayOptions);
+            const razorpayOrder = await razorpay.orders.create(razorpayOptions);
             
             order.payment[0].razorpayOrderId = razorpayOrder.id;
             await order.save();
 
             return res.status(200).json({
                 success: true,
-                redirectToRazorpay: true,
                 orderId: order._id,
-                razorpayOrderId: razorpayOrder.id,
-                amount: finalTotal
+                razorpayOrder: {
+                    id: razorpayOrder.id,
+                    amount: finalTotal,
+                    currency: "INR",
+                    key: process.env.RAZORPAY_KEY_ID
+                }
             });
+
 
         } else if (paymentMethod === "WalletPayment") {
             const wallet = await Wallet.findOne({ user: userId });
@@ -371,8 +382,39 @@ const placeOrder = async (req, res) => {
     }
 };
 
+//  verify payment
+const verifyPayment = async (req, res) => {
+    try {
+        const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+        
+        // Verify signature
+        const sign = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSign = crypto
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+            .update(sign)
+            .digest("hex");
+
+        if (razorpay_signature === expectedSign) {
+            // Update order status
+            const order = await Order.findOne({ "payment.razorpayOrderId": razorpay_order_id });
+            if (order) {
+                order.payment[0].status = "completed";
+                order.payment[0].paymentId = razorpay_payment_id;
+                await order.save();
+                return res.status(200).json({ success: true, orderId: order._id });
+            }
+        }
+        
+        return res.status(400).json({ error: "Payment verification failed" });
+    } catch (error) {
+        console.error("Payment verification error:", error);
+        return res.status(500).json({ error: "Payment verification failed" });
+    }
+};
+
 module.exports={
     getCheckout,
     applyCoupon,
     placeOrder,
+    verifyPayment,
 }

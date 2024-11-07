@@ -3,12 +3,8 @@
 <div class="container-fluid"  style="background-color: #f1f3f6;">
    
     <div class="dashboard-container">
-        
-        <!-- Include the sidebar partial -->
         <%- include("../../views/partials/user/sidebar") %>
         
-      
-
         <div class="dashboard-content">
             <div class="row">
                 <div class="col-md-4">
@@ -16,8 +12,7 @@
                         <div class="card-title">Total Orders</div>
                         <div class="card-body">
                             <i class="fas fa-rocket"></i>
-                           
-
+                            <span class="card-text"><%= totalOrders %></span>
                         </div>
                     </div>
                 </div>
@@ -26,8 +21,7 @@
                         <div class="card-title">Pending Orders</div>
                         <div class="card-body">
                             <i class="fas fa-clipboard-list"></i>
-                            
-
+                            <span class="card-text"><%= pendingCount %></span>
                         </div>
                     </div>
                 </div>
@@ -36,8 +30,7 @@
                         <div class="card-title">Completed Orders</div>
                         <div class="card-body">
                             <i class="fas fa-box"></i>
-                           
-
+                            <span class="card-text"><%= completedCount %></span>
                         </div>
                     </div>
                 </div>
@@ -59,8 +52,6 @@
                               <% } else { %>
                                 <p>No user details available. Please log in.</p>
                               <% } %>
-                              
-
                         </div>
                        <!-- <a href="/account"><button class="edit-button">Edit Account</button></a>  -->
                     </div>

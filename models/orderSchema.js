@@ -48,6 +48,17 @@ const orderSchema = new mongoose.Schema({
     ref:'Coupon',
     required:false
   },
+  invoice: {
+    invoiceNo: {
+      type: String,
+      default: () => uuidv4().split('-')[0],
+      unique: true
+    },
+    invoiceDate: {
+      type: Date,
+      default: Date.now
+    }
+  },
   items: [{
     itemOrderId: {
       type: String,

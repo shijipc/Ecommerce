@@ -65,6 +65,7 @@
                             <h5><%= item.product.productName %></h5>
                             <p class="mb-0">SKU: <%= item.product.skuNumber %></p>
                             <p class="mb-0">Color: <%= item.product.color %></p>
+                            <p class="mb-0">Size: <%= item.size %></p>
                         </div>
                         <div class="col-md-2">
                             <p class="font-weight-bold mb-0">Price: ₹<%= item.regularPrice %></p>
@@ -156,24 +157,38 @@
     .btn { margin-right: 10px; }
 </style>
 
+
+
 <script>
-  // Wait for DOM content to load before adding event listeners
-  document.addEventListener('DOMContentLoaded', function () {
-    // Cancel order event listener
+
+ //search   
+ document.getElementById('searchBtn').addEventListener('click', () => {
+    const searchText = document.getElementById('search').value;
+
+    if (!searchText) {
+        alert("Please enter an Order ID to search.");
+        return;
+    }
+
+    // Redirect to `my-orders` with the `orderId` query parameter
+    window.location.href = `/my-orders?orderId=${encodeURIComponent(searchText)}`;
+});
+
+
+//cancelorder
+document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.cancel-order-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const itemOrderId = e.target.getAttribute('data-item-order-id');
-            console.log('Order ID:', itemOrderId);
             document.getElementById('cancelItemOrderId').value = itemOrderId;
             document.getElementById('cancelModal').style.display = 'block';
         });
     });
 
-    // Close the modal
     window.closeCancelModal = function() {
         document.getElementById('cancelModal').style.display = 'none';
     };
-  
+
     window.submitCancellation = async function(event) {
         event.preventDefault();
         
@@ -185,112 +200,82 @@
         try {
             const response = await fetch('/cancel-order', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    itemOrderId: itemOrderId,
-                    reason: reason
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ itemOrderId, reason })
             });
             
             const result = await response.json();
 
             if (result.success) {
                 alert(result.message);
-                location.reload();  // Reload page to reflect changes
+                closeCancelModal();
+                location.reload();
             } else {
                 alert('Error cancelling order: ' + result.message);
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error cancelling order');
+            alert('Error cancelling order: ' + error.message || 'Unexpected error occurred');
         }
     };
 });
 
-  </script>
-  
-  
+</script>
+    
 <script>
-  //    Cancel order event listener
-  //  document.querySelectorAll('.cancel-order-btn').forEach(btn => {
-    //     btn.addEventListener('click', async (e) => {
-    //         const itemOrderId = e.target.getAttribute('data-item-order-id');
-    //         const response = await fetch('/cancel-order', {
-    //             method: 'POST',
-    //             headers: { 'Content-Type': 'application/json' },
-    //             body: JSON.stringify({ itemOrderId })
-    //         });
 
-    //         const result = await response.json();
-    //         if (result.success) {
-    //             alert('Order canceled successfully');
-    //             location.reload();  // Refresh the page to update order status
-    //         } else {
-    //             alert(result.message);
-    //         }
-    //     });
-    // });
+document.querySelectorAll('.return-order-btn').forEach(button => {
+  button.addEventListener('click', function (event) {
+    event.preventDefault();
+    const itemOrderId = this.getAttribute('data-item-order-id');
 
-    // // Polling to auto-refresh orders status
-    // setInterval(async () => {
-    //     const response = await fetch('/user/my-orders');
-    //     const updatedOrders = await response.text();  // Assuming response is HTML
-    //     document.querySelector('.container').innerHTML = updatedOrders;  // Replace the order section
-    // }, 10000);  // Poll every 10 seconds for updates
+    Swal.fire({
+      title: 'Return Reason',
+      input: 'text',
+      inputPlaceholder: 'Enter your reason for returning...',
+      showCancelButton: true,
+      confirmButtonText: 'Submit Return Request',
+      cancelButtonText: 'Cancel',
+      preConfirm: (returnReason) => {
+        if (!returnReason) {
+          Swal.showValidationMessage('You need to enter a reason for returning!');
+        }
+        return returnReason;
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const returnReason = result.value;
 
-
-
-
-    // Search function (optional, if you want to implement search functionality)
-    document.getElementById('searchBtn').addEventListener('click', async () => {
-  const searchText = document.getElementById('search').value;
-
-  if (!searchText) {
-    alert("Please enter an Order ID to search.");
-    return;
-  }
-
-  try {
-    const response = await fetch(`/orders/search?orderId=${encodeURIComponent(searchText)}`);
-    const data = await response.json();
-
-    if (data.success && data.order) {
-      // Generate HTML for the specific order in card format
-      const order = data.order;
-      const orderCard = `
-        <div class="order-card p-3 mb-4">
-          <h5>Order ID: ${order.orderId}</h5>
-          <p><strong>Total Price:</strong> ₹${order.totalPrice}</p>
-          <p><strong>Status:</strong> ${order.status}</p>
-          <h6>Items:</h6>
-          ${order.items.map(item => `
-            <div class="item-card">
-              <p><strong>Product Name:</strong> ${item.product.productName}</p>
-              <p><strong>Quantity:</strong> ${item.quantity}</p>
-              <p><strong>Price per Item:</strong> ₹${item.regularPrice}</p>
-              <p><strong>Total:</strong> ₹${(item.regularPrice * item.quantity).toFixed(2)}</p>
-              <p><strong>Status:</strong> ${item.itemOrderStatus}</p>
-            </div>
-          `).join('')}
-        </div>
-      `;
-
-      // Update the container to display the order card
-      document.querySelector('.container').innerHTML = orderCard;
-    } else {
-      document.querySelector('.container').innerHTML = `<p>${data.message || "Order not found"}</p>`;
-    }
-  } catch (error) {
-    console.error("Error searching for order:", error);
-    alert("An error occurred while searching for the order.");
-  }
+        fetch('/myorder/return-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ itemOrderId, returnReason }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message === 'Return request submitted successfully') {
+            Swal.fire(
+              'Submitted!',
+              'Your return request has been submitted.',
+              'success'
+            ).then(() => {
+              location.reload();
+            });
+          } else {
+            Swal.fire('Error!', data.message, 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error submitting return request:', error);
+          Swal.fire('Error!', 'There was an error submitting your return request.', 'error');
+        });
+      }
+    });
+  });
 });
-
-
 
 </script> 
 
-
-    <%- include("../../views/partials/user/footer") %>    
+<%- include("../../views/partials/user/footer") %>    

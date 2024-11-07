@@ -8,6 +8,7 @@ const brandController=require("../controllers/admin/brandController");
 const orderController=require("../controllers/admin/orderManagementController");
 const couponController=require("../controllers/admin/couponController");
 const adminOfferController=require("../controllers/admin/adminOfferController");
+const salesReportController = require("../controllers/admin/salesReportController");
 
 
 const {userAuth,adminAuth}=require("../middlewares/auth");
@@ -76,6 +77,11 @@ router.get("/adminOffer", adminAuth,adminOfferController.offer);
 router.get("/createOffer",adminAuth,adminOfferController.createOffer);
 router.post("/createOffer/addOffer",adminAuth,adminOfferController.addOffer)
 router.delete("/adminOffer/:offerId",adminAuth, adminOfferController.deleteOffer)
+
+// sales report
+router.get('/sales-report',adminAuth, salesReportController.getSalesReport)
+router.post('/filter-sales',adminAuth, salesReportController.filterSalesReport);
+router.post('/download-report',adminAuth, salesReportController.downloadReport);
 
 
 

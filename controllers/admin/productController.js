@@ -97,6 +97,9 @@ const addProducts=async(req,res)=>{
             });
 
             await newProduct.save();
+
+            await updateProductOfferPrice();
+            
             return res.redirect("/admin/addProducts");
         }else{
             return res.status(400).json("Product already exist.please try with another name");

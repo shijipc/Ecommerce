@@ -7,6 +7,9 @@ const Product=require("../../models/productSchema");
 const Cart=require("../../models/cartSchema");
 const Address = require("../../models/addressSchema");
 const Offer=require("../../models/offerSchema");
+const Order = require("../../models/orderSchema");
+
+
 
 const pageNotFound=async(req,res)=>{
     try{
@@ -466,9 +469,30 @@ const productDetails = async (req, res) => {
                 return res.status(404).send("User not found");
             }
             const addresses = await Address.find({ userId: userId });
+            const orders = await Order.find({ user: userId }).exec();
+            console.log("Fetched Orders:", orders);
+
+
+            const pendingOrders = orders.filter(order => order.status?.trim().toLowerCase() === 'pending');
+            const completedOrders = orders.filter(order => order.status?.trim().toLowerCase() === 'delivered');
+
+            orders.forEach(order => console.log("Order Status:", order.status));
+
+            const pendingCount = pendingOrders.length;
+            const completedCount = completedOrders.length;
+            const totalOrders = orders.length; 
+
+            console.log("Pending Orders Count:", pendingCount);
+            console.log("Completed Orders Count:", completedCount);
+            console.log("Total Orders Count:", totalOrders);
+    
+
             return res.render("user-profile", {
                 user: userData,
-                addresses: userData.address 
+                addresses: userData.address, 
+                pendingCount,
+                completedCount,
+                totalOrders
             });
 
         } else {

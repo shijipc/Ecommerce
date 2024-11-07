@@ -9,6 +9,7 @@ const offerController=require("../controllers/user/offerController");
 const checkoutController=require("../controllers/user/checkoutController");
 const  orderController=require("../controllers/user/orderController");
 const wishlistController = require("../controllers/user/wishlistController");
+const userWalletController = require("../controllers/user/userWalletController");
 
 
 const {userAuth}=require("../middlewares/auth");
@@ -71,21 +72,25 @@ router.get("/offer",userAuth,offerController.loadOfferPage);
 router.get("/cart/checkout/:id", userAuth, checkoutController.getCheckout);
 router.post('/cart/apply-coupon',userAuth, checkoutController.applyCoupon);
 router.post('/placeOrder', userAuth,checkoutController.placeOrder);
+router.post('/verify-payment',userAuth,checkoutController.verifyPayment);
 
 
 //order
 router.get('/orderConfirmation/:orderId',userAuth,orderController.orderConfirmation);
 router.get('/my-orders',userAuth,orderController.getMyOrders);
 router.post('/cancel-order', userAuth,orderController.cancelOrder);
-router.get("/orders/search",userAuth,orderController.getOrderByOrderId);
+router.post('/myorder/return-order',userAuth, orderController.returnOrder);
 router.get('/my-order/order-details/:orderId/:itemId',userAuth, orderController.getOrderDetails);
+router.post("/my-order/order-details/re-checkout/:orderId", userAuth,orderController.confirmRePayment);
+router.get("/my-order/:orderId/download-invoice/:itemId", userAuth, orderController.downloadInvoice);
 
 //wishlist
 router.post('/wishlist',userAuth,wishlistController.addToWishlist);
 router.get('/wishlist',userAuth, wishlistController.getWishlist);
 router.delete('/wishlist/delete',userAuth, wishlistController.deleteWishlistItem);
 
-//coupon mgmnt
+//wallet
+router.get("/wallet",userAuth,userWalletController.wallet);
 
 
 
