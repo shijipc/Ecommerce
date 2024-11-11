@@ -369,8 +369,6 @@ function selectAddress(addressId) {
     document.getElementById('addressIdForOrder').value = addressId;
 }
 
-
-
 // Handle form submission for checkout
 function handleFormSubmit(event) {
     event.preventDefault();
@@ -517,10 +515,6 @@ function verifyPayment(response) {
     });
 }
 
-
-  
-
-
 // Handle edit button click to load form with address details
 function editAddress(addressId) {
     const addressCard = document.querySelector(`.card[data-address-id="${addressId}"]`);
@@ -551,6 +545,7 @@ function cancelAddressForm() {
 </script>
 
 <script>
+    //apply coupon
      $(document).ready(function() {
             
             $('#applyCouponBtn').click(function() {

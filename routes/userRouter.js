@@ -68,6 +68,7 @@ router.get("/offer",userAuth,offerController.loadOfferPage);
 //checkout
 router.get("/cart/checkout/:id", userAuth, checkoutController.getCheckout);
 router.post('/cart/apply-coupon',userAuth, checkoutController.applyCoupon);
+router.post("/cart/remove-coupon", userAuth, checkoutController.removeCoupon);
 router.post('/placeOrder', userAuth,checkoutController.placeOrder);
 router.post('/verify-payment',userAuth,checkoutController.verifyPayment);
 

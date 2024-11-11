@@ -136,12 +136,9 @@ const applyCoupon = async (req, res) => {
           totalPrice += item.product.regularPrice * item.quantity;
           totalDiscount += item.discountAmount * item.quantity; 
         });
-    
-       
+          
         const netAmount = totalPrice - totalDiscount;
-    
-    
-    
+       
         if (netAmount < coupon.minPurchaseAmount) {
             return res.status(400).json({ message: `Minimum purchase amount is ${coupon.minPurchaseAmount} for this coupon.` });
           }
@@ -160,17 +157,13 @@ const applyCoupon = async (req, res) => {
           
         discountAmount = Math.min(discountAmount, (totalPrice - totalDiscount));
         console.log(discountAmount);
-        
-    
+            
         totalDiscount += discountAmount;
-    
-        
+           
        let orderTotal = totalPrice - totalDiscount +shippingCost;
-    
-       
+           
         req.session.appliedCoupon = couponId;
-    
-        
+
         res.status(200).json({
           totalPrice: totalPrice.toFixed(2),
           discount: totalDiscount.toFixed(2),
@@ -187,6 +180,48 @@ const applyCoupon = async (req, res) => {
         next(error);
       }
     };
+
+
+    const removeCoupon = async (req, res, next) => {
+        try {
+          const userId = req.session.user || req.user;
+                   
+          const cart = await Cart.findOne({ userId: userId }).populate('items.product').exec();
+      
+          if (!cart || !cart.items || cart.items.length === 0) {
+            return res.status(400).json({ message: "Your cart is empty" });
+          }
+      
+          
+          req.session.appliedCoupon = null;
+      
+          let totalPrice = 0;
+          let totalDiscount = 0;
+      
+          
+          cart.items.forEach(item => {
+            totalPrice += item.product.regularPrice * item.quantity;
+            totalDiscount += item.discountAmount * item.quantity; 
+          });
+      
+          const platformFee = 0;
+          const deliveryCharges = 0;
+          const finalTotal = totalPrice - totalDiscount + platformFee + deliveryCharges;
+      
+          res.status(200).json({
+            totalPrice: totalPrice.toFixed(2),
+            discount: totalDiscount.toFixed(2), 
+            platformFee: platformFee.toFixed(2),
+            deliveryCharges: deliveryCharges.toFixed(2),
+            finalTotal: finalTotal.toFixed(2),
+          });
+      
+        } catch (error) {
+          console.error('Error in removeCoupon:', error);
+          res.status(500).json({ message: "An error occurred while removing the coupon" });
+          next(error);
+        }
+      };
     
 
 // Helper functions
@@ -195,10 +230,14 @@ const calculateCouponDiscount = (coupon, totalPrice) => {
     
     if (coupon.discountType === 'percentage') {
         const discount = (totalPrice * coupon.discountValue) / 100;
-        return Math.min(discount, coupon.maxDiscount || Infinity); // Apply max discount if specified
+        return Math.min(discount, coupon.maxDiscount || Infinity); 
     }
-    return Math.min(coupon.discountValue, totalPrice); // Fixed amount discount
+    return Math.min(coupon.discountValue, totalPrice); 
 };
+
+
+
+
 
 const placeOrder = async (req, res) => {
     try {
@@ -415,6 +454,7 @@ const verifyPayment = async (req, res) => {
 module.exports={
     getCheckout,
     applyCoupon,
+    removeCoupon,
     placeOrder,
     verifyPayment,
 }
