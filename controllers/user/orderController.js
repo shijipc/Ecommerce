@@ -89,6 +89,8 @@ const cancelOrder = async (req, res) => {
             order.items[itemIndex].itemOrderStatus = 'Cancelled';
             order.items[itemIndex].cancelReason = reason || "No reason provided";
         }
+        
+        await order.save();
 
         const { saledPrice, quantity } = order.items[itemIndex];
         if (!saledPrice || !quantity) {

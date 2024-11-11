@@ -1,6 +1,5 @@
 <%- include("../../views/partials/admin/header") %>
 <style>
-    
     .chart-canvas {
         width: 100% !important;  
         height: 300px !important; 
@@ -23,7 +22,8 @@
                                 <option value="daily" <%= filter === 'daily' ? 'selected' : '' %>>Daily</option>
                                 <option value="custom" <%= filter === 'custom' ? 'selected' : '' %>>Custom Range</option>
                             </select>
-                            <div id="customDateRange" style="display: <%= filter === 'custom' ? 'block' : 'none' %>;">
+                            <!-- Added surrounding quotes for style attribute to avoid syntax issues -->
+                            <div id="customDateRange" style="display: <%= filter === 'custom' ? 'block' : 'none' %>">
                                 <input type="date" id="startDate" name="startDate" class="form-control mb-2" value="<%= customStartDate %>">
                                 <div id="startDateError" class="text-danger"></div>
                                 <input type="date" id="endDate" name="endDate" class="form-control mb-2" value="<%= customEndDate %>">
@@ -72,7 +72,7 @@
                                 <tbody>
                                     <% topProducts.forEach(product => { %>
                                         <tr>
-                                            <td><%= product.name %></td>
+                                            <td><%= product.productName %></td>
                                             <td><%= product.totalQuantity %></td>
                                             <td><%= product.totalRevenue.toFixed(2) %></td>
                                         </tr>
@@ -100,7 +100,7 @@
                                 <tbody>
                                     <% topCategories.forEach(category => { %>
                                         <tr>
-                                            <td><%= category.name %></td>
+                                            <td><%= category.categoryName %></td>
                                             <td><%= category.totalQuantity %></td>
                                             <td><%= category.totalRevenue.toFixed(2) %></td>
                                         </tr>
@@ -126,11 +126,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% topBrands.forEach(brand => { %>
+                                    <% topBrands.forEach(product => { %>
                                         <tr>
-                                            <td><%= brand.name %></td>
-                                            <td><%= brand.totalQuantity %></td>
-                                            <td><%= brand.totalRevenue.toFixed(2) %></td>
+                                            <td><%= product.brandName %></td>
+                                            <td><%=  product.totalQuantity %></td>
+                                            <td><%= product.totalRevenue.toFixed(2) %></td>
                                         </tr>
                                     <% }) %>
                                 </tbody>
@@ -145,11 +145,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
-    
+    // Changed to conditional to check if the data is defined before rendering
     const paymentMethodChartCtx = document.getElementById('paymentMethodChart').getContext('2d');
-    const paymentMethodsData = <%- JSON.stringify(paymentMethodsData) %>;
+    const paymentMethodsData = <%- JSON.stringify(paymentMethodsData || []) %>;
     
-    if (paymentMethodsData && paymentMethodsData.length > 0) {
+    if (paymentMethodsData.length > 0) {
         new Chart(paymentMethodChartCtx, {
             type: 'bar',
             data: {
@@ -194,16 +194,16 @@
     }
 
     const categoryPieChartCtx = document.getElementById('categoryPieChart').getContext('2d');
-const categorySalesData = <%- JSON.stringify(categorySalesData) %>;
+    const categorySalesData = <%- JSON.stringify(categorySalesData || []) %>;
 
-if (categorySalesData && categorySalesData.length > 0) {
-    new Chart(categoryPieChartCtx, {
-        type: 'pie',
-        data: {
-            labels: categorySalesData.map(data => data.category),
-            datasets: [{
-                data: categorySalesData.map(data => data.totalSales),
-                backgroundColor: [
+    if (categorySalesData.length > 0) {
+        new Chart(categoryPieChartCtx, {
+            type: 'pie',
+            data: {
+                labels: categorySalesData.map(data => data.category),
+                datasets: [{
+                    data: categorySalesData.map(data => data.totalSales),
+                    backgroundColor: [
                         'rgb(255, 99, 132)',
                         'rgb(54, 162, 235)',
                         'rgb(255, 205, 86)',
@@ -214,37 +214,36 @@ if (categorySalesData && categorySalesData.length > 0) {
                 }]
             },
             options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: 'Category Sales Distribution'
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.label || '';
-                            if (label) {
-                                label += ': ';
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Category Sales Distribution'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'INR' }).format(context.parsed);
+                                }
+                                return label;
                             }
-                            if (context.parsed !== null) {
-                                label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'INR' }).format(context.parsed);
-                            }
-                            return label;
                         }
                     }
                 }
             }
-        }
-    });
-} else {
+        });
+    } else {
         categoryPieChartCtx.font = '20px Arial';
         categoryPieChartCtx.fillText('No data available for the selected period', 10, 50);
     }
-        
         document.getElementById('chartFilter').addEventListener('change', function() {
             const customDateRange = document.getElementById('customDateRange');
             if (this.value === 'custom') {

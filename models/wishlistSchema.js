@@ -7,17 +7,16 @@ const wishlistSchema=new Schema({
         ref:"User",
         required:true,
     },
-    products:[
-        {
-        productsId:{
+    products:[{
+        productId:{
             type: mongoose.Schema.Types.ObjectId,
             ref:'Product',
             required:true
         },
-        size: {
-            type: String,
-            required: true
-        },
+        // size: {
+        //     type: String,
+        //     required: true
+        // },
        
         addedOn:{
             type:Date,

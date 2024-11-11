@@ -206,6 +206,9 @@
 								<a href="/product-details/<%= product._id %>" class="prod-img">
 									<img src="/uploads/product-images/<%= product.productImage[0] %>" class="img-fluid" alt="picture">
 								</a>
+								<a href="javascript:void(0)" onclick="addToWishlist('<%= product._id %>')" class="wishlist-btn">
+									<i class="fas fa-heart"></i>
+								</a>
 								<div class="desc">
 									<h5><a href="/product-details/<%= product._id %>"><%= product.productName %></a></h5>
 									<!-- <span class="price">₹<%= product.salePrice %></span> -->
@@ -227,7 +230,7 @@
 										<span class="money">₹<%= product.regularPrice %></span>
 									  <% } %></span>
 
-
+									  
 
 									<!-- <form id="addToCartForm-<%= product._id %>" onsubmit="return false;">
 										<input type="hidden" name="productId" value="<%= product._id %>">
@@ -343,76 +346,51 @@
 		<%-include("../../views/partials/user/footer")%>
 		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-		<!-- <script>
-			function addToCart(productId) {
-			  const form = document.getElementById(`addToCartForm-${productId}`);
-			  const formData = new FormData(form);
-			
-			  fetch("/add-cart", {
-				method: "POST",
-				headers: {
-				  'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(Object.fromEntries(formData)),
-				credentials: 'include' 
-			  })
-			  .then(response => {
-				return response.json().then(data => {
-				  if (!response.ok) {
-					throw data;
-				  }
-				  return data;
-				});
-			  })
-			  .then(data => {
-				if (data.message === 'Item already in cart') {
-				  Swal.fire({
-					icon: 'info',
-					title: 'Already in Cart',
-					text: 'This item is already in your cart.'
-				  });
-				} else {
-				  Swal.fire({
-					icon: 'success',
-					title: 'Success',
-					text: data.message
-				  });
-				}
-				if (data.cartItemsCount) {
-				  updateCartItemCount(data.cartItemsCount);
-				}
-			  })
-			  .catch(error => {
-				console.error('Error:', error);
-				if (error.error === 'Please login to add items to cart') {
-				  Swal.fire({
-					icon: 'warning',
-					title: 'Authentication Required',
-					text: 'Please login to add items to cart',
-					showCancelButton: true,
-					confirmButtonText: 'Login',
-					cancelButtonText: 'Cancel'
-				  }).then((result) => {
-					if (result.isConfirmed) {
-					  window.location.href = '/login';
-					}
-				  });
-				} else {
-				  Swal.fire({
-					icon: 'error',
-					title: 'Error',
-					text: error.error || 'An error occurred, please login and try again'
-				  });
-				}
-			  });
-			}
-			
-			function updateCartItemCount(count) {
-			  const cartCountElement = document.getElementById('cartItemCount');
-			  if (cartCountElement) {
-				cartCountElement.textContent = count;
-			  }
-			}
-				</script>
+		<script>
+			async function addToWishlist(productId) {
+    try {
+        
+        const response = await fetch('/wishlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId }),
+        });
 
-  -->
+        
+        if (response.ok) {
+            const result = await response.json();
+            
+            
+            Swal.fire({
+                title: 'Added to Wishlist!',
+                text: result.message || 'The product was added to your wishlist.',
+                icon: 'success',
+                confirmButtonText: 'Continue Shopping',
+                timer: 3000,
+                timerProgressBar: true,
+            });
+        } else {
+            
+            Swal.fire({
+                title: 'Error',
+                text: 'Error adding product to wishlist',
+                icon: 'error',
+                confirmButtonText: 'Try Again'
+            });
+        }
+    } catch (error) {
+        console.error('Error adding to wishlist:', error);
+        // SweetAlert error notification for unexpected errors
+        Swal.fire({
+            title: 'Error',
+            text: 'An error occurred. Please try again later.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    }
+}
+	     </script>
+
+ 

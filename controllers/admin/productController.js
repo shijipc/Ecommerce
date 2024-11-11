@@ -27,6 +27,12 @@ const getProductAddPage=async(req,res)=>{
 const addProducts=async(req,res)=>{
     try {
         const products=req.body;
+
+         // Validate sizes before processing
+         if (!Array.isArray(products.sizes) || products.sizes.some(sizeObj => !sizeObj.size || sizeObj.quantity === undefined)) {
+            return res.status(400).json("Invalid size or quantity data");
+        }
+
         const productExists=await Product.findOne({
             productName:products.productName,
 
@@ -44,25 +50,27 @@ const addProducts=async(req,res)=>{
                 }
             }
             
-            const brandId = await Brand.findById(products.brand);
+            const brandId = await Brand.findOne({brandName:products.brand});
             if (!brandId) {
                 return res.status(400).json("Invalid brand ID");
             }
             
+            console.log(brandId)
             
             const categoryId=await Category.findOne({name:products.category});
             if(!categoryId){
                 return res.status(404).join("Invalid category name")
             }
 
-             // Process sizes, Handling sizes array from the form----new code
+            
              const sizes = products.sizes.map(sizeObj => ({
                 size: sizeObj.size,
                 quantity: sizeObj.quantity
             }));
 
-            let productStatus = products.size.quantity > 0 ? "Available" : "Out of stock";
-
+            // let productStatus = products.size.quantity > 0 ? "Available" : "Out of stock";
+            let productStatus = products.sizes.some(size => size.quantity > 0) ? "Available" : "Out of stock";
+             
             const offer = await Offer.findOne({ product: categoryId._id });
             let offerPrice = products.salePrice;
             

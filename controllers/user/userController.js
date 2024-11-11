@@ -363,16 +363,16 @@ const logout=async (req,res)=>{
 const productDetails = async (req, res) => {
     try {
         const productId = req.params.id;
-        const userId = req.session.user || req.user; // Use _id if stored in session or user object
+        const userId = req.session.user || req.user; 
 
         console.log('Session:', req.session);
         console.log('User ID:', userId);
 
-        if (!userId) {
-            return res.status(401).json({ success: false, message: 'Please login' });
-            // or you could redirect
-            // return res.redirect('/login');
-        }
+        // if (!userId) {
+        //     return res.status(401).json({ success: false, message: 'Please login' });
+        //     // or you could redirect
+        //     // return res.redirect('/login');
+        // }
 
         const product = await Product.findById(productId);
         const relatedProducts = await Product.find({});

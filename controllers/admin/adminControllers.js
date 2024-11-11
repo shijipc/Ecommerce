@@ -3,6 +3,7 @@ const mongoose=require("mongoose");
 const bcrypt=require("bcrypt");
 const Order = require("../../models/orderSchema");
 const Product = require("../../models/productSchema");
+const brand=require("../../models/brandSchema");
 // const moment = require('moment');
 
 
@@ -60,7 +61,7 @@ const getCategorySalesData = async (startDate, endDate) => {
         {
             $group: {
                 _id: "$productInfo.category",
-                totalSales: { $sum: { $multiply: ["$items.quantity", "$items.price"] } }
+                totalSales: { $sum: { $multiply: ["$items.quantity", "$items.salePrice"] } }
             }
         },
         {
@@ -116,31 +117,24 @@ const getPaymentMethodsData = async (startDate, endDate) => {
 };
 
 const getTopSellingItems = async (type, limit, startDate, endDate) => {
-    
-    let groupBy, lookupField, nameField;
+    let groupBy;
 
     switch (type) {
         case 'product':
             groupBy = '$items.product';
-            lookupField = 'products';
-            nameField = 'productName';
             break;
         case 'category':
             groupBy = '$productInfo.category';
-            lookupField = 'categories';
-            nameField = 'name';
             break;
         case 'brand':
             groupBy = '$productInfo.brand';
-            lookupField = 'brands';
-            nameField = 'name';
             break;
     }
 
     const pipeline = [
         {
             $match: {
-                date: { $gte: startDate, $lte: endDate }
+                date: { $gte: new Date(startDate), $lte: new Date(endDate) }
             }
         },
         { $unwind: '$items' },
@@ -154,29 +148,34 @@ const getTopSellingItems = async (type, limit, startDate, endDate) => {
         },
         { $unwind: '$productInfo' },
         {
+            $lookup: {
+                from: 'categories',  
+                localField: 'productInfo.category',
+                foreignField: '_id',
+                as: 'categoryInfo'
+            }
+        },
+        { $unwind: '$categoryInfo' },  
+        {
             $group: {
                 _id: groupBy,
                 totalQuantity: { $sum: '$items.quantity' },
-                totalRevenue: { $sum: { $multiply: ['$items.price', '$items.quantity'] } }
+                totalRevenue: { $sum: { $multiply: ['$items.salePrice', '$items.quantity'] } },
+                productName: { $first: '$productInfo.productName' },
+                categoryName: { $first: '$categoryInfo.name' }, 
+                brandName: { $first: '$productInfo.brand' }
             }
         },
         { $sort: { totalQuantity: -1 } },
         { $limit: limit },
         {
-            $lookup: {
-                from: lookupField,
-                localField: '_id',
-                foreignField: '_id',
-                as: 'details'
-            }
-        },
-        { $unwind: '$details' },
-        {
             $project: {
-                _id: 1,
+                _id: 0, 
                 totalQuantity: 1,
                 totalRevenue: 1,
-                name: `$details.${nameField}`
+                productName: 1,
+                categoryName: 1,
+                brandName: 1
             }
         }
     ];
@@ -237,9 +236,13 @@ const loadDashboard = async (req, res) => {
             const paymentMethodsData = await getPaymentMethodsData(startDate, endDate);
 
             const topProducts = await getTopSellingItems('product', 10, startDate, endDate);
+           
             const topCategories = await getTopSellingItems('category', 10, startDate, endDate);
+            
+           
             const topBrands = await getTopSellingItems('brand', 10, startDate, endDate);
-
+            // console.log(topBrands);
+             
             const chartData = {
                 categorySalesData: categorySalesData.length ? categorySalesData : [{ category: 'No Data', totalSales: 0 }],
                 paymentMethodsData: paymentMethodsData.length ? paymentMethodsData : [{ _id: 'No Data', count: 0 }],
@@ -263,17 +266,6 @@ const loadDashboard = async (req, res) => {
     }
 };
 
-
-// const loadDashboard=async (req,res)=>{
-//     if(req.session.admin){
-//         try {
-//             res.render("dashboard");
-//         } catch (error) {
-//             res.redirect("/pageerror");
-//         }
-//     }
-// }
- 
 const logout=async(req,res)=>{
     try {
        req.session.destroy(err=>{

@@ -7,7 +7,7 @@ const userAddressController=require("../controllers/user/userAddressController")
 const userCartController=require("../controllers/user/userCartController");
 const offerController=require("../controllers/user/offerController");
 const checkoutController=require("../controllers/user/checkoutController");
-const  orderController=require("../controllers/user/orderController");
+const orderController=require("../controllers/user/orderController");
 const wishlistController = require("../controllers/user/wishlistController");
 const userWalletController = require("../controllers/user/userWalletController");
 
@@ -28,7 +28,6 @@ router.get("/shop",userController.loadShopping);
 router.post("/verify-otp",userController.verifyOtp);
 router.post("/resend-Otp",userController.resendOtp);
 router.get("/product-details/:id",userAuth,userController.productDetails);
-// router.post("/product-details/update-quantity",userAuth,userCartController.updatequantity);
 router.get("/about",userController.about);
 router.get("/contact",userController.contact);
 router.get("/auth/google",passport.authenticate('google',{scope:['profile','email']}));
@@ -59,7 +58,6 @@ router.get("/offer",userAuth,offerController.loadOfferPage);
  router.post("/edit-Address/:id",userAuth,userAddressController.editAddress);
  router.delete('/deleteAddress', userAuth, userAddressController.deleteAddress);
 
-
 //user cart
  router.post("/add-cart",userAuth,userCartController.addToCart)
  router.get("/cart",userAuth,userCartController.cart);
@@ -67,13 +65,11 @@ router.get("/offer",userAuth,offerController.loadOfferPage);
  router.post("/cart/remove", userAuth, userCartController.removeFromCart);
  router.delete('/cart/remove-deleted-item',userAuth,userCartController.removeDeletedItem);
 
-
 //checkout
 router.get("/cart/checkout/:id", userAuth, checkoutController.getCheckout);
 router.post('/cart/apply-coupon',userAuth, checkoutController.applyCoupon);
 router.post('/placeOrder', userAuth,checkoutController.placeOrder);
 router.post('/verify-payment',userAuth,checkoutController.verifyPayment);
-
 
 //order
 router.get('/orderConfirmation/:orderId',userAuth,orderController.orderConfirmation);
@@ -87,7 +83,7 @@ router.get("/my-order/:orderId/download-invoice/:itemId", userAuth, orderControl
 //wishlist
 router.post('/wishlist',userAuth,wishlistController.addToWishlist);
 router.get('/wishlist',userAuth, wishlistController.getWishlist);
-router.delete('/wishlist/delete',userAuth, wishlistController.deleteWishlistItem);
+router.delete('/wishlist/deleteItems/:wishlistId', userAuth, wishlistController.deleteWishlistItem);
 
 //wallet
 router.get("/wallet",userAuth,userWalletController.wallet);

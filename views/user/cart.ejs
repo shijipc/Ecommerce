@@ -232,6 +232,7 @@
   
    <script>    
 
+
 function updateQuantity(productId, change, itemSize) {
     fetch('/cart/update-quantity', {
         method: 'POST',
@@ -245,17 +246,14 @@ function updateQuantity(productId, change, itemSize) {
             size: itemSize
         })
     })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(data => {
-                throw new Error(data.error || 'Failed to update quantity');
-            });
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        // Find the specific form with both productId and size
-        const form = document.getElementById(`updateQuantityForm-${productId}-${itemSize}`);
+        if (!data.success) {
+            throw new Error(data.error);
+        }
+        
+        // Update quantity display
+        const form = document.querySelector(`#updateQuantityForm-${productId}-${itemSize}`);
         if (form) {
             const quantityDisplay = form.querySelector('.quantity-display');
             if (quantityDisplay) {
@@ -263,20 +261,110 @@ function updateQuantity(productId, change, itemSize) {
             }
         }
 
-        if (typeof updateCartSummary === 'function') {
-            updateCartSummary(data.cartSummary);
-        }
-
-        Swal.fire('Updated', 'Quantity updated successfully', 'success');
-    })
-    .then(() => {
-        window.location.reload();
+        // Update cart summary with new calculations
+        updateCartSummary(data.cartSummary);
+        
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Quantity updated',
+            showConfirmButton: false,
+            timer: 1500
+        });
     })
     .catch(error => {
-        console.error('Error:', error.message);
-        Swal.fire('Error', error.message, 'error');
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: error.message,
+            showConfirmButton: false,
+            timer: 2000
+        });
     });
 }
+
+// Function to update cart summary with correct calculations
+function updateCartSummary(summary) {
+    if (!summary) return;
+    
+    // Update items count
+    const itemsCountElement = document.querySelector('.summary-item:first-child span:first-child');
+    if (itemsCountElement) {
+        itemsCountElement.textContent = `Total price (${summary.totalItems} items)`;
+    }
+
+    // Update actual total price (before discount)
+    const totalPriceElement = document.querySelector('.summary-item:first-child span:last-child');
+    if (totalPriceElement) {
+        totalPriceElement.textContent = `₹${summary.totalPrice.toFixed(2)}`;
+    }
+
+    // Update discount
+    const discountElement = document.querySelector('.summary-item:nth-child(2) span:last-child');
+    if (discountElement) {
+        discountElement.textContent = `-₹${Math.round(summary.totalDiscount)}`;
+    }
+
+    // Update delivery charges
+    const deliveryElement = document.querySelector('.summary-item:nth-child(3) span:last-child');
+    if (deliveryElement) {
+        deliveryElement.textContent = summary.deliveryCharges > 0 ? `₹${summary.deliveryCharges}` : 'Free';
+    }
+
+    // Update total amount (final price after discount)
+    const totalAmountElement = document.querySelector('.summary-total span:last-child');
+    if (totalAmountElement) {
+        totalAmountElement.textContent = `₹${Math.round(summary.totalAmount)}`;
+    }
+}
+
+// function updateQuantity(productId, change, itemSize) {
+//     fetch('/cart/update-quantity', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+//         },
+//         body: JSON.stringify({ 
+//             productId, 
+//             change,
+//             size: itemSize
+//         })
+//     })
+//     .then(response => {
+//         if (!response.ok) {
+//             return response.json().then(data => {
+//                 throw new Error(data.error || 'Failed to update quantity');
+//             });
+//         }
+//         return response.json();
+//     })
+//     .then(data => {
+//         // Find the specific form with both productId and size
+//         const form = document.getElementById(`updateQuantityForm-${productId}-${itemSize}`);
+//         if (form) {
+//             const quantityDisplay = form.querySelector('.quantity-display');
+//             if (quantityDisplay) {
+//                 quantityDisplay.textContent = data.updatedQuantity;
+//             }
+//         }
+
+//         if (typeof updateCartSummary === 'function') {
+//             updateCartSummary(data.cartSummary);
+//         }
+
+//         Swal.fire('Updated', 'Quantity updated successfully', 'success');
+//     })
+//     .then(() => {
+//         window.location.reload();
+//     })
+//     .catch(error => {
+//         console.error('Error:', error.message);
+//         Swal.fire('Error', error.message, 'error');
+//     });
+// }
           
 
 
@@ -388,13 +476,6 @@ function removeDeletedItem(itemId) {
     });
 }
 
-// Optional function to update cart count in header, if you have such an element
-function updateCartCount(count) {
-    const cartCountElement = document.querySelector('.cart-count');
-    if (cartCountElement) {
-        cartCountElement.textContent = count;
-    }
-}
 
 document.querySelector('#checkout-link').addEventListener('click', function(e) {
     e.preventDefault();

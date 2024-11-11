@@ -13,7 +13,12 @@ const brandSchema=new Schema({
     isBlocked:{
         type:Boolean,
         default:false
-    },createdAt:{
+    },
+    brandOffer:{
+        type:Number,
+        default:0
+    },
+    createdAt:{
         type:Date,
         default:Date.now
     }
