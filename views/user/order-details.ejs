@@ -47,60 +47,84 @@
         <h2>Order Details</h2>
 
         <div class="section info">
-            <div>
-                <h3>Delivery Address</h3>
-                <p><%= order.user.name %></p>
-                <p><%= order.address.house %>, <%= order.address.place %>, <%= order.address.city %>, <%= order.address.state %> - <%= order.address.pin %></p>
-                <p>Phone: <%= order.address.contactNo %></p>
-                <p class="text-muted">This item is tracked by <%= order.items.itemOrderId %></p>
-            </div>
-
-            <div>
-                <h3>Your Rewards in this Item</h3>
-                <% order.items.forEach(item => { %>
+          <div>
+              <h3>Delivery Address</h3>
+              <p><%= order.user.name %></p>
+              <p><%= order.address.house %>, <%= order.address.place %>, <%= order.address.city %>, <%= order.address.state %> - <%= order.address.pin %></p>
+              <p>Phone: <%= order.address.contactNo %></p>
+              <p class="text-muted">This item is tracked by <%= order.items.itemOrderId %></p>
+          </div>
+      
+          <div>
+              <h3>Your Rewards in this Item</h3>
+              <% order.items.forEach(item => { %>
                   <p class="text-success" style="font-size: large;">
                       <span class="coin-icon">&#9733;</span> 
-                      ₹<%= ((item.regularPrice - item.saledPrice) * item.quantity).toFixed(2) %> Saved 
+                      ₹<%= ((item.regularPrice - item.salePrice) * item.quantity).toFixed(2) %> Saved 
                   </p>
               <% }); %>
+
               
-                <h6>Payment Method</h6> 
-                            <% if (order.payment && order.payment.length > 0) { %>
-                              <p><span><%= order.payment[0].method %></span></p>
-                            <% } else { %>
-                              <p>No payment method found</p>
-                            <% } %>
+      
+              <div style="font-size: large;">
+                  <!-- <% order.items.forEach(item => { %>
+                      <% if (item.salePrice !== item.saledPrice) { %>
+                          <p style="font-size: large;" class="text-success">
+                              Other discount: ₹<%= (order.actualPrice - order.offerPrice).toFixed(2) %>
+                          </p>
+                      <% } %>    
+                  <% }); %> -->
+                  
+                  <% if (couponCode) { %>
+                    <p style="font-size: large;" class="text-info">
+                        Applied Coupon Code: <%= couponCode %>
+                    </p>
+                <% } %>
 
-
-                 <!-- <p>Payment Status: <%= order.payment[0].status %></p> -->
-                 <h6>Payment Status</h6> 
-                 <% if (order.payment && order.payment.length > 0) { %>
-                   <p>
-                     <span><%= order.payment[0].status %></span>
-                     <% if (order.payment[0].status === 'pending' && order.payment[0].method !== 'Cash On Delivery' && order.items.itemOrderStatus !== 'Cancelled') { %>
-                       <button id="payNowBtn" class="btn btn-success" style="margin-left: 10px;" data-order-id="<%= order._id %>" data-razorpay-order-id="<%= order.payment[0].razorpayOrderId %>">
-                         Pay Now
-                       </button>
-                     <% } %>
-                   </p>
-                 <% } else { %>
-                   <p>No payment status found</p>
-                 <% } %>                          
-            </div>
-
-            <div class="col-md-4">
+                  <!-- Display applied coupon discount if available -->
+                  <% if (order.discount && order.discount > 0) { %>
+                      <p style="font-size: large;" class="text-info">
+                          Coupon discount: ₹<%= order.discount.toFixed(2) %>
+                      </p>
+                  <% } %>
+              </div>
+      
+              <h6>Payment Method</h6> 
+              <% if (order.payment && order.payment.length > 0) { %>
+                  <p><span><%= order.payment[0].method %></span></p>
+              <% } else { %>
+                  <p>No payment method found</p>
+              <% } %>
+      
+              <h6>Payment Status</h6> 
+              <% if (order.payment && order.payment.length > 0) { %>
+                  <p>
+                      <span><%= order.payment[0].status %></span>
+                      <% if (order.payment[0].status === 'pending' && order.payment[0].method !== 'Cash On Delivery' && order.items.itemOrderStatus !== 'Cancelled') { %>
+                          <button id="payNowBtn" class="btn btn-success" style="margin-left: 10px;" data-order-id="<%= order._id %>" data-razorpay-order-id="<%= order.payment[0].razorpayOrderId %>">
+                              Pay Now
+                          </button>
+                      <% } %>
+                  </p>
+              <% } else { %>
+                  <p>No payment status found</p>
+              <% } %>                          
+          </div>
+      
+          <div class="col-md-4">
               <h5>Order actions</h5>
               <% order.items.forEach(item => { %>
-                <% if (item.itemOrderStatus === 'Delivered') { %>
-                  <button class="btn btn-warning mb-2 download-invoice-btn" 
-                          data-order-id="<%= order.orderId %>" 
-                          data-item-id="<%= item.itemOrderId %>">
-                    <i class="fas fa-download"></i> Download Invoice
-                  </button>
-                <% } %>
+                  <% if (item.itemOrderStatus === 'Delivered') { %>
+                      <button class="btn btn-warning mb-2 download-invoice-btn" 
+                              data-order-id="<%= order.orderId %>" 
+                              data-item-id="<%= item.itemOrderId %>">
+                          <i class="fas fa-download"></i> Download Invoice
+                      </button>
+                  <% } %>
               <% }); %>
-            </div>
-        </div>
+          </div>
+      </div>
+      
         
 
 
@@ -116,20 +140,40 @@
                     <!-- <p style="font-size: large;">Actual price: ₹<%= order.items.regularPrice %> <span class="coin-icon">&#9733;</span><%= order.items.quantity %></p>
                     <p style="font-size: large;" class="text-success">Offer price: ₹<%= order.items.salePrice %> -->
                     <!-- <p>Offer Price: ₹<%= item.salePrice %></p> -->
-                    <p style="font-size: medium;">Actual price: ₹<%= item.regularPrice*item.quantity %></p>
-                    <p style="font-size: medium;" class="text-success">Saled price: ₹<%= item.salePrice *item.quantity %></p>
-                    <div  style="font-size: large;">
+                    <p style="font-size: medium;">Actual price: ₹<%= item.regularPrice* item.quantity%></p>
+                    <p style="font-size: medium;" class="text-success">Saled price: ₹<%= item.saledPrice%></p>
+
+                    <% if (item.regularPrice > item.salePrice) { %>
+                    <p style="font-size: medium;" class="text-danger">
+                      Discount: ₹<%= (item.regularPrice - item.salePrice) * item.quantity %>
+                    </p>
+                    <% } %>
+
+                    
+                    <% if (item.discount && item.discount > 0) { %>
+                      <p style="font-size: medium;" class="text-info">Coupon discount: ₹<%= item.discount.toFixed(2) %></p>
+                  <% } %>
+                    <!-- <div style="font-size: large;">
                       <% order.items.forEach(item => { %>
-                          <% if (item.salePrice !== item.saledPrice) { %>
-                              <p style="font-size: large;" class="text-success">
-                                  Other discount: ₹<%= item.regularPrice - item.saledPrice %>
-                              </p>
-
-                          <% } %>    
-                      <% }); %>
-
-
-                  </div>
+                        <% if (item.salePrice !== item.saledPrice) { %>
+                          <p style="font-size: large;" class="text-success">
+                            Other discount: ₹<%= (item.saledPrice - order.offerPrice).toFixed(2) %>
+                          </p>
+                        <% } %>    
+                      <% }); %> 
+                       -->
+                      <!-- Display coupon discount only once -->
+                      <!-- <% if (order.discount && order.discount > 0) { %>
+                        <p style="font-size: large;" class="text-info">
+                          Coupon discount: ₹<%= order.discount.toFixed(2) %>
+                        </p>
+                      <% } else { %>
+                        <p style="font-size: large;" class="text-warning">
+                          Discount information unavailable
+                        </p>
+                      <% } %>
+                    </div>
+                     -->
                   
                     <p style="font-size: medium;">Quantity: <%= item.quantity %></p>
                     <p style="font-size: medium;">Status: <%= item.itemOrderStatus %></p>
@@ -235,23 +279,27 @@ function verifyPayment(response, orderId) {
     </script>
 
     <!-- invoice -->
-    <script>
-    document.querySelectorAll('.download-invoice-btn').forEach(button => {
-    button.addEventListener('click', function() {
+  <script>
+   document.querySelectorAll('.download-invoice-btn').forEach(button => {
+    button.addEventListener('click', async function() {
         const orderId = this.getAttribute('data-order-id');
         const itemId = this.getAttribute('data-item-id');
-        
-        fetch(`/my-order/${orderId}/download-invoice/${itemId}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/pdf',
-            },
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.blob();
-        })
-        .then(blob => {
+
+        try {
+            const response = await fetch(`/my-order/${orderId}/download-invoice/${itemId}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/pdf',
+                },
+            });
+
+            if (!response.ok) {
+                console.log('Download failed with status:', response.status, response.statusText);
+                alert('Failed to download invoice. Please try again.');
+                return;
+            }
+
+            const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.style.display = 'none';
@@ -259,9 +307,12 @@ function verifyPayment(response, orderId) {
             a.download = `Invoice-${orderId}.pdf`;
             document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             window.URL.revokeObjectURL(url);
-        })
-        .catch(error => console.error('Error:', error));
+        } catch (error) {
+            console.error('Error downloading invoice:', error);
+            alert('Error downloading the invoice.');
+        }
     });
 });
 

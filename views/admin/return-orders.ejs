@@ -1,10 +1,11 @@
 <%- include("../../views/partials/admin/header") %>
-  
+
 <style>
+ 
   body {
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0;
+    padding: 0;   
   }
 
   .layout {
@@ -23,12 +24,11 @@
     color: #333;
     font-size: 24px;
   }
-
-  .return-orders-btn {
+  .back-orders-btn {
     position: absolute;
     right: 0;
     top: 0;
-    background-color: red;
+    background-color: rgb(40, 132, 4);
     color: white;
     border: none;
     padding: 10px 20px;
@@ -36,42 +36,14 @@
     cursor: pointer;
     font-size: 16px;
     text-decoration: none;
+    display: inline-block;
+    margin-top: 30px;
+    margin-right:115px; 
   }
-  .return-orders-btn:hover {
-    background-color: darkred;
-  }
-  /* Search Functionality */
-  .search-form {
-    display: flex;
-    justify-content: flex-start;
-    margin-bottom: 20px;
-  }
-
-  .search-form input[type="text"] {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-
-  .search-form button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin-left: 10px;
-  }
-
-  .search-form button:hover {
-    background-color: #0056b3;
-  }
+  /* Table Styles */
   .table-container {
     overflow-x: auto;
-    margin-top: 20px;
+    margin-bottom: 20px;
   }
 
   table {
@@ -146,16 +118,9 @@
   }
 </style>
 
-
 <div class="content">
-  <h3>Order Management</h3>
-  <a href="/admin/return-orders" class="return-orders-btn">Return Orders</a>
-  <!-- Search functionality -->
-  <form class="search-form" action="/admin/orders" method="GET">
-    <input type="text" name="search" placeholder="Search by Order ID or Customer Name" value="<%= search %>">
-    <button type="submit">Search</button>
-  </form>
- 
+  <h3>Return Orders</h3>
+
   <div class="table-container">
     <table>
       <thead>
@@ -166,7 +131,7 @@
           <th>Actual Price</th>
           <th>Discount</th>
           <th>Total Price</th>
-          <th>Status</th>
+          <!-- <th>Status</th> -->
           <th>Date</th>
           <th>Payment Method</th>
           <th>Payment Status</th>
@@ -186,7 +151,7 @@
             <td>₹<%= order.actualPrice %></td>
             <td>₹<%= order.discount %></td>
             <td>₹<%= order.totalPrice %></td>
-            <td><%= order.status %></td>
+            <!-- <td><%= order.status %></td> -->
             <td><%= new Date(order.date).toLocaleDateString() %></td>
             <td><%= order.payment[0].method %></td>
             <td><%= order.payment[0].status %></td>
@@ -201,5 +166,5 @@
     <p class="no-orders">No orders found.</p>
   <% } %>
 </div>
-</div>
 
+<a href="/admin/orders" class="back-orders-btn">Back to Orders</a>

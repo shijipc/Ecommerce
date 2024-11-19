@@ -160,8 +160,8 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <div class="breadcrumbs-img" style="background-image: url(images/cover-img-1.jpg);">
-                    <h2>Offers</h2>
+                <div class="breadcrumbs-img" style="background-image: url(images/bannercommonpic.jpg);">
+                    <h2 style="color: white;">Offers</h2>
                 </div>
                 <div class="menu text-center">
                     <p><a href="#">New Arrivals</a> <a href="#">Best Sellers</a> <a href="#">Extended Widths</a> <a href="#">Sale</a></p>
@@ -176,7 +176,7 @@
         <div class="row">
             <div class="col-sm-4 text-center">
                 <div class="featured">
-                    <div class="featured-img featured-img-2" style="background-image: url(images/img_bg_2.jpg);">
+                    <div class="featured-img featured-img-2" style="background-image: url(images/casualbanner.jpg);">
                         <h2>Casuals</h2>
                         <p><a href="#" class="btn btn-primary btn-lg">Shop now</a></p>
                     </div>
@@ -184,15 +184,15 @@
             </div>
             <div class="col-sm-4 text-center">
                 <div class="featured">
-                    <div class="featured-img featured-img-2" style="background-image: url(images/women.jpg);">
-                        <h2>Dress</h2>
+                    <div class="featured-img featured-img-2" style="background-image: url(images/heelswomen.jpg);">
+                        <h2>Heels</h2>
                         <p><a href="#" class="btn btn-primary btn-lg">Shop now</a></p>
                     </div>
                 </div>
             </div>
             <div class="col-sm-4 text-center">
                 <div class="featured">
-                    <div class="featured-img featured-img-2" style="background-image: url(images/item-11.jpg);">
+                    <div class="featured-img featured-img-2" style="background-image: url(images/sportsbanner.jpg);">
                         <h2>Sports</h2>
                         <p><a href="#" class="btn btn-primary btn-lg">Shop now</a></p>
                     </div>
@@ -316,20 +316,12 @@
                                     <a href="/product-details/<%= product._id %>" class="prod-img">
                                         <img src="/uploads/product-images/<%= product.productImage[0] %>" alt="<%= product.productName %>">
                                     </a>
-                                    <!-- <a href="/wishlist/<%= product._id %>" class="wishlist-btn">
-                                        <i class="fas fa-heart"></i>
-                                    </a> -->
-                                    
+                                                       
                                     <div class="desc">
                                         <h5 class="product-name">
                                             <a href="/product-details/<%= product._id %>"><%= product.productName %></a>
                                         </h5>
-                                        <!-- <div class="price-cart"> -->
-                                            <!-- <span class="price">₹<%= product.salePrice %></span> -->
-                                            <!-- <del class="price">₹<%= product.salePrice %></del> 
-									        <span class="price">₹<%= product.offerPrice %></span> -->
-
-                                        <!-- </div> -->
+                                       
                                         <span class="price">
                                           <% if (product.offerPrice && product.offerPrice < product.salePrice) { %>								 
                                             <span class="money" style="text-decoration: line-through;">₹<%= product.regularPrice %></span>

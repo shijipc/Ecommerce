@@ -75,11 +75,20 @@
                                         </a>
         
                                         <p class="wishlist-price">
-                                            <% if (item.productId.offerPrice && item.productId.offerPrice < item.productId.salePrice) { %>
-                                                <del style="color: grey;">₹<%= item.productId.regularPrice %></del> ₹<%= Math.round(item.productId.offerPrice) %>
-                                            <% } else { %>
-                                                ₹<%= item.productId.salePrice %>
-                                            <% } %>
+                                            <span class="price">
+                                                <% if (item.productId.offerPrice && item.productId.offerPrice < item.productId.salePrice) { %>
+                                                    <span class="money" style="text-decoration: line-through;">₹<%= item.productId.regularPrice %></span>
+                                                    <span class="money" style="color: red; font-weight: bold;">₹<%= item.productId.offerPrice %></span>
+                                                <% } else if (item.productId.salePrice < item.productId.regularPrice) { %>
+                                                    <span class="money" style="text-decoration: line-through;">₹<%= item.productId.regularPrice %></span>
+                                                    <span class="money" style="color: red; font-weight: bold;">₹<%= item.productId.salePrice %></span>
+                                                <% } else if (item.productId.salePrice === item.productId.regularPrice && item.productId.offerPrice && item.productId.offerPrice < item.productId.salePrice) { %>
+                                                    <span class="money" style="text-decoration: line-through;">₹<%= item.productId.regularPrice %></span>
+                                                    <span class="money" style="color: red; font-weight: bold;">₹<%= item.productId.offerPrice %></span>
+                                                <% } else { %>
+                                                    <span class="money">₹<%= item.productId.regularPrice %></span>
+                                                <% } %>
+                                                
                                         </p>
                                     </div>
                                     <form id="addToCartForm-<%= item.productId._id %>" onsubmit="return false;">

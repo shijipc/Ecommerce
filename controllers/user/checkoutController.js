@@ -4,6 +4,7 @@ const env=require("dotenv").config();
 const nodemailer=require("nodemailer");
 const bcrypt=require("bcrypt");
 const crypto = require('crypto');
+const Wallet=require("../../models/walletSchema");
 const Product=require("../../models/productSchema");
 const Cart=require("../../models/cartSchema");
 const Address = require("../../models/addressSchema");
@@ -156,10 +157,7 @@ const applyCoupon = async (req, res) => {
           }
           
         discountAmount = Math.min(discountAmount, (totalPrice - totalDiscount));
-        console.log(discountAmount);
-            
         totalDiscount += discountAmount;
-           
        let orderTotal = totalPrice - totalDiscount +shippingCost;
            
         req.session.appliedCoupon = couponId;
@@ -276,28 +274,16 @@ const placeOrder = async (req, res) => {
             return res.status(400).json({ error: "No items in cart" });
         }
 
-        // Calculate prices and prepare items
         let totalPrice = 0;
-        let actualPrice = 0; 
-        let discountAmount = 0;
+        let actualPrice = 0;
         const preparedItems = [];
 
-        // Process each cart item with its size and quantity
+        // Calculate total and item-wise details
         for (const item of cart.items) {
-            // Calculate actual price based on regular price
             actualPrice += item.product.regularPrice * item.quantity;
 
-            let itemPrice;
-            if (item.product.offerPrice && item.product.offerPrice < item.product.regularPrice) {
-                itemPrice = item.product.offerPrice;
-            } else if (item.product.salePrice < item.product.regularPrice) {
-                itemPrice = item.product.salePrice;
-            } else {
-                itemPrice = item.product.regularPrice;
-            }
-
-            const itemTotal = itemPrice * item.quantity;
-            totalPrice += itemTotal;
+            let itemPrice = item.product.salePrice || item.product.regularPrice;
+            totalPrice += itemPrice * item.quantity;
 
             preparedItems.push({
                 product: item.product._id,
@@ -305,19 +291,27 @@ const placeOrder = async (req, res) => {
                 size: item.size,
                 regularPrice: item.product.regularPrice,
                 salePrice: itemPrice,
-                saledPrice: itemTotal
+                saledPrice: itemPrice * item.quantity, // Temporarily storing before discount
+                itemCouponDiscount: 0 // Placeholder for individual item discount
             });
         }
 
-        // Apply coupon if present
         let finalTotal = totalPrice;
-        let appliedCoupon = null;
-        
+        let discountAmount = 0;
+
         if (appliedCouponId) {
-            appliedCoupon = await Coupon.findById(appliedCouponId);
+            const appliedCoupon = await Coupon.findById(appliedCouponId);
             if (appliedCoupon && appliedCoupon.status !== "Not available") {
                 discountAmount = calculateCouponDiscount(appliedCoupon, totalPrice);
                 finalTotal = totalPrice - discountAmount;
+
+                // Distribute discount proportionally among items
+                preparedItems.forEach(item => {
+                    const itemShare = (item.saledPrice / totalPrice); // Proportional share
+                    const itemDiscount = discountAmount * itemShare;
+                    item.saledPrice -= itemDiscount; // Adjust final saled price
+                    item.itemCouponDiscount = itemDiscount; // Store discount for the item
+                });
             }
         }
 
@@ -341,7 +335,7 @@ const placeOrder = async (req, res) => {
             items: preparedItems,
             actualPrice: actualPrice,
             saledPrice: finalTotal,
-            offerPrice: finalTotal,
+            offerPrice: totalPrice,
             coupon: appliedCouponId || undefined,
             discount: discountAmount,
             status: 'Processing',

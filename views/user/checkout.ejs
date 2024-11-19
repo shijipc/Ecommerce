@@ -409,7 +409,7 @@ function handleFormSubmit(event) {
                     amount: data.razorpayOrder.amount * 100,
                     currency: data.razorpayOrder.currency,
                     order_id: data.razorpayOrder.id,
-                    name: "Your Store Name",
+                    name: "Shoe Mart",
                     description: "Order Payment",
                     handler: function(response) {
                         verifyPayment(response);

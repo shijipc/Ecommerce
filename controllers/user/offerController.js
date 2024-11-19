@@ -103,10 +103,6 @@ const loadOfferPage = async (req, res) => {
     }
 };
 
-
-
-
-
 module.exports={
     loadOfferPage,
 

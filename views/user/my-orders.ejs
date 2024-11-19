@@ -68,14 +68,14 @@
                             <p class="mb-0">Size: <%= item.size %></p>
                         </div>
                         <div class="col-md-2">
-                            <p class="font-weight-bold mb-0">Price: ₹<%= item.regularPrice %></p>
+                            <p class="font-weight-bold mb-0">Actual Price: ₹<%= item.regularPrice %></p>
                             <p class="mb-0">Quantity: <%= item.quantity %></p>
                             <p class="mb-0">Total: ₹<%= (item.regularPrice * item.quantity).toFixed(2) %></p>
                             
                             <div class="mt-2" style="background-color: #f8d7da; padding: 8px; border-radius: 5px;">
-                                <p class="font-weight-bold text-success mb-0">Actual Price: ₹<%= item.regularPrice.toFixed(2) %></p>
-                                <p class="text-success mb-0">Total Discount: ₹<%= ((item.regularPrice * item.quantity) -  (item.saledPrice * item.quantity)).toFixed(2) %></p>
-                                <p class="text-success mb-0">Saled Total: ₹<%= (item.saledPrice * item.quantity).toFixed(2) %></p>
+                                <p class="font-weight-bold text-success mb-0">Actual Price: ₹<%= item.regularPrice.toFixed(2) %> *<%= item.quantity %> </p>
+                                <p class="text-success mb-0">Total Discount: ₹<%= ((item.regularPrice * item.quantity) -  (item.salePrice * item.quantity)).toFixed(2) %></p>
+                                <p class="text-success mb-0">Saled Total: ₹<%= item.saledPrice.toFixed(2) %></p>
                             </div>
                         </div>
 

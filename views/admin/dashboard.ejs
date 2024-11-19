@@ -22,7 +22,7 @@
                                 <option value="daily" <%= filter === 'daily' ? 'selected' : '' %>>Daily</option>
                                 <option value="custom" <%= filter === 'custom' ? 'selected' : '' %>>Custom Range</option>
                             </select>
-                            <!-- Added surrounding quotes for style attribute to avoid syntax issues -->
+                            
                             <div id="customDateRange" style="display: <%= filter === 'custom' ? 'block' : 'none' %>">
                                 <input type="date" id="startDate" name="startDate" class="form-control mb-2" value="<%= customStartDate %>">
                                 <div id="startDateError" class="text-danger"></div>

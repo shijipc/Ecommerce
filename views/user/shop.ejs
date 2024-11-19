@@ -149,8 +149,8 @@
 			<div class="container">
 				<div class="row">
 					<div class="col">
-						<div class="breadcrumbs-img" style="background-image: url(/images/cover-img-1.jpg);">
-							<h2>Shop</h2>
+						<div class="breadcrumbs-img" style="background-image: url(/images/bannercommonpic.jpg);">
+							<h2 style="color: white;">Shop</h2>
 						</div>
 						<div class="menu text-center">
 							<p><a href="#">New Arrivals</a> <a href="#">Best Sellers</a> <a href="#">Extended Widths</a> <a href="#">Sale</a></p>
@@ -165,7 +165,7 @@
 				<div class="row">
 					<div class="col-sm-4 text-center">
 						<div class="featured">
-							<div class="featured-img featured-img-2" style="background-image: url(images/men.jpg);">
+							<div class="featured-img featured-img-2" style="background-image: url(images/casualbanner.jpg);">
 								<h2>Casuals</h2>
 								<p><a href="#" class="btn btn-primary btn-lg">Shop now</a></p>
 							</div>
@@ -173,7 +173,7 @@
 					</div>
 					<div class="col-sm-4 text-center">
 						<div class="featured">
-							<div class="featured-img featured-img-2" style="background-image: url(images/women.jpg);">
+							<div class="featured-img featured-img-2" style="background-image: url(images/heelswomen.jpg);">
 								<h2>Heels</h2>
 								<p><a href="#" class="btn btn-primary btn-lg">Shop now</a></p>
 							</div>
@@ -181,7 +181,7 @@
 					</div>
 					<div class="col-sm-4 text-center">
 						<div class="featured">
-							<div class="featured-img featured-img-2" style="background-image: url(images/item-11.jpg);">
+							<div class="featured-img featured-img-2" style="background-image: url(images/sportsbanner.jpg);">
 								<h2>Sports</h2>
 								<p><a href="#" class="btn btn-primary btn-lg">Shop now</a></p>
 							</div>
@@ -228,15 +228,7 @@
 									  <% } else { %>
 									  
 										<span class="money">₹<%= product.regularPrice %></span>
-									  <% } %></span>
-
-									  
-
-									<!-- <form id="addToCartForm-<%= product._id %>" onsubmit="return false;">
-										<input type="hidden" name="productId" value="<%= product._id %>">
-										<input type="hidden" name="quantity" value="1">
-										<button class="btn" type="button" onclick="addToCart('<%= product._id %>')">Add to Cart</button>
-									</form>				 -->
+									  <% } %></span>						
 								</div>
 							</div>
 						</div>
@@ -265,15 +257,32 @@
 														<img class="default-img" src="/uploads/product-images/<%= product.productImage[0] %>" alt="<%= product.productName %>">
 													</a>
 												</div>
-												<a href="/wishlist/<%= product._id %>" class="wishlist-btn">
+												<a href="javascript:void(0)" onclick="addToWishlist('<%= product._id %>')" class="wishlist-btn">
 													<i class="fas fa-heart"></i>
 												</a>
+												
 											</div>
 											<div class="product-content-wrap text-center">
 												<h6><%= product.productName %></h6>
 												
-												<h5>₹<%= product.salePrice %></h5>
-																							 
+												<!-- <h5>₹<%= product.salePrice %></h5> -->
+												<span class="price"><% if (product.offerPrice && product.offerPrice < product.salePrice) { %>
+																		 
+													<span class="money" style="text-decoration: line-through;">₹<%= product.regularPrice %></span>
+													<span class="money" style="color: red; font-weight: bold;">₹<%= product.offerPrice %></span>
+												  <% } else if (product.salePrice < product.regularPrice) { %>
+												   
+													<span class="money" style="text-decoration: line-through;">₹<%= product.regularPrice %></span>
+													<span class="money" style="color: red; font-weight: bold;">₹<%= product.salePrice %></span>
+												  <% } else if (product.salePrice === product.regularPrice && product.offerPrice && product.offerPrice < product.salePrice) { %>
+													
+													<span class="money" style="text-decoration: line-through;">₹<%= product.regularPrice %></span>
+													<span class="money" style="color: red; font-weight: bold;">₹<%= product.offerPrice %></span>
+												  <% } else { %>
+												  
+													<span class="money">₹<%= product.regularPrice %></span>
+												  <% } %></span>
+												 
 											</div>
 										</div>
 									</div>

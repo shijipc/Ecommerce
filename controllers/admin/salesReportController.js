@@ -97,7 +97,7 @@ const calculateOrderStats = (orders) => {
 
     
     const totalOfferDiscount = completedOrders.reduce((sum, order) => {
-        return sum + order.items.reduce((itemSum, item) => itemSum + (item.regularPrice - item.price), 0);
+        return sum + order.items.reduce((itemSum, item) => itemSum + (item.regularPrice - item.salePrice), 0);
     }, 0);
 
 

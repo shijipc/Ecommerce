@@ -82,7 +82,7 @@ const getAdminOrders = async (req, res) => {
             { $set: { 'items.$.itemOrderStatus': itemStatus } }
         );
         
-        // Redirect back to the order details page
+       
         res.redirect(`/admin/orderDetails/${orderId}`);
     } catch (error) {
         console.error('Error updating item status:', error);
@@ -90,10 +90,23 @@ const getAdminOrders = async (req, res) => {
     }
 };
 
+const getReturnOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({"items.itemOrderStatus": "Return Requested"  }).populate("user").populate("items.product");
+    console.log("Fetched Orders:", orders);
+    res.render("return-orders", { orders });
+  } catch (error) {
+    console.error("Error fetching requested orders:", error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+
 
 module.exports={
     getAdminOrders,
     getOrderDetails,
     updateOrderStatus,
     updateItemStatus,
-}
+    getReturnOrders,
+ }

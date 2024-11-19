@@ -3,7 +3,7 @@ const User=require("../../models/userSchema");
 
 
 
-// Get all coupons with optional search functionality
+
 const getCoupons = async (req, res) => {
   try {
 
@@ -58,6 +58,14 @@ const createCoupon = async (req, res) => {
       });
     }
 
+    // Validate that discountValue is below 60
+    if (discountValue >= 60) {
+      return res.status(400).json({
+        success: false,
+        message: "Discount value must be below 60.",
+      });
+    }
+
     const existingCoupon = await Coupon.findOne({ code });
     if (existingCoupon) {
       return res.status(400).json({
@@ -80,12 +88,11 @@ const createCoupon = async (req, res) => {
     });
     await newCoupon.save();
 
-    // Render the coupons page with the updated coupons list
     const coupons = await Coupon.find();
     // res.render("coupons", { coupons });
     res.status(200).json({
       success: true,
-      message: "created coupon successfully",
+      message: "coupon created successfully",
     });
   } catch (error) {
     console.error("Error creating coupon:", error);
@@ -97,7 +104,6 @@ const createCoupon = async (req, res) => {
 };
 
 // Delete a coupon
-
 const deleteCoupon = async (req, res) => {
   try {
     const { id } = req.params;
@@ -113,21 +119,6 @@ const deleteCoupon = async (req, res) => {
 };
 
 //updatecoupon
-// const updateCoupon = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const coupon = await Coupon.findById(id);
-//     if (!coupon) {
-//       return res.status(404).json({ success: false, message: "Coupon not found" });
-//     }
-//     res.status(200).json({ success: true, coupon });
-//   } catch (error) {
-//     console.error("Error fetching coupon:", error);
-//     res.status(500).json({ success: false, message: "An error occurred while fetching the coupon" });
-//   }
-// };
-
-
 const updateCoupon = async (req, res) => {
   try {
     const couponId = req.params.id;
@@ -194,7 +185,7 @@ const editCoupon = async (req, res) => {
       return res.status(404).send("Coupon not found.");
     }
 
-    res.status(200).json(coupon);  // Send coupon data as JSON
+    res.status(200).json(coupon);  
   } catch (error) {
     console.error("Error fetching coupon:", error);
     res.status(500).send("Internal Server Error.");

@@ -37,10 +37,11 @@ const wallet = async (req, res, next) => {
   
         const { balance, transactions } = user.wallet;
   
-        
-        const totalTransactions = transactions.length;
+        const sortedTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        const totalTransactions = sortedTransactions.length;
         const totalPages = Math.ceil(totalTransactions / limit);
-        const paginatedTransactions = transactions.slice((page - 1) * limit, page * limit);
+        const paginatedTransactions = sortedTransactions.slice((page - 1) * limit, page * limit);
   
         return res.render('wallet', {
             balance: balance,

@@ -468,31 +468,13 @@ const productDetails = async (req, res) => {
                 //console.log("User not found for ID:", userId);
                 return res.status(404).send("User not found");
             }
-            const addresses = await Address.find({ userId: userId });
+            const address = await Address.find({ userId: userId });
             const orders = await Order.find({ user: userId }).exec();
             console.log("Fetched Orders:", orders);
-
-
-            const pendingOrders = orders.filter(order => order.status?.trim().toLowerCase() === 'pending');
-            const completedOrders = orders.filter(order => order.status?.trim().toLowerCase() === 'delivered');
-
-            orders.forEach(order => console.log("Order Status:", order.status));
-
-            const pendingCount = pendingOrders.length;
-            const completedCount = completedOrders.length;
-            const totalOrders = orders.length; 
-
-            console.log("Pending Orders Count:", pendingCount);
-            console.log("Completed Orders Count:", completedCount);
-            console.log("Total Orders Count:", totalOrders);
-    
 
             return res.render("user-profile", {
                 user: userData,
                 addresses: userData.address, 
-                pendingCount,
-                completedCount,
-                totalOrders
             });
 
         } else {

@@ -214,13 +214,41 @@ const blockProduct=async(req,res)=>{
 //unblock
 const unblockProduct=async(req,res)=>{
     try {
-        let id=req.query.id;
-        await Product.updateOne({_id:id},{$set:{isBlocked:false}});
-        res.redirect("/admin/Products");
+        let id = req.query.id;
+        
+       
+        const product = await Product.findById(id);
+        
+        if (!product) {
+            return res.status(404).send("Product not found");
+        }
+        
+       
+        product.isBlocked = false;
+        
+       
+        if (product.quantity > 0) {
+            product.status = "Available";
+        } else {
+            product.status = "out of stock";
+        }
+        
+        await product.save();
+        
+        res.redirect("/admin/products");
     } catch (error) {
+        console.error("Error in unblockProduct:", error);
         res.redirect("/pageerror");
     }
-}
+//     try {
+//         let id=req.query.id;
+//         await Product.updateOne({_id:id},{$set:{isBlocked:false}});
+//         res.redirect("/admin/Products");
+//     } catch (error) {
+//         res.redirect("/pageerror");
+//     }
+//
+ }
 
 
 //Edit
@@ -303,9 +331,7 @@ const editProduct = async (req, res) => {
             if (category) {
                 updateFields.category = category._id;
             } else {
-                console.log('Category not found:', data.category);
-                // Handle the case where the category doesn't exist
-                // You might want to create a new category here, or skip updating this field
+                console.log('Category not found:', data.category);      
             }
         }
         
@@ -330,6 +356,7 @@ const editProduct = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while updating the product. Please try again.', details: error.message });
     }
 };
+
 const deleteSingleImage= async(req,res)=>{
     try {
         const {imageNameToServer,productIdToServer}=req.body;

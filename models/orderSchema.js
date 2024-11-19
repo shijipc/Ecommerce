@@ -90,6 +90,12 @@ const orderSchema = new mongoose.Schema({
       type: Number,
       default: 0
     },
+    couponDiscount: {
+      type: Number,
+      required:false,
+      default: 0 
+
+    },
     itemOrderStatus: {
       type: String,
       required: false,
@@ -144,7 +150,7 @@ const orderSchema = new mongoose.Schema({
     status: {
       type: String,
       required: true,
-      enum: ["pending", "completed"]
+      enum: ["pending", "completed",'Failed','Refunded']
     },
     razorpayOrderId: {
       type: String,

@@ -176,27 +176,7 @@ const cart = async (req, res, next) => {
       if (cartUpdated) {
         await cart.save();
       }
-    }
-                    
-        //             totalPrice += item.product.salePrice * item.quantity;  
-        //             totalItems += item.quantity;  
-
-                  
-        //             const discountAmount = item.product.offerPrice && item.product.offerPrice < item.product.salePrice
-        //                 ? item.product.salePrice - item.product.offerPrice
-        //                 : 0;
-
-        //             totalDiscount += discountAmount * item.quantity;  
-        //             distinctProducts.add(item.product._id.toString());
-        //         }
-        //     }
-        //     distinctProductCount = distinctProducts.size;
-
-            
-        //     await cart.save();
-        // }
-
-   
+    }  
         const totalAmount = totalPrice - totalDiscount + deliveryCharges;
 
        
@@ -326,74 +306,6 @@ const calculateCartSummary = (cart) => {
     };
 };
 
-// const updateQuantity = async (req, res) => {
-//     const { productId, change, size } = req.body;
-//     console.log(size);
-//     const userId = req.session.user || req.user;
-
-//     try {
-//         let cart = await Cart.findOne({ userId }).populate('items.product');
-//         if (!cart) return res.status(404).json({ error: 'Cart not found' });
-
-//         // Find the specific item index that matches both productId and size
-//         const itemIndex = cart.items.findIndex(item => 
-//             item.product._id.toString() === productId && 
-//             item.size === size
-//         );
-
-//         if (itemIndex === -1) {
-//             return res.status(404).json({ error: 'Item not found in cart' });
-//         }
-
-//         const item = cart.items[itemIndex];
-
-//         if (item.isBlocked) {
-//             return res.status(400).json({ error: 'Product is blocked' });
-//         }
-
-//         let newQuantity = item.quantity + change;
-//         if (newQuantity < 1) {
-//             return res.status(400).json({ error: 'Minimum quantity is 1. Use remove button instead.' });
-//         }
-//         if (newQuantity > MAX_QUANTITY_PER_PRODUCT) {
-//             return res.status(400).json(`{ error: Max limit is ${MAX_QUANTITY_PER_PRODUCT}}`);
-//         }
-
-//         const product = await Product.findById(productId);
-//         const sizeIndex = product.sizes.findIndex(s => s.size === size);
-
-//         if (sizeIndex === -1 || product.sizes[sizeIndex].quantity < newQuantity) {
-//             return res.status(400).json({ error: 'Not enough stock available' });
-//         }
-
-//         const quantityDifference = change;
-//         product.sizes[sizeIndex].quantity -= quantityDifference;
-
-//         // Update the status based on all sizes
-//         product.status = product.sizes.every(s => s.quantity === 0) ? "Out of stock" : "Available";
-//         await product.save();
-
-//         // Update only the specific item's quantity
-//         cart.items[itemIndex].quantity = newQuantity;
-//         await cart.save();
-        
-//         const cartSummary = calculateCartSummary(cart);
-
-//         res.json({
-//             success: true,
-//             updatedQuantity: cart.items[itemIndex].quantity,
-//             productStatus: product.status,
-//             productQuantity: product.sizes[sizeIndex].quantity,
-//             cartSummary
-//         });
-
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ error: 'An internal error occurred' });
-//     }
-// };
-
-
 const removeFromCart = async (req, res) => {
     try {
         const { productId, size } = req.body;
@@ -439,34 +351,6 @@ const removeFromCart = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error occurred' });
     }
 };
-
-// function calculateCartSummary(cart) {
-//     let totalPrice = 0;
-//     let totalDiscount = 0;
-
-//     for (const item of cart.items) {
-//         if (item.product) {
-//             const itemPrice = item.product.salePrice * item.quantity;
-//             totalPrice += itemPrice;
-
-//             const discountAmount = item.product.offerPrice && item.product.offerPrice < item.product.salePrice
-//                 ? (item.product.salePrice - item.product.offerPrice) * item.quantity
-//                 : 0;
-
-//             totalDiscount += discountAmount;
-//         }
-//     }
-
-//     const deliveryCharges = 0; // Assume free delivery for now
-//     const totalAmount = totalPrice - totalDiscount + deliveryCharges;
-
-//     return {
-//         totalPrice,
-//         totalDiscount,
-//         deliveryCharges,
-//         totalAmount
-//     };
-// }
 
 
 const removeDeletedItem = async (req, res) => {

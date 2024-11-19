@@ -79,7 +79,7 @@ router.post('/cancel-order', userAuth,orderController.cancelOrder);
 router.post('/myorder/return-order',userAuth, orderController.returnOrder);
 router.get('/my-order/order-details/:orderId/:itemId',userAuth, orderController.getOrderDetails);
 router.post("/my-order/order-details/re-checkout/:orderId", userAuth,orderController.confirmRePayment);
-router.get("/my-order/:orderId/download-invoice/:itemId", userAuth, orderController.downloadInvoice);
+router.get('/my-order/:orderId/download-invoice/:itemId', userAuth,orderController.downloadInvoice);
 
 //wishlist
 router.post('/wishlist',userAuth,wishlistController.addToWishlist);

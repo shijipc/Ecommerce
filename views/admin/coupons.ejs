@@ -167,7 +167,9 @@
         });
         
         const result = await response.json();
-        Swal.fire(result.message, "", result.success ? "success" : "error").then(() => window.location.reload());
+        Swal.fire(result.message, "", result.success ? "success" : "error").then(() => {
+        if (result.success) window.location.reload();
+        });
       } catch (error) {
         Swal.fire("Error", "An unexpected error occurred", "error");
       }
@@ -181,16 +183,15 @@
         const coupon = await response.json();
         const form = document.getElementById("coupon-form");
 
-        // Format date fields to YYYY-MM-DD for input[type="date"]
         const formatDate = (date) => new Date(date).toISOString().split("T")[0];
 
         // Populate the form with coupon data
      Object.keys(coupon).forEach(key => {
       if (form[key]) {
         if (key === "startDate" || key === "endDate") {
-          form[key].value = formatDate(coupon[key]);  // Set formatted date
+          form[key].value = formatDate(coupon[key]);  
         } else {
-          form[key].value = coupon[key];  // Set other fields
+          form[key].value = coupon[key];  
         }
       }
     })
