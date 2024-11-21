@@ -134,20 +134,18 @@ const loadOfferPage=async(req,res)=>{
 const loadShopping = async (req, res) => {
     try {
         let userId;
-        const limit = 8; // Number of products per page
-        const page = parseInt(req.query.page) || 1; // Get the page number from query params, default is 1
+        const limit = 8; 
+        const page = parseInt(req.query.page) || 1; 
         const skip = (page - 1) * limit;
 
         const products = await Product.find({})
             .populate("category")
             .skip(skip)
             .limit(limit);
-
-        // Fetch total count of products for pagination logic
+      
         const totalProducts = await Product.countDocuments({});
         const totalPages = Math.ceil(totalProducts / limit);
 
-        // Fetch latest 4 products (new arrivals)
        const newArrivals = await Product.find({}).sort({ _id: -1 }).limit(4);
 
         if (req.user) {
@@ -359,7 +357,6 @@ const logout=async (req,res)=>{
     }
 }
 
-//productdetails
 const productDetails = async (req, res) => {
     try {
         const productId = req.params.id;
