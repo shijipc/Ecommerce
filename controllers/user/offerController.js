@@ -16,7 +16,6 @@ const loadOfferPage = async (req, res) => {
 
         const { sort, search, minPrice, maxPrice, category, page = 1 } = req.query;
 
-        // Base query: Only `isBlocked` is applied initially.
         let query = { isBlocked: false };
 
         const options = {
@@ -25,7 +24,6 @@ const loadOfferPage = async (req, res) => {
             sort: {}
         };
 
-        // Filter by category if provided
         if (category) {
             query.category = category;
         } else {
@@ -47,7 +45,6 @@ const loadOfferPage = async (req, res) => {
             if (maxPrice) query.salePrice.$lte = parseFloat(maxPrice);
         }
 
-        // Sorting logic
         switch (sort) {
             case 'popularity':
                 options.sort.sales = -1; break;
@@ -99,7 +96,8 @@ const loadOfferPage = async (req, res) => {
         return res.render("offer", renderData);
     } catch (error) {
         console.error("Offer page error:", error);
-        res.status(500).send("Server error: " + error.message);
+        res.redirect("/pageNotfound");
+        // res.status(500).send("Server error: " + error.message);
     }
 };
 

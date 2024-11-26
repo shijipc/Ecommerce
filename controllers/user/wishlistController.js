@@ -5,7 +5,7 @@ const Wishlist=require("../../models/wishlistSchema");
 
 
 
-const getWishlist = async (req, res, next) => {
+const getWishlist = async (req, res) => {
     try {
         // Get userId from the session, check if it exists
         const userId = req.session.user && req.session.user._id ? req.session.user._id : req.session.user;
@@ -24,13 +24,13 @@ const getWishlist = async (req, res, next) => {
 
         res.render('wishlist', { wishlist });
     } catch (error) {
-        console.error('Error fetching wishlist:', error.message);
-        next(error);
+        console.error('Error fetching wishlist:', error);
+        res.redirect("/pageNotfound");
     }
   };
   
 
-const addToWishlist = async (req, res, next) => {
+const addToWishlist = async (req, res) => {
     try {
         const userId = req.session.user;
         const { productId } = req.body;
@@ -60,11 +60,11 @@ const addToWishlist = async (req, res, next) => {
         return res.status(200).json({ message: 'Product added to wishlist successfully' });
     } catch (error) {
         console.error('Error adding product to wishlist:', error);
-        next(error);
+        res.redirect("/pageNotfound");
     }
   };
   
-const deleteWishlistItem = async (req, res, next) => {
+const deleteWishlistItem = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.user?._id;
         const wishlistId = req.params.wishlistId; 
@@ -94,7 +94,7 @@ const deleteWishlistItem = async (req, res, next) => {
         return res.status(200).json({ success: true, message: 'Item removed successfully' });
     } catch (error) {
         console.error('Error deleting wishlist item:', error);
-        next(error);
+        res.redirect("/pageNotfound");
     }
 };
 

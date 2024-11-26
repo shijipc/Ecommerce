@@ -53,8 +53,8 @@
     background-color: #ff4c4c;
 }
 
-/* New Arrivals Styling */
-.product-cart-wrap {
+ /* New Arrivals Styling  */
+ .product-cart-wrap {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -106,9 +106,9 @@
 
 .product-content-wrap .btn:hover {
     background-color: #ff4c4c;
-}
+} 
 
-/* Wishlist button styling */
+
 .wishlist-btn {
     position: absolute;
     top: 10px;
@@ -130,8 +130,8 @@
 
 .wishlist-btn:active {
     transform: translateY(1px);
-}
-
+} 
+ 
 
 </style>
 
@@ -391,7 +391,6 @@
         }
     } catch (error) {
         console.error('Error adding to wishlist:', error);
-        // SweetAlert error notification for unexpected errors
         Swal.fire({
             title: 'Error',
             text: 'An error occurred. Please try again later.',
@@ -402,4 +401,86 @@
 }
 	     </script>
 
- 
+   <style>
+
+.product-entry {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    padding: 20px;
+    text-align: center; 
+}
+
+.product-entry:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.prod-img img {
+    width: 100%; 
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.wishlist-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: white;
+    padding: 8px;
+    border-radius: 50%;
+    color: red;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.wishlist-btn:hover {
+    background: red;
+    color: white;
+}
+
+.desc {
+    margin-top: 15px;
+}
+
+.price {
+    color: #333;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.money {
+    display: block;
+    margin: 5px 0;
+}
+
+/* For medium screens (Tablets, 768px) */
+@media (max-width: 992px) {
+    .col-lg-3 {
+        flex: 1 1 100%; 
+    }
+}
+
+/* For small screens (Mobile, 768px and below) */
+@media (max-width: 768px) {
+    .col-sm-6 {
+        flex: 1 1 100%;
+    }
+    .product-entry {
+        padding: 15px; 
+    }
+}
+
+@media (max-width: 576px) {
+    .col-12 {
+        flex: 1 1 100%;
+    }
+    .product-entry {
+        padding: 10px; 
+    }
+}
+</style>

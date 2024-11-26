@@ -236,50 +236,7 @@
                             </form>
                         </div>
                     </div>
-                    <!-- <div class="col-sm-12">
-                        <div class="side border mb-1">
-                            <h3>Brand</h3>
-                            <ul>
-                                <li><a href="#">Nike</a></li>
-                                <li><a href="#">Adidas</a></li>
-                                <li><a href="#">Merrel</a></li>
-                                <li><a href="#">Gucci</a></li>
-                                <li><a href="#">Skechers</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="side border mb-1">
-                            <h3>Size</h3>
-                            <div class="block-26 mb-2">
-                                <ul>
-                                    <li><a href="#">4</a></li>
-                                    <li><a href="#">5</a></li>
-                                    <li><a href="#">6</a></li>
-                                    <li><a href="#">7</a></li>
-                                    <li><a href="#">8</a></li>
-                                    <li><a href="#">9</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div> -->
                    
-                    <!-- <div class="col-sm-12">
-                        <div class="side border mb-1">
-                            <h3>Colors</h3>
-                            <ul>
-                                <li><a href="#">Black</a></li>
-                                <li><a href="#">White</a></li>
-                                <li><a href="#">Blue</a></li>
-                                <li><a href="#">Red</a></li>
-                                <li><a href="#">Green</a></li>
-                                <li><a href="#">Grey</a></li>
-                                <li><a href="#">Orange</a></li>
-                                <li><a href="#">Cream</a></li>
-                                <li><a href="#">Brown</a></li>
-                            </ul>
-                        </div>
-                    </div> -->
                 </div>
             </div>
             <div class="col-lg-9 col-xl-9">
@@ -458,5 +415,111 @@
     }
 }
 </script>
+<style>
+ 
+.product-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    padding: 16px;
+}
+
+/* Individual product item */
+.product-item {
+    flex: 1 1 calc(100% - 32px);
+    max-width: 300px; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Hover effect for the product item */
+.product-item:hover {
+    transform: translateY(-5px);
+}
+
+/* Product image styling */
+.prod-img img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Description styling */
+.desc {
+    padding: 16px;
+    text-align: center;
+}
+
+.product-name a {
+    text-decoration: none;
+    color: #333;
+    font-size: 1rem;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.product-name a:hover {
+    color: #007bff;
+}
+
+/* Price styling */
+.price {
+    font-size: 1.2rem;
+    margin-top: 8px;
+    color: #000;
+}
+
+.money {
+    display: block;
+    margin: 5px 0;
+}
+
+.money span {
+    font-size: 1rem;
+}
+
+/* Wishlist button styling */
+.wishlist-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    color: red;
+    padding: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.wishlist-btn:hover {
+    background: red;
+    color: white;
+}
+
+/* Responsive adjustments */
+@media (min-width: 600px) {
+    .product-item {
+        flex: 1 1 calc(50% - 32px); /* Two columns on medium screens */
+    }
+}
+
+@media (min-width: 900px) {
+    .product-item {
+        flex: 1 1 calc(33.333% - 32px); /* Three columns on larger screens */
+    }
+}
+
+</style>
 
  

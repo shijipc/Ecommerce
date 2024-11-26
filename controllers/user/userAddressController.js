@@ -8,7 +8,7 @@ const Product = require("../../models/productSchema");
 const Address = require("../../models/addressSchema");
 
 
-const userAddress = async (req, res, next) => {
+const userAddress = async (req, res) => {
     try {
         const userId = req.session.user || req.user;
 
@@ -46,19 +46,19 @@ const userAddress = async (req, res, next) => {
             totalAddress: totalAddress
         });
     } catch (error) {
-        next(error);
+        res.redirect("/pageNotfound");
     }
 };
 
 
-const addNewAddress = async (req,res,next) => {
+const addNewAddress = async (req,res) => {
 
     try {
         
         res.render("add-address");
 
     } catch (error) {
-        next(error)
+        res.redirect("/pageNotfound");
     }
 }
 
@@ -73,13 +73,11 @@ const updateNewAddress = async (req, res, next) => {
     }
 
     try {
-        // Check if the address already exists
         const existingAddress = await Address.findOne({ house, pin });
         if (existingAddress) {
             return res.status(400).json({ error: "Address already exists" });
         }
 
-        // Create new address
         const newAddress = new Address({
             house,
             place,
@@ -92,14 +90,13 @@ const updateNewAddress = async (req, res, next) => {
 
         await newAddress.save();
 
-        // Find user and associate address
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        user.address.push(newAddress._id);  // Add new address ID to user's address array
-        await user.save();  // Save updated user
+        user.address.push(newAddress._id);  
+        await user.save();  
 
         return res.json({ message: "Address added successfully" });
     } catch (error) {
@@ -108,7 +105,7 @@ const updateNewAddress = async (req, res, next) => {
 };
 
 
-const getEditAddress = async (req, res, next) => {
+const getEditAddress = async (req, res) => {
     try {
         const id = req.params.id; 
 
@@ -119,13 +116,13 @@ const getEditAddress = async (req, res, next) => {
         }
         res.render("edit-address", { address: address });
     } catch (error) {
-        next(error);
+        res.redirect("/pageNotfound");
     }
 };
 
 
 
-const editAddress = async (req, res, next) => {
+const editAddress = async (req, res) => {
     try {
         const id = req.params.id;
         const { house, place, city, state, pin, landMark, contactNo } = req.body;
@@ -158,7 +155,7 @@ const editAddress = async (req, res, next) => {
             return res.status(404).json({ error: "Address not found" });
         }
     } catch (error) {
-        next(error);
+        res.redirect("/pageNotfound");
     }
 };
 

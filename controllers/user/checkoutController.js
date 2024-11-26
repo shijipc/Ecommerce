@@ -32,13 +32,6 @@ const getCheckout = async (req, res) => {
         const userWithAddresses = await User.findById(userId).populate('address');
         const userAddresses = userWithAddresses.address;
 
-        // Calculate totals
-        // let subtotal = 0;
-        // cartData.items.forEach(item => {
-        //     item.totalPrice = item.product.salePrice * item.quantity;
-            
-        //     subtotal += item.product.salePrice * item.quantity;
-        // });
         let totalPrice = 0;
         let totalDiscount = 0;
         const shippingCost = 0; 
@@ -97,7 +90,8 @@ const getCheckout = async (req, res) => {
         });
     } catch (error) {
         console.error("Error during checkout page load:", error);
-        res.status(500).send('An error occurred while loading the checkout page');
+        res.redirect("/pageNotfound");
+        // res.status(500).send('An error occurred while loading the checkout page');
     }
 };
 
@@ -175,12 +169,12 @@ const applyCoupon = async (req, res) => {
       } catch (error) {
         console.error('Error in addCoupon:', error);
         res.status(500).json({ message: "An error occurred while applying the coupon" });
-        next(error);
+        
       }
     };
 
 
-    const removeCoupon = async (req, res, next) => {
+    const removeCoupon = async (req, res) => {
         try {
           const userId = req.session.user || req.user;
                    
@@ -217,7 +211,7 @@ const applyCoupon = async (req, res) => {
         } catch (error) {
           console.error('Error in removeCoupon:', error);
           res.status(500).json({ message: "An error occurred while removing the coupon" });
-          next(error);
+          
         }
       };
     
@@ -291,8 +285,8 @@ const placeOrder = async (req, res) => {
                 size: item.size,
                 regularPrice: item.product.regularPrice,
                 salePrice: itemPrice,
-                saledPrice: itemPrice * item.quantity, // Temporarily storing before discount
-                itemCouponDiscount: 0 // Placeholder for individual item discount
+                saledPrice: itemPrice * item.quantity, 
+                itemCouponDiscount: 0 
             });
         }
 
@@ -307,10 +301,10 @@ const placeOrder = async (req, res) => {
 
                 // Distribute discount proportionally among items
                 preparedItems.forEach(item => {
-                    const itemShare = (item.saledPrice / totalPrice); // Proportional share
+                    const itemShare = (item.saledPrice / totalPrice); 
                     const itemDiscount = discountAmount * itemShare;
-                    item.saledPrice -= itemDiscount; // Adjust final saled price
-                    item.itemCouponDiscount = itemDiscount; // Store discount for the item
+                    item.saledPrice -= itemDiscount; 
+                    item.itemCouponDiscount = itemDiscount; 
                 });
             }
         }
@@ -320,7 +314,6 @@ const placeOrder = async (req, res) => {
             return res.status(400).json({ error: "Cash on Delivery is not available for orders above Rs 1000" });
         }
 
-        // Create order
         const orderData = {
             user: userId,
             address: {
@@ -415,7 +408,7 @@ const placeOrder = async (req, res) => {
     }
 };
 
-//  verify payment
+
 const verifyPayment = async (req, res) => {
     try {
         const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;

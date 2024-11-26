@@ -14,7 +14,7 @@ const razorpay = require('../../config/razorPay');
 
 
 
-const wallet = async (req, res, next) => {
+const wallet = async (req, res) => {
     const userId = res.locals.user._id;
     const page = parseInt(req.query.page) || 1; 
     const limit = 5; 
@@ -51,7 +51,7 @@ const wallet = async (req, res, next) => {
         });
   
     } catch (error) {
-        next(error);
+      res.redirect("/pageNotfound");
     }
   };
 

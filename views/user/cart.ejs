@@ -222,16 +222,14 @@
                         <span>Total Amount</span>
                         <span>₹ <%= Math.round(totalAmount) %></span>
                     </div>
-                    <a href="#" id="checkout-link"  class="place-order-btn"><button style="background-color: #27d030;">BUY NOW</button></a>
+                    <a href="#" id="checkout-link"  class="place-order-btn">
+                        <button id="buy-now-btn" style="background-color: #27d030;">BUY NOW</button></a>
                 </div>
             </div>
         </div>
 
-    <%- include("../../views/partials/user/footer") %>
-
-  
-   <script>    
-
+    <%- include("../../views/partials/user/footer") %> 
+<script>    
 
 function updateQuantity(productId, change, itemSize) {
     fetch('/cart/update-quantity', {
@@ -320,53 +318,6 @@ function updateCartSummary(summary) {
     }
 }
 
-// function updateQuantity(productId, change, itemSize) {
-//     fetch('/cart/update-quantity', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-//         },
-//         body: JSON.stringify({ 
-//             productId, 
-//             change,
-//             size: itemSize
-//         })
-//     })
-//     .then(response => {
-//         if (!response.ok) {
-//             return response.json().then(data => {
-//                 throw new Error(data.error || 'Failed to update quantity');
-//             });
-//         }
-//         return response.json();
-//     })
-//     .then(data => {
-//         // Find the specific form with both productId and size
-//         const form = document.getElementById(`updateQuantityForm-${productId}-${itemSize}`);
-//         if (form) {
-//             const quantityDisplay = form.querySelector('.quantity-display');
-//             if (quantityDisplay) {
-//                 quantityDisplay.textContent = data.updatedQuantity;
-//             }
-//         }
-
-//         if (typeof updateCartSummary === 'function') {
-//             updateCartSummary(data.cartSummary);
-//         }
-
-//         Swal.fire('Updated', 'Quantity updated successfully', 'success');
-//     })
-//     .then(() => {
-//         window.location.reload();
-//     })
-//     .catch(error => {
-//         console.error('Error:', error.message);
-//         Swal.fire('Error', error.message, 'error');
-//     });
-// }
-          
-
 
     async function removeFromCart(productId,size) {
     Swal.fire({
@@ -393,16 +344,16 @@ function updateCartSummary(summary) {
                 const data = await response.json(); 
 
                 if (response.ok && data.success) {
-                    // Show success message
+                    
                     Swal.fire(
                         'Removed!',
                         'The item has been removed from your cart.',
                         'success'
                     ).then(() => {
-                        location.reload(); // Reload the page to reflect cart changes
+                        location.reload(); 
                     });
                 } else {
-                    // Show error message if failed
+                   
                     Swal.fire('Failed', data.message || 'Failed to remove the item', 'error');
                 }
             } catch (error) {
@@ -476,13 +427,90 @@ function removeDeletedItem(itemId) {
     });
 }
 
-
 document.querySelector('#checkout-link').addEventListener('click', function(e) {
     e.preventDefault();
     const cartId = '<%= cart._id %>';
     window.location.href = `/cart/checkout/${cartId}`;
 });
-
-
 </script>
+
+<style>
+   
+@media (max-width: 768px) {
+    .cart-container {
+        flex-direction: column; 
+        align-items: center;
+    }
+
+    .cart-items, .cart-summary {
+        width: 100%; 
+        max-width: 400px; 
+        box-sizing: border-box;
+        margin: 0 auto; 
+    }
+    .cart-item {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+        width: 100%; 
+        max-width: 400px;
+    }
+
+    .item-image {
+        order: 1; 
+        width: 100%; 
+        height: auto;
+        max-height: 200px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .item-details {
+        order: 2; 
+        margin-bottom: 10px; 
+        text-align: center;
+    }
+
+    .product-size {
+        order: 3; 
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .product-price {
+        order: 4; 
+        margin-bottom: 10px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .quantity-control {
+        order: 5; 
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: center; 
+        align-items: center
+    }
+    .quantity-display {
+        margin: 0 10px; 
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .cart-actions {
+        order: 6; 
+        margin-top: 10px;
+        text-align: center;
+    }
+    .cart-summary {
+        order: 7; 
+        margin-top: 20px; 
+        padding: 15px; 
+        text-align: center;
+        border-top: 1px solid #ddd;
+    }
+}
+</style>
     

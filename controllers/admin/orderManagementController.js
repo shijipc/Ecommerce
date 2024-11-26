@@ -7,32 +7,50 @@ const Order=require("../../models/orderSchema");
 
 
 const getAdminOrders = async (req, res) => {
-    try {
-      const searchQuery = req.query.search || '';
-  
-      const orders = await Order.find({
-        $or: [
-          { orderId: { $regex: searchQuery, $options: "i" } },
-          { 'user.name': { $regex: searchQuery, $options: "i" } }
-        ]
-      })
+  try {
+    const searchQuery = req.query.search || '';
+    const page = parseInt(req.query.page) || 1; // Current page number, default is 1
+    const limit = 5; // Number of orders per page
+    const skip = (page - 1) * limit; // Number of orders to skip
+
+    const totalOrders = await Order.countDocuments({
+      $or: [
+        { orderId: { $regex: searchQuery, $options: "i" } },
+        { 'user.name': { $regex: searchQuery, $options: "i" } }
+      ]
+    });
+
+    const orders = await Order.find({
+      $or: [
+        { orderId: { $regex: searchQuery, $options: "i" } },
+        { 'user.name': { $regex: searchQuery, $options: "i" } }
+      ]
+    })
       .populate('user', 'name email')
       .populate({
         path: 'items.product',
         select: 'productName'
       })
       .sort({ date: -1 })
+      .skip(skip)
+      .limit(limit)
       .exec();
-  
-      res.render("orders", {
-        orders,
-        search: searchQuery
-      });
-    } catch (error) {
-      console.error("Error fetching orders: ", error);
-      res.status(500).send("Server error");
-    }
-  };
+
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    res.render("orders", {
+      orders,
+      search: searchQuery,
+      currentPage: page,
+      totalPages
+    });
+  } catch (error) {
+    console.error("Error fetching orders: ", error);
+    return res.redirect("/pageerror");
+    // res.status(500).send("Server error");
+  }
+};
+
   
  // Fetch order details
  const getOrderDetails = async (req, res) => {
@@ -97,7 +115,8 @@ const getReturnOrders = async (req, res) => {
     res.render("return-orders", { orders });
   } catch (error) {
     console.error("Error fetching requested orders:", error);
-    res.status(500).send("Internal Server Error");
+    return res.redirect("/pageerror");
+    // res.status(500).send("Internal Server Error");
   }
 };
 

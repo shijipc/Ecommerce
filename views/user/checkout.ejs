@@ -1,19 +1,129 @@
 <%- include("../../views/partials/user/header") %>
+
 <style>
-     
     body {
-        font-family: Arial, sans-serif;
-        line-height: 1.6;
-        color: #333;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    /* max-width: 1200px; */
+    margin: 0 auto;
+    /* padding: 20px; */
+}
+.container1 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+}
+.addresses {
+    width: 100%;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.cart-summary {
+    width: 100%;
+    background-color: #f1f1f1;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.cart-summary h2,
+.payment-methods h2 {
+    margin-bottom: 20px;
+}
+
+.cart-summary .item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.cart-summary .total {
+    font-weight: bold;
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+.payment-methods {
+    margin-top: 20px;
+}
+
+.payment-methods label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.place-order-btn {
+    width: 100%;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.place-order-btn:hover {
+    background-color: #218838;
+}
+.coupon-section {
+    margin-top: 20px;
+}
+
+.coupon-section input {
+    width: 100%;
+    padding: 8px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.coupon-section button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.coupon-section button:hover {
+    background-color: #218838;
+}
+
+.coupon-msg {
+    color: red;
+    margin-top: 10px;
+}
+@media (min-width: 768px) {
+    .addresses {
+        width: 60%;
     }
+
+    .cart-summary {
+        width: 35%;
+    }
+}
+
+@media (max-width: 768px) {
     .container {
-        display: flex;
-        justify-content: space-between;
-        gap: 20px;
+        flex-direction: column;
     }
+
+    .addresses,
+    .cart-summary {
+        width: 100%;
+    }
+
+    .coupon-section {
+        margin-top: 10px;
+    }   
+}
+    
     .addresses {
         width: 60%;
         background-color: #f8f9fa;
@@ -140,14 +250,10 @@
         margin-top: 10px;
     }
 </style>
-
 </head>
 <body>
-<div>
-    
-</div>
 <div class="breadcrumbs">
-    <div class="container">
+    <div class="container1">
         <div class="row">
             <div class="col">
                 <p class="bread"><span><a href="/">Home</a></span> / <span><a href="/cart">Shopping Cart</a></span>/<span>Checkout</span></p>
@@ -156,7 +262,7 @@
     </div>
 </div>
 
-<div class="container">
+<div class="container1">
     <div class="addresses">
         <button class="new-address-btn" onclick="toggleNewAddressForm()">NEW ADDRESS</button>
 
@@ -206,33 +312,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-
-<!-- 
-            <div class="coupon-section">
-                <div class="form-group">
-                    <label for="availableCoupons">Select a Coupon:</label>
-                    <select id="availableCoupons" name="coupon" class="form-control">
-                        <option value="">Select a coupon</option>
-                        <% if (coupons && coupons.length > 0) { %>
-                            <% coupons.forEach(coupon => { %>
-                                <option value="<%= coupon._id %>">
-                                    <%= coupon.code %> - <%= coupon.description %> (Valid until: <%= new Date(coupon.endDate).toLocaleDateString() %>)
-                                </option>
-                            <% }) %>
-                        <% } else { %>
-                            <option value="">No coupons available</option>
-                        <% } %>
-                    </select>
-                </div>
-
-                <button type="button" id="applyCouponBtn" class="btn btn-primary">Apply Coupon</button>
-                <button type="button" id="removeCouponBtn" class="btn btn-danger" style="display:none;">Remove Coupon</button>
-                <div class="coupon-msg" id="couponMessage"></div>
-            </div>
-             -->
-            
+            </div>       
         </div>
 
         <div class="new-address-form" id="newAddressForm" style="display:none;">
@@ -352,17 +432,34 @@ async function saveAddress(event) {
         });
 
         if (response.ok) {
-            alert('Address saved successfully!');
-            location.reload();
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Address saved successfully!',
+                confirmButtonText: 'OK',
+            }).then(() => {
+                location.reload();
+            });
         } else {
             const errorMessage = await response.text();
-            alert(`Error: ${errorMessage}`);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: `Error: ${errorMessage}`,
+                confirmButtonText: 'OK',
+            });
         }
     } catch (error) {
         console.error('Error saving address:', error);
-        alert('An error occurred while saving the address.');
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while saving the address.',
+            confirmButtonText: 'OK',
+        });
     }
 }
+
 
 // Handle radio button click to select the address
 function selectAddress(addressId) {
@@ -616,5 +713,5 @@ function cancelAddressForm() {
             });
         });
     </script>
+<%-include("../../views/partials/user/footer")%>
 
-<%- include("../../views/partials/user/footer") %>

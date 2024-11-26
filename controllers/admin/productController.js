@@ -240,14 +240,6 @@ const unblockProduct=async(req,res)=>{
         console.error("Error in unblockProduct:", error);
         res.redirect("/pageerror");
     }
-//     try {
-//         let id=req.query.id;
-//         await Product.updateOne({_id:id},{$set:{isBlocked:false}});
-//         res.redirect("/admin/Products");
-//     } catch (error) {
-//         res.redirect("/pageerror");
-//     }
-//
  }
 
 

@@ -19,7 +19,8 @@ const getCoupons = async (req, res) => {
     });
   } catch (error) {
     console.error("Error retrieving coupons:", error);
-    res.status(500).send("An error occurred while retrieving the coupons.");
+    return res.redirect("/pageerror");
+    // res.status(500).send("An error occurred while retrieving the coupons.");
   }
 };
 
@@ -188,7 +189,8 @@ const editCoupon = async (req, res) => {
     res.status(200).json(coupon);  
   } catch (error) {
     console.error("Error fetching coupon:", error);
-    res.status(500).send("Internal Server Error.");
+    return res.redirect("/pageerror");
+    // res.status(500).send("Internal Server Error.");
   }
 };
 

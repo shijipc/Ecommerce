@@ -144,7 +144,34 @@
     text-align: center;
     padding: 20px;
   }
-</style>
+  /* pagination */
+  .pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination a {
+  text-decoration: none;
+  margin: 0 8px; /* Add space between page numbers */
+  padding: 8px 12px;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.pagination a:hover {
+  background-color: #f0f0f0;
+}
+
+.pagination a.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+  </style>
 
 
 <div class="content">
@@ -155,7 +182,7 @@
     <input type="text" name="search" placeholder="Search by Order ID or Customer Name" value="<%= search %>">
     <button type="submit">Search</button>
   </form>
- 
+
   <div class="table-container">
     <table>
       <thead>
@@ -200,6 +227,18 @@
   <% if (!orders.length) { %>
     <p class="no-orders">No orders found.</p>
   <% } %>
-</div>
-</div>
 
+  <!-- Pagination -->
+  <% if (totalPages > 1) { %>
+    <div class="pagination">
+      <% if (currentPage > 1) { %>
+        <a href="?page=<%= currentPage - 1 %>&search=<%= search %>" class="prev">Previous</a>
+      <% } %>
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="?page=<%= i %>&search=<%= search %>" class="page-link <%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+      <% } %>
+      <% if (currentPage < totalPages) { %>
+        <a href="?page=<%= currentPage + 1 %>&search=<%= search %>" class="next">Next</a>
+      <% } %>
+    </div>
+  <% } %>

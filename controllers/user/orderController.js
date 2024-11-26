@@ -17,9 +17,9 @@ const orderConfirmation=async (req, res) => {
        return res.render('orderConfirmation');
     } catch (error) {
         console.error(error);
+        res.redirect("/pageNotfound");
       }
 }
-
 
 const getMyOrders = async (req, res) => {
     try {
@@ -30,31 +30,40 @@ const getMyOrders = async (req, res) => {
             return res.status(401).json({ error: "User not logged in" });
         }
 
-        const { orderId } = req.query;
+        const { orderId, page = 1 } = req.query; 
+        const limit = 4; 
+        const skip = (page - 1) * limit;
 
-     
         const orderQuery = { user: userId };
         if (orderId) {
             orderQuery.orderId = orderId;
         }
 
+        const totalOrders = await Order.countDocuments(orderQuery);
+
         const userOrders = await Order.find(orderQuery)
             .populate('items.product')
-            .sort({ date: -1 });
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(limit);
 
         if (!userOrders || userOrders.length === 0) {
-            return res.status(404).json({ message: "No orders found" });
+            return res.render('my-orders', { orders: [], currentPage: page, totalPages: 0 });
         }
 
-        res.render('my-orders', { orders: userOrders });
+        const totalPages = Math.ceil(totalOrders / limit);
+
+        res.render('my-orders', {
+            orders: userOrders,
+            currentPage: parseInt(page),
+            totalPages,
+        });
     } catch (error) {
         console.error("Error fetching orders:", error);
         res.status(500).json({ error: "An error occurred while fetching orders" });
     }
 };
 
-
-// Cancel Order
 
 const cancelOrder = async (req, res) => {
     const { itemOrderId, reason } = req.body;
@@ -146,10 +155,6 @@ const cancelOrder = async (req, res) => {
             { new: true }
         );
 
-        // const allStatuses = order.items.map(item => item.itemOrderStatus);
-        // order.status = [...new Set(allStatuses)].length === 1 ? allStatuses[0] : "Processing";
-
-          // Check if all items in the order are cancelled
         if (order.items.every(item => item.itemOrderStatus === 'Cancelled')) {
             order.status = 'Cancelled';
         }
@@ -163,10 +168,7 @@ const cancelOrder = async (req, res) => {
     }
 };
 
-
-//returnorder
-
-const returnOrder = async (req, res, next) => {
+const returnOrder = async (req, res) => {
     try {
         const { itemOrderId, returnReason } = req.body;
 
@@ -213,13 +215,18 @@ const returnOrder = async (req, res, next) => {
 
     } catch (error) {
         console.error("Error in returnOrder:", error); 
-        next(error);
+        res.redirect("/pageNotfound");
     }
 };
 
 const getOrderDetails = async (req, res) => {
     try {
         const orderId = req.params.orderId;
+        const productId = req.params.itemId;
+        
+
+        console.log('Order ID:', orderId);
+        console.log('Product ID:', productId);
 
         const order = await Order.findOne({ orderId })
             .populate('user', 'name')  
@@ -228,6 +235,13 @@ const getOrderDetails = async (req, res) => {
 
         if (!order) {
             return res.status(404).send('Order not found');
+        }
+
+        const selectedItem = order.items.find(item => item.product._id.toString() === productId);
+         console.log("selectedItem......",selectedItem)
+        
+         if (!selectedItem) {
+          return res.status(404).send('Product not found in order');
         }
 
         const coupon = order.coupon;
@@ -242,12 +256,10 @@ const getOrderDetails = async (req, res) => {
                     discountValue = (item.salePrice * coupon.discountValue) / 100; 
                 }
 
-                // Apply the discount to the sale price, ensuring it doesn't go below 0
                 const discountedPrice = Math.max(0, item.salePrice - discountValue);
                 item.discount = discountValue * item.quantity; 
                 totalCouponDiscount += discountValue * item.quantity; 
 
-                // Update item's sale price with the discounted price
                 item.saledPrice = discountedPrice;
             });
         }
@@ -257,11 +269,13 @@ const getOrderDetails = async (req, res) => {
 
         res.render('order-details', { 
             order, 
-            couponCode: coupon ? coupon.code : null 
+            couponCode: coupon ? coupon.code : null,
+            selectedItem
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server Error');
+        res.redirect("/pageNotfound");
+        // res.status(500).send('Server Error');
     }
 };
 
@@ -280,7 +294,6 @@ const confirmRePayment = async (req, res, next) => {
         return res.status(404).json({ success: false, message: 'Order not found' });
       }
   
-      // Find the pending payment entry
       const pendingPayment = order.payment.find(payment => payment.status === 'pending');
       if (!pendingPayment) {
         return res.status(400).json({ success: false, message: 'No pending payment for this order' });
@@ -334,14 +347,13 @@ const confirmRePayment = async (req, res, next) => {
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
-        const coupon = order.coupon; // Check if coupon exists
+        const coupon = order.coupon; 
         console.log(`coupon._id: ${coupon ? coupon._id : "No coupon applied"}`);
 
         let totalCouponDiscount = 0; 
 
         if (coupon) {
             order.items.forEach((item) => {
-                // Only process the item if its order status is "Delivered"
                 if (item.itemOrderStatus === "Delivered") {
                     let discountValue = 0;
 
@@ -363,7 +375,6 @@ const confirmRePayment = async (req, res, next) => {
             });
         }
         
-        // Fetch user data
         const userData = await User.findById(userId);
         if (!userData) {
             return res.status(404).json({ success: false, message: "User not found" });
@@ -427,9 +438,8 @@ const confirmRePayment = async (req, res, next) => {
         let totalItemPrice = 0;
         let totalItemDiscount = 0;
 
-        // Generate Line Items
         order.items.forEach((item) => {
-            // Only process items with status "Delivered"
+            
             if (item.itemOrderStatus === "Delivered") {
                 const { regularPrice, salePrice, saledPrice, quantity, product } = item;
 
@@ -439,7 +449,7 @@ const confirmRePayment = async (req, res, next) => {
                 totalItemPrice += itemTotalPrice;
                 totalItemDiscount += itemDiscount;
 
-                const discountText = `Rs. ${itemDiscount.toFixed(2)}\nRs. ${item.discount ? item.discount.toFixed(2) : 0}`;
+                const discountText = `Rs. ${itemDiscount.toFixed(2)}\n cpn Rs. ${item.discount ? item.discount.toFixed(2) : 0}`;
 
                 const row = [
                     product.productName,
@@ -450,7 +460,7 @@ const confirmRePayment = async (req, res, next) => {
                     `Rs. ${itemTotalPrice.toFixed(2)}`,
                 ];
 
-                tableStartX = 50; // Reset X for the row
+                tableStartX = 50; 
                 row.forEach((text, i) => {
                     doc.rect(tableStartX, startY, columnWidths[i], rowHeight).stroke();
                     doc.fontSize(10).text(text, tableStartX + 5, startY + 5, { width: columnWidths[i], align: "center", ellipsis: true });
@@ -468,9 +478,9 @@ const confirmRePayment = async (req, res, next) => {
         const labelWidth = 150;
 
         // Coupon Discount
-        doc.fontSize(12)
-            .text(`Coupon Disc: Rs.${coupon ? order.discount : 0}`, rightAlignX, startY + 15, { width: labelWidth, align: "right" })
-            .moveDown(0.5);
+        // doc.fontSize(12)
+        //     .text(`Coupon Disc: Rs.${coupon ? order.discount : 0}`, rightAlignX, startY + 15, { width: labelWidth, align: "right" })
+        //     .moveDown(0.5);
 
         // Total Price
         doc.text(`Grand Total: Rs.${(totalItemPrice).toFixed(2)}`, rightAlignX, startY + 30, { width: labelWidth, align: "right" });

@@ -259,7 +259,8 @@ const loadDashboard = async (req, res) => {
             });
         } catch (error) {
             console.log("Unexpected error during loading dashboard", error);
-            res.status(500).send("An error occurred while loading the dashboard");
+            return res.redirect("/pageerror"); 
+            // res.status(500).send("An error occurred while loading the dashboard");
         }
     } else {
         res.redirect('/admin/login');

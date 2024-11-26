@@ -5,6 +5,7 @@ const env=require("dotenv").config();
 const session=require("express-session");
 const passport=require("./config/passport");
 const db=require("./config/db");
+const nocache = require("nocache");
 const userRouter=require("./routes/userRouter");
 const adminRouter=require("./routes/adminRouter");
 db();
@@ -24,6 +25,7 @@ app.use(session({
     }
 }))
 
+app.use(nocache());
 app.use(passport.initialize());
 app.use(passport.session());
 

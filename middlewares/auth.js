@@ -9,15 +9,17 @@ const userAuth = async (req, res, next) => {
             const user = await User.findById(userId);
 
             if (user && !user.isBlocked) {
-                req.user = user; // Add this line
+                req.user = user; 
                 res.locals.user = user;
                 next();
             } else {
                 console.log("User is blocked or not found:", userId);
-                res.status(401).json({ success: false, message: 'Please login' });
+                res.redirect("/login");
+                // res.status(401).json({ success: false, message: 'Please login' });
             }
         } else {
-            res.status(401).json({ success: false, message: 'Please login' });
+            res.redirect("/login");
+            // res.status(401).json({ success: false, message: 'Please login' });
         }
     } catch (error) {
         console.error("Error in user auth middleware:", error);

@@ -1,4 +1,4 @@
-<%- include("../../views/partials/user/header") %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,8 +12,10 @@
             margin: 20px;
         }
         .container {
-            max-width: 800px;
-            margin: auto;
+          width: 80%;
+          margin: auto;
+          padding: 10px;
+          border-radius: 10px;
         }
         h2 {
             text-align: center;
@@ -37,12 +39,86 @@
             height: 200px;
             margin-right: 10px;
         }
-        
-    </style>
-    </style>
-     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+        .card {
+           display: flex;
+           align-items: flex-start;
+           margin-bottom: 20px;
+           padding: 15px;
+           border: 1px solid #ddd;
+           border-radius: 10px;
+           background-color: #fff;
+       }
+
+      .card-content {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+      }
+
+    .product-image {
+      width: 100px;
+      height: 100px;
+      border-radius: 5px;
+      object-fit: cover;
+    }
+
+   .product-details {
+    flex-grow: 2;
+    padding: 0 15px;
+   }
+
+.product-status {
+  flex-grow: 1; 
+  display: flex; 
+  align-items: center;
+  justify-content:  flex-start;
+  margin-left: -20px;
+}
+
+.total-price {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #333;
+}
+.coin-icon {
+  color: gold;
+  margin-right: 5px;
+}
+
+.status-radio {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+/* Status-specific colors */
+.status-radio.delivered {
+  background-color: #28a745; 
+}
+
+.status-radio.pending {
+  background-color: #ffc107;
+}
+
+.status-radio.cancelled {
+  background-color: #dc3545; 
+}
+
+.status-radio.returned {
+  background-color: #6c757d; 
+}
+
+</style>
+   
 </head>
 <body>
+  <div class="header">
+    <%- include("../../views/partials/user/header") %>
+  </div>
     <div class="container">
         <h2>Order Details</h2>
 
@@ -50,43 +126,33 @@
           <div>
               <h3>Delivery Address</h3>
               <p><%= order.user.name %></p>
-              <p><%= order.address.house %>, <%= order.address.place %>, <%= order.address.city %>, <%= order.address.state %> - <%= order.address.pin %></p>
+              <p><%= order.address.house %>, <br>
+                <%= order.address.place %>, <br>
+                <%= order.address.city %>, <%= order.address.state %> - <%= order.address.pin %></p>
               <p>Phone: <%= order.address.contactNo %></p>
-              <p class="text-muted">This item is tracked by <%= order.items.itemOrderId %></p>
+              <!-- <p class="text-muted">This item is tracked by <%= order.itemOrderId %></p> -->
           </div>
       
           <div>
               <h3>Your Rewards in this Item</h3>
-              <% order.items.forEach(item => { %>
+            
                   <p class="text-success" style="font-size: large;">
                       <span class="coin-icon">&#9733;</span> 
-                      ₹<%= ((item.regularPrice - item.salePrice) * item.quantity).toFixed(2) %> Saved 
+                      ₹<%= ((selectedItem.regularPrice - selectedItem.salePrice) * selectedItem.quantity).toFixed(2) %> Saved 
                   </p>
-              <% }); %>
+             
 
               
       
               <div style="font-size: large;">
-                  <!-- <% order.items.forEach(item => { %>
-                      <% if (item.salePrice !== item.saledPrice) { %>
-                          <p style="font-size: large;" class="text-success">
-                              Other discount: ₹<%= (order.actualPrice - order.offerPrice).toFixed(2) %>
-                          </p>
-                      <% } %>    
-                  <% }); %> -->
-                  
+                 
                   <% if (couponCode) { %>
                     <p style="font-size: large;" class="text-info">
                         Applied Coupon Code: <%= couponCode %>
                     </p>
                 <% } %>
 
-                  <!-- Display applied coupon discount if available -->
-                  <% if (order.discount && order.discount > 0) { %>
-                      <p style="font-size: large;" class="text-info">
-                          Coupon discount: ₹<%= order.discount.toFixed(2) %>
-                      </p>
-                  <% } %>
+                 
               </div>
       
               <h6>Payment Method</h6> 
@@ -113,78 +179,129 @@
       
           <div class="col-md-4">
               <h5>Order actions</h5>
-              <% order.items.forEach(item => { %>
-                  <% if (item.itemOrderStatus === 'Delivered') { %>
+             
+                  <% if (selectedItem.itemOrderStatus === 'Delivered') { %>
                       <button class="btn btn-warning mb-2 download-invoice-btn" 
                               data-order-id="<%= order.orderId %>" 
-                              data-item-id="<%= item.itemOrderId %>">
+                              data-item-id="<%=selectedItem.itemOrderId %>">
                           <i class="fas fa-download"></i> Download Invoice
                       </button>
                   <% } %>
-              <% }); %>
+             
           </div>
       </div>
       
         
+       <!-- Order Items Section -->
 
-
-        <% order.items.forEach(item => { %>
-            <div class="section product">
-                <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.name %>">
-                <div>
-                   
-                    <h4><%= item.product.productName %></h4>
-                    <h5> <%= item.product.brand ? item.product.brand : 'No Brand' %> </h5>
-                    <p>Color: <%= item.product.color || 'N/A' %> | SKU: <%= item.product.skuNumber || 'N/A' %></p>
-                    <p>Size: <%= item.size %></p>
-                    <!-- <p style="font-size: large;">Actual price: ₹<%= order.items.regularPrice %> <span class="coin-icon">&#9733;</span><%= order.items.quantity %></p>
-                    <p style="font-size: large;" class="text-success">Offer price: ₹<%= order.items.salePrice %> -->
-                    <!-- <p>Offer Price: ₹<%= item.salePrice %></p> -->
-                    <p style="font-size: medium;">Actual price: ₹<%= item.regularPrice* item.quantity%></p>
-                    <p style="font-size: medium;" class="text-success">Saled price: ₹<%= item.saledPrice%></p>
-
-                    <% if (item.regularPrice > item.salePrice) { %>
-                    <p style="font-size: medium;" class="text-danger">
-                      Discount: ₹<%= (item.regularPrice - item.salePrice) * item.quantity %>
-                    </p>
-                    <% } %>
-
-                    
-                    <% if (item.discount && item.discount > 0) { %>
-                      <p style="font-size: medium;" class="text-info">Coupon discount: ₹<%= item.discount.toFixed(2) %></p>
-                  <% } %>
-                    <!-- <div style="font-size: large;">
-                      <% order.items.forEach(item => { %>
-                        <% if (item.salePrice !== item.saledPrice) { %>
-                          <p style="font-size: large;" class="text-success">
-                            Other discount: ₹<%= (item.saledPrice - order.offerPrice).toFixed(2) %>
-                          </p>
-                        <% } %>    
-                      <% }); %> 
-                       -->
-                      <!-- Display coupon discount only once -->
-                      <!-- <% if (order.discount && order.discount > 0) { %>
-                        <p style="font-size: large;" class="text-info">
-                          Coupon discount: ₹<%= order.discount.toFixed(2) %>
-                        </p>
-                      <% } else { %>
-                        <p style="font-size: large;" class="text-warning">
-                          Discount information unavailable
-                        </p>
-                      <% } %>
-                    </div>
-                     -->
-                  
-                    <p style="font-size: medium;">Quantity: <%= item.quantity %></p>
-                    <p style="font-size: medium;">Status: <%= item.itemOrderStatus %></p>
-                </div>
-               <% }) %>
+       <div class="section product card">
+        <div class="card-content">
+            <!-- Check if product image exists -->
+            <% if (selectedItem.product.productImage && selectedItem.product.productImage.length > 0) { %>
+                <img src="/uploads/product-images/<%= selectedItem.product.productImage[0] %>" 
+                alt="<%= selectedItem.product.productName %>" 
+                class="img-fluid"
+                onerror="this.src='/images/placeholder-shoe.jpeg'; this.onerror=null;">
+            <% } else { %>
+                <img src="/path/to/placeholder-shoe.jpeg" 
+                     alt="Product image not available" 
+                     class="img-fluid">
+            <% } %>
+            
+            <div class="product-details">
+                <h5>
+                    <%= selectedItem.product.brand ? selectedItem.product.brand.name : 'No Brand' %> 
+                    <%= selectedItem.product.productName %>
+                </h5>
+                <p>Color: <%= selectedItem.product.color || 'N/A' %> | SKU: <%= selectedItem.product.skuNumber || 'N/A' %></p>
+                <p>Size: <%= selectedItem.size || 'N/A' %></p>
+                <p style="font-size: medium;">Quantity: <%= selectedItem.quantity %></p>
+                <p style="font-size: medium;">Actual price: ₹<%= selectedItem.regularPrice * selectedItem.quantity %></p>
+                <p style="font-size: medium;" class="text-success">Sale price: ₹<%= selectedItem.salePrice %></p>               
+                <% if (selectedItem.regularPrice > selectedItem.salePrice) { %>
+                    <p style="font-size: medium;" class="text-danger">Discount: ₹<%= (selectedItem.regularPrice - selectedItem.salePrice) * selectedItem.quantity %></p>
+                <% } %>
+                <% if (selectedItem.discount && selectedItem.discount > 0) { %>
+                    <p style="font-size: medium;" class="text-info">Coupon discount: ₹<%= selectedItem.discount.toFixed(2) %></p>
+                <% } %>
+                <p class="text-success">Total: ₹<%= (selectedItem.saledPrice).toFixed(2) %></p>
+               
             </div>
-        <div class="section">
-            <h3>Total Price</h3>
-            <p>₹<%= order.totalPrice %></p>
-        </div>  
+            <div class="product-status">
+                <p class="status-label" style="text-align: center; font-size: medium;">
+                    Status: 
+                    <span class="status-radio <%= selectedItem.itemOrderStatus.toLowerCase() %>"></span> 
+                    <%= selectedItem.itemOrderStatus %>
+                </p>
+            </div>
+        </div>
     </div>
+
+    <% if (order.items.length > 1) { %>
+     
+      <h5>Other items in this order</h5>
+
+  <% order.items.forEach(function(item) { %>
+    <% if (item.product._id.toString() !== selectedItem.product._id.toString()) { %>
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-2">
+              <% if (item.product.productImage && item.product.productImage.length > 0) { %>
+                <img src="/uploads/product-images/<%= item.product.productImage[0] %>" 
+                     alt="<%= item.product.productName %>" 
+                     class="img-fluid"
+                     onerror="this.src='/images/placeholder-shoe.jpeg'; this.onerror=null;">
+              <% } else { %>
+                <img src="/path/to/placeholder-shoe.jpeg" 
+                     alt="Product image not available" 
+                     class="img-fluid">
+              <% } %>
+            </div>
+            
+
+ <div class="product-details">
+  <h5>
+      <%= item.product.brand ? item.product.brand.name : 'No Brand' %> 
+      <%= item.product.productName %>
+  </h5>
+  <p>Color: <%= item.product.color || 'N/A' %> | SKU: <%= item.product.skuNumber || 'N/A' %></p>
+  <p>Size: <%= item.size || 'N/A' %></p>
+  <p style="font-size: medium;">Quantity: <%= item.quantity %></p>
+  <p style="font-size: medium;">Actual price: ₹<%= item.regularPrice * item.quantity %></p>
+  <p style="font-size: medium;" class="text-success">Sale price: ₹<%= item.salePrice %></p>
+  <% if (item.regularPrice > item.salePrice) { %>
+      <p style="font-size: medium;" class="text-danger">Discount: ₹<%= (item.regularPrice - item.salePrice) * item.quantity %></p>
+  <% } %>
+  <% if (item.discount && item.discount > 0) { %>
+      <p style="font-size: medium;" class="text-info">Coupon discount: ₹<%= item.discount.toFixed(2) %></p>
+  <% } %>
+  <p class="text-success">Total: ₹<%= (item.saledPrice).toFixed(2) %></p>
+ 
+</div>
+<div class="product-status">
+  <p class="status-label" style="text-align: center; font-size: medium;">
+      Status: 
+      <span class="status-radio <%= item.itemOrderStatus.toLowerCase() %>"></span> 
+      <%= item.itemOrderStatus %>
+  </p>
+</div>
+
+    <% } %>
+  <% }); %>
+  <% } %>
+</div>
+</div>
+</div>
+
+<!-- 
+  Total Price Section
+  <div class="section total-price">
+    <h3>Total Price</h3>
+    <p>₹<%= order.totalPrice %></p>
+  </div>
+ </div> -->
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -321,3 +438,99 @@ function verifyPayment(response, orderId) {
 </body>
 </html>
 <%- include("../../views/partials/user/footer") %>  
+<style>
+ 
+.container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+
+.section {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.product-details, .product-status {
+  text-align: left; 
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+    text-align: left; 
+  }
+
+  .section {
+    flex-direction: column; 
+    align-items: flex-start; 
+    margin-bottom: 20px;
+  }
+
+  .card-content {
+  display: flex; 
+  flex-direction: column; 
+  align-items: center;
+  text-align: center; 
+  padding: 10px; 
+}
+
+.product-image {
+  display: block;
+  margin: 0 auto; 
+  max-width: 100%; 
+  height: auto; 
+  object-fit: contain; 
+}
+
+.product-details {
+  width: 100%; 
+  max-width: 600px; 
+  padding: 10px; 
+}
+
+@media (max-width: 768px) {
+  .card-content {
+    padding: 5px; 
+  }
+
+  .product-image {
+    max-width: 90%; 
+  }
+
+  .product-details {
+    max-width: 90%; 
+  }
+}
+
+  .product-status {
+    width: 100%;
+    text-align: left; 
+  }
+
+  .btn {
+    width: 100%; 
+    margin: 10px 0;
+  }
+
+  .total-price {
+    text-align: left;
+  }
+
+  .info {
+    flex-direction: column; 
+    align-items: flex-start; 
+    gap: 20px;
+  }
+}
+
+</style>

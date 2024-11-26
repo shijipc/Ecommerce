@@ -54,7 +54,6 @@ const addToCart = async (req, res) => {
                 message: 'This product with the same size is already in the cart.' 
             });
         } else {
-            // Add new item to the cart
             cart.items.push({
                 product: productId,
                 size: selectedSize,
@@ -66,7 +65,6 @@ const addToCart = async (req, res) => {
         // Reduce the quantity from the product size
         sizeDetails.quantity -= quantity;
 
-        // If the quantity reaches 0, mark the status as "out of stock"
         if (sizeDetails.quantity === 0) {
             product.status = "out of stock";
         }
@@ -86,7 +84,7 @@ const addToCart = async (req, res) => {
 };
 
 
-const cart = async (req, res, next) => {
+const cart = async (req, res) => {
     try {
         const userId = req.session.user || req.user;
         
@@ -191,7 +189,7 @@ const cart = async (req, res, next) => {
         });
     } catch (error) {
         console.error("Error in fetching cart:", error);
-        next(error);
+        res.redirect("/pageNotfound");
     }
 };
 

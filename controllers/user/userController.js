@@ -22,8 +22,6 @@ const pageNotFound=async(req,res)=>{
 const loadHomepage = async (req, res) => {
   try {
     let userId;
-
-    // Get listed categories
     const categories = await Category.find({ isListed: true });
 
     // Get all products within listed categories and with quantity > 0
@@ -32,8 +30,6 @@ const loadHomepage = async (req, res) => {
       category: { $in: categories.map((category) => category._id) },
       quantity: { $gt: 0 },
     });
-
-   
 
     if (req.user) {
       userId = req.user;
@@ -45,45 +41,42 @@ const loadHomepage = async (req, res) => {
       const userData = await User.findById(userId);
       return res.render("home", {
         user: userData,
-        products,
-    //     products: productsWithActiveOffers.length > 0 ? productsWithActiveOffers : products,
+        products
       });
     } else {
       return res.render("home", {
-        products,
-        // products: productsWithActiveOffers.length > 0 ? productsWithActiveOffers : products,
+        products    
       });
     }
   } catch (error) {
     console.log("Home page not found", error);
-    res.status(500).send("Server error");
+    res.redirect("/pageNotfound");
   }
 };
 
 
 const loadSignup=async(req,res)=>{
     try{
-        return res.render('signup');
+        if(!req.session.user || req.user){
+            return res.render('signup');
+        }
+        
     }catch(error){
          console.log('Home page not loading:',error);
-         res.status(500).send('Server Error');
+         res.redirect("/pageNotfound");   
     }
 }
 
-//offer
+
 const loadOfferPage=async(req,res)=>{
         try {
             let userId;  
             // const products = await Product.find({})
-            //     .populate("category");
-             
-            // Fetch latest 4 products (new arrivals)
-            const newArrivals = await Product.find({}).sort({ _id: -1 }).limit(4);
+            //     .populate("category");        
+    const newArrivals = await Product.find({}).sort({ _id: -1 }).limit(4);
 
-             // Get active offers
     const activeOffers = await Offer.find({ status: 'active' });
 
-    // Collect product and category IDs from active offers
     const productIdsFromOffers = activeOffers
       .filter((offer) => offer.product)
       .map((offer) => offer.product.toString());
@@ -92,7 +85,6 @@ const loadOfferPage=async(req,res)=>{
       .filter((offer) => offer.category)
       .map((offer) => offer.category.toString());
 
-    // Filter products by matching either product IDs or category IDs from active offers
     const productsWithActiveOffers = Product.filter(
       (product) =>
         productIdsFromOffers.includes(product._id.toString()) ||
@@ -125,12 +117,10 @@ const loadOfferPage=async(req,res)=>{
     
         } catch (error) {
             console.log("Shopping page not found", error);
-            res.status(500).send("Server error");
+            res.redirect("/pageNotfound");
         }
     }
     
-
-//shop
 const loadShopping = async (req, res) => {
     try {
         let userId;
@@ -176,7 +166,7 @@ const loadShopping = async (req, res) => {
 
     } catch (error) {
         console.log("Shopping page not found", error);
-        res.status(500).send("Server error");
+        res.redirect("/pageNotfound");       
     }
 };
 
@@ -252,7 +242,7 @@ const securePassword=async(password)=>{
          const passwordHash=await bcrypt.hash(password,10)
          return passwordHash;
     } catch (error) {
-        
+        res.redirect("/pageNotfound");
     }
 }
 
@@ -353,7 +343,7 @@ const logout=async (req,res)=>{
         })
     } catch (error) {
         console.log("Logout error",error);
-        res.redirect("pageNotFound")
+        res.redirect("pageNotFound");
     }
 }
 
@@ -364,12 +354,6 @@ const productDetails = async (req, res) => {
 
         console.log('Session:', req.session);
         console.log('User ID:', userId);
-
-        // if (!userId) {
-        //     return res.status(401).json({ success: false, message: 'Please login' });
-        //     // or you could redirect
-        //     // return res.redirect('/login');
-        // }
 
         const product = await Product.findById(productId);
         const relatedProducts = await Product.find({});
@@ -384,7 +368,8 @@ const productDetails = async (req, res) => {
         res.render('product-details', { product, products: limitedRelatedProducts });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Internal Server Error');
+        res.redirect("/pageNotfound");
+        // res.status(500).send('Internal Server Error');
     }
 };
 
@@ -408,12 +393,12 @@ const productDetails = async (req, res) => {
         res.locals.user = userData;
         return res.render("about", { user: userData });
       } else {
-        // console.log("No user logged in, rendering about");
         return res.render("about");
       }
     } catch (error) {
       console.log("About page not found", error);
-      res.status(500).send("Server error");
+      res.redirect("/pageNotfound");
+    //   res.status(500).send("Server error");
     }
   };
 
@@ -426,7 +411,6 @@ const productDetails = async (req, res) => {
         console.log("User ID from req.user:", userId);
       } else if (req.session.user) {
         userId = req.session.user;
-        //console.log("User ID from session:", userId);
       }
   
       if (userId) {
@@ -437,12 +421,12 @@ const productDetails = async (req, res) => {
         res.locals.user = userData;
         return res.render("contact", { user: userData });
       } else {
-        // console.log("No user logged in, rendering about");
         return res.render("contact");
       }
     } catch (error) {
       console.log("About page not found", error);
-      res.status(500).send("Server error");
+      res.redirect("/pageNotfound");
+    //   res.status(500).send("Server error");
     }
   };
   
@@ -455,8 +439,7 @@ const productDetails = async (req, res) => {
             userId = req.user._id; 
          
         } else if (req.session.user) {
-            userId = req.session.user; 
-           
+            userId = req.session.user;        
         }
 
         if (userId) {
@@ -482,7 +465,8 @@ const productDetails = async (req, res) => {
        
     } catch (error) {
         console.error("Error fetching user details:", error);
-        return res.status(500).send("Server error");
+        res.redirect("/pageNotfound");
+        // return res.status(500).send("Server error");
     }
 };
 
