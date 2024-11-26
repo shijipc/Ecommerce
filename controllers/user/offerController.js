@@ -20,7 +20,7 @@ const loadOfferPage = async (req, res) => {
 
         const options = {
             page: Number(page),
-            limit: 12,
+            limit: 9,
             sort: {}
         };
 
